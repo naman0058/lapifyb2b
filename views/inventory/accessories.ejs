@@ -1,0 +1,285 @@
+<%- include ('.././header.ejs') %>
+
+
+<style>
+    #dataTable {
+ border-collapse: collapse;
+ width: 100%;
+}
+#empoloyees-tblwrapper th, #dataTable td {
+ border: 1px solid #ddd;
+ padding: 8px;
+}
+#empoloyees-tblwrapper th {
+ background-color: #f2f2f2;
+}
+#searchInput {
+ margin-bottom: 10px;
+ padding: 8px;
+}
+</style>
+
+    <!--**********************************
+            Content body start
+        ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+
+        <div class="container-fluid">
+
+     <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0" style="margin: 20px;">
+                            <h4 class="heading mb-0"> Filters</h4>
+                            <form action="/admin/dashboard/inventory/manage/<%=pagename%>?type=accessories" method="get">   
+                                
+                                
+                                
+                                <div class="row" style="margin-top: 20px;">
+                                
+                                <div class="col-lg-6">
+                                    <label  class="form-label">SKU No. </label>
+                                    <input type="text" name="skuno" class="form-control" placeholder="Enter SKU No." value="<%=value.skuno%>">
+
+                                </div>
+                                <div class="col-lg-6">
+                                    <label  class="form-label">Enter Model No. </label>
+                                    <input type="text" name="modelno" class="form-control" placeholder="Enter Model No" value="<%=value.modelno%>">
+
+                                </div>
+
+                            </div>
+
+
+<% if(pagename == 'apple'){ %>
+
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-lg-12">
+            <label  class="form-label">Select Year </label>
+            <select id="subcategory" class="form-control" name="subcategory"></select>
+
+
+        </div>
+
+        
+        
+
+        
+    </div>
+    <% } else { %>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-lg-6">
+                <label  class="form-label">Select Subcategory </label>
+                <select id="subcategory" class="form-control" name="subcategory"></select>
+
+
+            </div>
+
+            
+            <div class="col-lg-6">
+                <label  class="form-label">Select Brand </label>
+                <select id="brand" class="form-control" name="brand"></select>
+
+            </div>
+
+            
+        </div>
+
+        <% } %>
+
+                       
+
+
+
+                            
+                            <input type="hidden" id="pagename" value="<%=pagename%>"> 
+                            <input type="hidden" id="subcategoryvalue" value="<%=value.subcategory%>">
+                            <input type="hidden" id="brandvalue" value="<%=value.brand%>">
+                            <input type="hidden" id="filtertable" value="<%=filterfolder%>">
+
+
+
+                            <div class="text-end" style="margin-top: 20px;">
+                                <button type="button" class="btn btn-warning" id="reset">Reset</button>
+
+                                <button type="submit" class="btn btn-primary save">Filter</button>
+                            </div>
+                        </form>
+
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive active-projects style-1">
+                                <div class="tbl-caption">
+                                    <h4 class="heading mb-0"> Orders Report</h4>
+                                    <div>
+
+
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                    </div>
+                                </div>
+                                <table id="empoloyees-tblwrapper" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S. No.</th>
+                                            <th>SKU No.</th>
+                                            <th>Model No.</th>
+                                            <th>Subcategory</th>
+                                            <th>Brand</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for(i=0;i<result.length;i++){ %>
+
+                                            <tr>
+                                                <td>
+                                                    <%=i+1%></td>
+
+                                                    <td><span>
+                                                        <%=result[i].skuno%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].modelno%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].subcategoryname%>
+                                                    </span></td>
+
+
+                                                    <td><span>
+                                                        <%=result[i].brandname%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        Rs. <%=result[i].price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })%>
+                                                    </span></td>
+
+                                                 
+                                                    <td><span>
+                                                        <%=result[i].quantity%>
+                                                    </span></td>
+
+
+                                             
+
+
+                                            </tr>
+
+
+                                            <% } %>
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+
+        <%- include ('.././footer.ejs') %>
+
+
+
+    <script>
+document.getElementById("searchInput").addEventListener("keyup", function() {
+ const searchText = this.value.toLowerCase();
+ const table = document.getElementById("empoloyees-tblwrapper");
+ const rows = table.getElementsByTagName("tr");
+ // Start iterating from the second row (skipping the table header)
+ for (let i = 1; i < rows.length; i++) {
+   const row = rows[i];
+   const cells = row.getElementsByTagName("td");
+   let found = false;
+   for (let cell of cells) {
+     const text = cell.textContent.toLowerCase();
+     if (text.includes(searchText)) {
+       found = true;
+       break;
+     }
+   }
+   if (found) {
+     row.style.display = "";
+   } else {
+     row.style.display = "none";
+   }
+ }
+});
+
+let filterdata = '';
+let pagename = $('#pagename').val()
+let subcategoryvalue = $('#subcategoryvalue').val()
+let brandvalue = $('#brandvalue').val()
+let filtertable = $('#filtertable').val()
+
+if(pagename == 'laptop' || pagename == 'mobile'){
+  filterdata = 'condition'
+}
+else if(pagename == 'apple'){
+    filterdata = 'year'
+}
+else{
+    filterdata = pagename
+}
+
+// alert(filtertable)
+
+// alert(filtertable)
+
+$.getJSON(`/admin/dashboard/${filtertable}/getData/${filterdata}`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('subcategory', data, 'Choose Sub-Category', subcategoryvalue)
+  
+})
+
+
+$.getJSON(`/admin/dashboard/${filtertable}/getData/brand`, data => {
+    brand = data
+    console.log('leagues',data)
+    fillDropDown('brand', data, 'Choose Brand', brandvalue)
+  
+})
+
+
+function fillDropDown(id, data, label, selectedid = 0) {
+    $(`#${id}`).empty()
+    $(`#${id}`).append($('<option>').val("").text(label))
+
+    $.each(data, (i, item) => {
+        if (item.id == selectedid) {
+            $(`#${id}`).append($('<option selected>').val(item.id).text(item.name))
+        } else {
+            $(`#${id}`).append($('<option>').val(item.id).text(item.name))
+        }
+    })
+}
+
+
+   
+
+    </script>

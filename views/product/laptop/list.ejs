@@ -1,0 +1,285 @@
+<%- include ('../.././header.ejs') %>
+
+
+<style>
+    #dataTable {
+ border-collapse: collapse;
+ width: 100%;
+}
+#empoloyees-tblwrapper th, #dataTable td {
+ border: 1px solid #ddd;
+ padding: 8px;
+}
+#empoloyees-tblwrapper th {
+ background-color: #f2f2f2;
+}
+#searchInput {
+ margin-bottom: 10px;
+ padding: 8px;
+}
+</style>
+
+    <!--**********************************
+            Content body start
+        ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive active-projects style-1">
+                                <div class="tbl-caption">
+                                    <h4 class="heading mb-0"><%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %> Product List</h4>
+                                    <div>
+
+
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                    </div>
+                                </div>
+                                <table id="empoloyees-tblwrapper" class="table">
+                                    <thead>
+                                        <tr>
+                                          <th>S. No.</th>
+                                          <th>SKU No.</th>
+                                          <th>Model No.</th>
+                                          <th>Category</th>
+                                          <th>Subcategory</th>
+                                          <th>Brand</th>
+                                          <th>Price</th>
+                                          <th>Quantity</th>
+                                          <th>QC Report</th>
+                                          <th>View Image</th>
+                                          <th>Update Image</th>
+                                          <th>Update Data</th>
+                                          <th>Delete Data</th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for(i=0;i<result.length;i++){ %>
+
+                                            <tr>
+                                              <td>
+                                                <%=i+1%></td>
+                                            <td><span>
+                                                    <%=result[i].skuno%>
+                                                </span></td>
+
+                                                <td><span>
+                                                    <%=result[i].modelno%>
+                                                </span></td>
+
+                                                <td><span>
+                                                    <%= result[i].category.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+
+
+                                                </span></td>
+
+                                                <td><span>
+                                                    <%=result[i].subcategoryname%>
+                                                </span></td>
+
+                                                <td><span>
+                                                    <%=result[i].brandname%>
+                                                </span></td>
+
+
+                                                <td><span>
+                                                    Rs. <%=result[i].price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })%>
+                                                </span></td>
+
+
+                                                <td><span>
+                                                    <%=result[i].quantity%>
+                                                </span></td>
+
+                                             
+                                                <td>
+                                                    <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#qcModal" 
+                                                    data-bs-images="Type:<%=result[i].type_name.toUpperCase()%>,Generation:<%=result[i].generation_name.toUpperCase()%>,
+                                                    Processor:<%=result[i].processor_name.toUpperCase()%>,Ram:<%=result[i].ram_name.toUpperCase()%>,
+                                                    Power On:<%=result[i].power_on.toUpperCase()%>,Keyboard:<%=result[i].keyboard.toUpperCase()%>,
+                                                    Battery:<%=result[i].battery.toUpperCase()%>,
+                                                    Speaker:<%=result[i].speaker.toUpperCase()%>,Webcam:<%=result[i].webcam.toUpperCase()%>,
+                                                    Wifi:<%=result[i].wifi.toUpperCase()%>,Touchpad:<%=result[i].touchpad.toUpperCase()%>,
+                                                    Adapter:<%=result[i].adapter.toUpperCase()%>,Storage:<%=result[i].storage.toUpperCase()%>,
+                                                    Body:<%=result[i].body.toUpperCase()%>
+                                                    ">View Report</a>
+                                                </td>
+
+                                                    <td>
+                                                    <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#imageModal" data-bs-images="<%=result[i].productimages%>">View Images</a>
+                                                </td>
+                                                   
+                                                    
+                                                
+                                                <td>
+                                                  <a href="/admin/dashboard/product/<%=response%>/images?id=<%=result[i].id%>"><span
+                                                          class="badge badge-primary light border-0">Update Image</span></a>
+                                              </td>
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/product/<%=response%>/update?id=<%=result[i].id%>"><span
+                                                            class="badge badge-primary light border-0">Update Data</span></a>
+                                                </td>
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/product/<%=response%>/delete?id=<%=result[i].id%>"><span
+                                                            class="badge badge-danger light border-0">Delete Data</span></a>
+                                                </td>
+                                                
+
+
+
+                                            </tr>
+
+
+                                            <% } %>
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xs">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="imageModalLabel">Image Gallery</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <!-- Images will be dynamically added here -->
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">Next</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="modal fade" id="qcModal" tabindex="-1" aria-labelledby="qcModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xs">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qcModalLabel">QC Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="reporttable">
+                        <table class="table">
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+      </div>
+
+    <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+
+        <%- include ('../.././footer.ejs') %>
+
+
+
+    <script>
+document.getElementById("searchInput").addEventListener("keyup", function() {
+ const searchText = this.value.toLowerCase();
+ const table = document.getElementById("empoloyees-tblwrapper");
+ const rows = table.getElementsByTagName("tr");
+ // Start iterating from the second row (skipping the table header)
+ for (let i = 1; i < rows.length; i++) {
+   const row = rows[i];
+   const cells = row.getElementsByTagName("td");
+   let found = false;
+   for (let cell of cells) {
+     const text = cell.textContent.toLowerCase();
+     if (text.includes(searchText)) {
+       found = true;
+       break;
+     }
+   }
+   if (found) {
+     row.style.display = "";
+   } else {
+     row.style.display = "none";
+   }
+ }
+});
+    </script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.4.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  var imageModal = document.getElementById('imageModal');
+  imageModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var images = button.getAttribute('data-bs-images').split(',');
+    var carouselInner = document.querySelector('#imageCarousel .carousel-inner');
+    carouselInner.innerHTML = '';
+    images.forEach(function (image, index) {
+      var activeClass = index === 0 ? 'active' : '';
+      var carouselItem = document.createElement('div');
+      carouselItem.className = 'carousel-item ' + activeClass;
+      carouselItem.innerHTML = '<img src="' + image + '" class="d-block w-100"  alt="Image">';
+      carouselInner.appendChild(carouselItem);
+    });
+  });
+
+
+
+
+
+  var qcModal = document.getElementById('qcModal');
+    qcModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var data = button.getAttribute('data-bs-images').split(',');
+        console.log('qc', data);
+        var tableBody = document.querySelector('#reporttable table tbody');
+        tableBody.innerHTML = '';
+        data.forEach(function (item) {
+            var pair = item.split(':');
+            var key = pair[0];
+            var value = pair[1];
+            var row = tableBody.insertRow();
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.textContent = key;
+            cell2.textContent = value;
+        });
+    });
+</script>

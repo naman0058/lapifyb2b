@@ -1,0 +1,734 @@
+<%- include ('../.././header.ejs') %>
+
+<link rel="stylesheet" href="https://elusiveicons.com/assets/elusive-icons/css/elusive-icons.css">
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+			
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Update <%= response.replace(/_/g, ' ').toUpperCase() %>	  <span style="color: green;margin-left: 20px;"><%=msg%></span>
+								</div>
+
+                                <input type="hidden" id="pagename" value="<%=response%>">
+                                <input type="hidden" id="subcategoryvalue" value="<%=result[0].subcategory%>">
+                                <input type="hidden" id="processorvalue" value="<%=result[0].processor%>">
+
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+									
+                                    <form action="/admin/dashboard/product/<%=response%>/update"  method="post">
+
+
+
+
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+  
+
+    <div class="col-xl-4">
+        <label  class="form-label">Select  <%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+
+            Year </label>
+           <select id="subcategory" class="form-control" name="subcategory" required></select>
+    </div>
+
+    <div class="col-xl-4">
+      <label  class="form-label">Select Processor </label>
+      <select id="processor" class="form-control" name="processor" required></select>
+      </div>
+
+  
+      
+      <div class="col-xl-4">
+          <label  class="form-label">Enter HDD / SSD
+          </label>
+           <input type="text" id="storage" class="form-control" name="storage" value="<%=result[0].storage%>" placeholder="Enter Storage">
+          </div>
+
+      
+
+ 
+</div>
+
+
+
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+    <input type="hidden" id="id" name="id" value="<%=result[0].id%>">
+
+      <div class="col-xl-6">
+        <label  class="form-label">SKU No. </label>
+        <input type="text" class="form-control" id="skuno" name="skuno" value="<%=result[0].skuno%>" placeholder="Enter SKU No." >
+
+        </div>
+
+
+        <div class="col-xl-6">
+            <label  class="form-label">Model No. </label>
+            <input type="text" class="form-control" id="modelno" name="modelno" value="<%=result[0].modelno%>" placeholder="Enter Model No." >
+
+            </div>
+
+   
+</div>
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+    <div class="col-xl-6">
+      <label  class="form-label">Price </label>
+       <input type="number" class="form-control" id="price" name="price" value="<%=result[0].price%>" placeholder="Enter Price">
+      </div>
+
+
+      <div class="col-xl-6">
+          <label  class="form-label">Quantity</label>
+          <input type="text" class="form-control" id="quantity" name="quantity" value="<%=result[0].quantity%>" placeholder="Enter Quantity" >
+
+          </div>
+
+ 
+</div>
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+  
+    <div class="col-xl-12" style="margin-top: 20px;">
+        <label  class="form-label">Description</label>
+              <textarea id='description' name="description"><%=result[0].description%></textarea>
+   </div>
+  
+   
+  
+  </div>
+
+
+
+
+
+
+<div class="row" style="margin-top: 20px;">
+    <div class="xl-12">
+        <h3>QC Reports</h3>
+
+    </div>
+</div>
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+  
+
+
+    <div class="col-xl-4">
+      <label  class="form-label">Power On </label>
+     <select id="power_on" name="power_on" class="form-control">
+        <option value="yes" <%=result[0].power_on === 'yes' ? 'selected' : '' %>>Yes</option>
+    <option value="no" <%=result[0].power_on === 'no' ? 'selected' : '' %>>No</option>
+   
+
+     </select>
+      </div>
+
+    <div class="col-xl-4">
+      <label  class="form-label">Keyboard </label>
+
+        <select id="keyboard" name="keyboard" class="form-control">
+            <option value="working" <%=result[0].keyboard === 'working' ? 'selected' : '' %>>Working</option>
+            <option value="not_working" <%=result[0].keyboard === 'not_working' ? 'selected' : '' %>>Not Working</option>
+           
+    
+         </select>
+      </div>
+
+      
+      <div class="col-xl-4">
+          <label  class="form-label">Battery
+          </label>
+          <select id="battery" name="battery" class="form-control">
+            <option value="ok" <%=result[0].battery === 'ok' ? 'selected' : '' %>>Ok</option>
+            <option value="faulty" <%=result[0].battery === 'faulty' ? 'selected' : '' %>>Faulty</option>
+           
+    
+         </select>
+          </div>
+
+      
+
+ 
+</div>
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+
+    <div class="col-xl-4">
+        <label class="form-label">Speaker </label>
+        <select id="speaker" name="speaker" class="form-control">
+            <option value="working" <%=result[0].speaker === 'working' ? 'selected' : '' %>>Working</option>
+            <option value="not_working" <%=result[0].speaker === 'not_working' ? 'selected' : '' %>>Not Working</option>
+           
+
+        </select>
+    </div>
+
+    <div class="col-xl-4">
+        <label class="form-label">Webcam </label>
+
+        <select id="webcam" name="webcam" class="form-control">
+            <option value="working" <%=result[0].webcam === 'working' ? 'selected' : '' %>>Working</option>
+            <option value="not_working" <%=result[0].webcam === 'not_working' ? 'selected' : '' %>>Not Working</option>
+           
+
+        </select>
+    </div>
+
+
+    <div class="col-xl-4">
+        <label class="form-label">Wifi
+        </label>
+        <select id="wifi" name="wifi" class="form-control">
+            <option value="working" <%=result[0].wifi === 'working' ? 'selected' : '' %>>Working</option>
+            <option value="not_working" <%=result[0].wifi === 'not_working' ? 'selected' : '' %>>Not Working</option>
+           
+        </select>
+    </div>
+
+
+
+
+</div>
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+
+    <div class="col-xl-4">
+        <label class="form-label">Touchpad </label>
+        <select id="touchpad" name="touchpad" class="form-control">
+            <option value="working" <%=result[0].touchpad === 'working' ? 'selected' : '' %>>Working</option>
+            <option value="not_working" <%=result[0].touchpad === 'not_working' ? 'selected' : '' %>>Not Working</option>
+          
+
+        </select>
+    </div>
+
+    <div class="col-xl-4">
+        <label class="form-label">Body </label>
+
+        <select id="body" name="body" class="form-control">
+            <option value="ok" <%=result[0].body === 'ok' ? 'selected' : '' %>>OK</option>
+            <option value="damage" <%=result[0].body === 'damage' ? 'selected' : '' %>>DAMAGE</option>
+            <option value="scratch" <%=result[0].body === 'scratch' ? 'selected' : '' %>>SCRATCH</option>
+            <option value="dent" <%=result[0].body === 'dent' ? 'selected' : '' %>>DENT</option>
+
+
+        </select>
+    </div>
+
+
+    <div class="col-xl-4">
+        <label class="form-label">Adapter
+        </label>
+        <select id="adapter" name="adapter" class="form-control">
+            <option value="original" <%=result[0].adapter === 'original' ? 'selected' : '' %>>ORIGNAL</option>
+            <option value="local" <%=result[0].adapter === 'local' ? 'selected' : '' %>>LOCAL</option>
+        </select>
+    </div>
+
+
+
+
+</div>
+
+
+
+<div class="text-end" style="margin-top: 20px;">
+    <button type="submit" class="btn btn-primary">Save</button>
+
+</div>
+</div>
+
+
+                </form>
+
+                <div id="loader-overlay">
+                    <div id="loader"></div>
+            </div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%- include ('../.././footer.ejs') %>
+
+
+
+        <script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+        <script>
+            var exampleArray = [
+  {
+    id: 100,
+    user: "Carlos pira longo",
+    date: "22/10/2016",
+    content: "1 dato mas"
+  },
+  {
+    id: 200,
+    user: "Andres de lprimer",
+    date: "22/10/2017",
+    content: "2 datos mas"
+  },
+  {
+    id: 300,
+    user: "Daniel de segundo",
+    date: "22/10/2014",
+    content: "3 datos mas"
+  }
+];
+
+var contenttext = '12';
+
+// register modal component
+Vue.component("history", {
+  template: "#history-template",
+  props: {
+    history: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: String
+    },
+  },
+  
+
+});
+
+
+// start app
+var vm = new Vue({
+  el: "#loadHistorys",
+  data: {
+    hist: exampleArray,
+    value: contenttext
+  }
+});
+
+ CKEDITOR.replace('description');
+
+
+
+
+//  $('#submit').click(function(e) {
+//   e.preventDefault();
+//   alert('run')
+//   let content = $("#editor").html().trim();
+//   alert("VALUE SUBMITTED: \n" + content);  
+// });
+
+$('.uploadImage').submit(function (e) {
+      e.preventDefault();
+     alert('done')
+      $(this).ajaxSubmit({
+      
+        contentType: 'application/json',
+        data:data,
+        success: function (response) {
+          console.log(response)
+             if (response.msg === 'success') {
+        alert('Successfully updated');
+        window.location.reload();
+    } 
+    else if(response.msg === 'exists'){
+      alert('Project Name Already Registered')
+    } else {
+        alert('Failed to update data');
+    }
+        }
+      });
+      return false;
+
+    
+    });
+
+
+//  $('.save').click(function() {
+//     const data = {
+//         admin_features: CKEDITOR.instances['admin_features'].getData(),
+//         user_features: CKEDITOR.instances['user_features'].getData(),
+//         other_features: CKEDITOR.instances['other_features'].getData(),
+//         how_to_run: CKEDITOR.instances['readme_text'].getData(),
+//         credentials: CKEDITOR.instances['login_credentials'].getData(),
+//         description: $('#descriptionTextArea').val(),
+//         name: $('#name').val(),
+//         seo_name : $('#name').val().toLowerCase().replace(/\s+/g, '-'),
+//         category: $('#language').val(),
+//         status:'pending'
+
+//     };
+
+//     if(data.admin_features == '' || data.user_features == '' || data.how_to_run == '' || data.credentials == '' || data.description == '' || data.name == '' || data.category == ''){
+//       alert('Mandatory Field Missing')
+//     }
+//     else{
+
+//       console.log(data)
+
+// $.post('/affiliate/dashboard/source_code/add', data)
+// .done(function(response) {
+//     if (response.msg === 'success') {
+//         alert('Successfully updated');
+//         window.location.reload();
+//     } 
+//     else if(response.msg === 'exists'){
+//       alert('Project Name Already Registered')
+//     } else {
+//         alert('Failed to update data');
+//     }
+// })
+// .fail(function() {
+//     alert('An error occurred while processing your request');
+// });
+//     }
+
+
+// });
+
+
+let pagename = $('#pagename').val()
+// processorvalue
+let subcategoryvalue = $('#subcategoryvalue').val()
+let processorvalue = $('#processorvalue').val()
+$.getJSON(`/admin/dashboard/apple/getData/year`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('subcategory', data, 'Choose apple Year', subcategoryvalue)
+  
+})
+
+
+
+
+
+
+$.getJSON(`/admin/dashboard/apple/getData/processor`, data => {
+    processor = data
+    console.log('leagues',data)
+    fillDropDown('processor', data, 'Choose Processor', processorvalue)
+  
+})
+
+
+
+
+
+function fillDropDown(id, data, label, selectedid = 0) {
+    $(`#${id}`).empty()
+    $(`#${id}`).append($('<option>').val("").text(label))
+
+    $.each(data, (i, item) => {
+        if (item.id == selectedid) {
+            $(`#${id}`).append($('<option selected>').val(item.id).text(item.name))
+        } else {
+            $(`#${id}`).append($('<option>').val(item.id).text(item.name))
+        }
+    })
+}
+        </script>
+
+
+
+<script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+        <script>
+            var exampleArray = [
+  {
+    id: 100,
+    user: "Carlos pira longo",
+    date: "22/10/2016",
+    content: "1 dato mas"
+  },
+  {
+    id: 200,
+    user: "Andres de lprimer",
+    date: "22/10/2017",
+    content: "2 datos mas"
+  },
+  {
+    id: 300,
+    user: "Daniel de segundo",
+    date: "22/10/2014",
+    content: "3 datos mas"
+  }
+];
+
+var contenttext = '12';
+
+// register modal component
+Vue.component("history", {
+  template: "#history-template",
+  props: {
+    history: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: String
+    },
+  },
+  
+
+});
+
+
+// start app
+var vm = new Vue({
+  el: "#loadHistorys",
+  data: {
+    hist: exampleArray,
+    value: contenttext
+  }
+});
+
+ CKEDITOR.replace('admin_features');
+
+
+
+
+//  $('#submit').click(function(e) {
+//   e.preventDefault();
+//   alert('run')
+//   let content = $("#editor").html().trim();
+//   alert("VALUE SUBMITTED: \n" + content);  
+// });
+
+
+ 
+
+function submitForm() {
+
+    const files = document.querySelector("[type=file]").files;
+
+    const values = {
+        description: CKEDITOR.instances['description'].getData(),
+        price: $('#price').val(),
+        quantity: $('#quantity').val(),
+        skuno : $('#skuno').val(),
+        modelno: $('#modelno').val(),
+        name: $('#modelno').val(),
+        subcategory:$('#subcategory').val(),
+        brand:'apple',
+
+
+
+    };
+
+
+    const QcReports = {
+        processor:$('#processor').val(),
+        power_on:$('#power_on').val(),
+        keyboard:$('#keyboard').val(),
+        battery:$('#battery').val(),
+        speaker:$('#speaker').val(),
+        webcam:$('#webcam').val(),
+        wifi:$('#wifi').val(),
+        touchpad:$('#touchpad').val(),
+        body:$('#body').val(),
+        adapter:$('#adapter').val(),
+        storage:$('#storage').val()
+
+
+
+
+    }
+
+    if(values.subcategory == null || values.subcategory == 'null'){
+    alert('Select apple Condition')
+    }
+    else if(QcReports.processor == null || QcReports.processor == 'null'){
+    alert('Select apple Processor')
+    }
+    else if(!QcReports.storage){
+    alert('Enter Storage')
+    }
+    else if(!values.skuno){
+        alert('Enter SKU No.')
+    }
+    else if(!values.modelno){
+        alert('Enter Model No.')
+    }
+    else if(!values.price){
+        alert('Enter Price')
+    }
+    else if(!values.quantity){
+        alert('Enter Quantity')
+    }
+    else if(!values.description){
+        alert('Enter Description')
+    }
+    else if(files.length==0){
+        alert('Select Imgaes')
+    }
+    else{
+    $.post(`/admin/dashboard/product/${pagename}/insert`, values)
+.done(function(response) {
+    if (response.msg === 'success') {
+        console.log(response)
+        let productid = response.result.insertId
+          const url = "https://api.cloudinary.com/v1_1/dggf8vl9p/image/upload";
+
+  const form = document.querySelector("form");
+
+  const loaderOverlay = document.getElementById("loader-overlay");
+
+  const loader = document.getElementById("loader");
+
+  loaderOverlay.style.display = "flex"; // Show overlay
+
+  const a = [];
+
+  const formData = new FormData();
+
+  for (let i = 0; i < files.length; i++) {
+
+    let file = files[i];
+
+    formData.append("file", file);
+
+    formData.append("upload_preset", "docs_upload_example_us_preset");
+
+    fetch(url, {
+
+      method: "POST",
+
+      body: formData,
+
+    })
+
+      .then((response) => response.json())
+
+      .then((data) => {
+
+        a.push({ url: data.url });
+
+        if (a.length === files.length) {
+
+           
+            console.log('images url',a)
+
+            $.ajax({
+  url: '/admin/dashboard/product/upload/screenshots',
+  method: 'POST',
+  contentType: 'application/json',
+  data: JSON.stringify({ url: a, productid }), // Assuming values.url is an array of URLs
+  success: function(response) {
+   if(response.msg=='success'){
+    // window.location.href = `/admin/dashboard/product/add/${pagename}?message=Added Succesfully`
+    QcReports.productid = productid;
+    $.ajax({
+  url: `/admin/dashboard/product/add/${pagename}/qcreport`,
+  method: 'POST',
+  contentType: 'application/json',
+  data: JSON.stringify(QcReports), // Assuming values.url is an array of URLs
+  success: function(response) {
+   if(response.msg=='success'){
+    window.location.href = `/admin/dashboard/product/add/${pagename}?message=Added Succesfully`
+   }
+   else{
+    alert('An error Occured.Please Try Again Later')
+   }
+  }
+})
+
+
+
+   }
+   else{
+    alert('An error Occured.Please Try Again Later')
+   }
+    // Handle success response
+  },
+  error: function(xhr, status, error) {
+    console.error('Error:', error);
+    // Handle error
+  }
+});
+
+            loaderOverlay.style.display = "none"; // Hide overlay after response
+        }
+
+      })
+
+      .catch((error) => console.error("Error:", error));
+
+  }
+
+    } 
+    else if(response.msg === 'exists'){
+      alert('SKU No. Already Exists')
+    } else {
+        alert('Failed to Save data');
+    }
+})
+.fail(function() {
+    alert('An error occurred while processing your request');
+});
+
+
+    }
+
+
+    
+
+
+}
+
+</script>

@@ -1,0 +1,149 @@
+<%- include ('./header.ejs') %>
+
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+			
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Update Customer	
+								</div>
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+									
+
+<div class="row">
+    <div class="col-xl-6">
+        <label  class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" value="<%-result[0].name%>">
+        <input type="hidden" id="id" value="<%=result[0].id%>">
+
+    </div>
+    <div class="col-xl-6">
+        <label  class="form-label">Number</label>
+        <!-- <input type="text" class="form-control" id="language"> -->
+        <input type="text" class="form-control" id="number" value="<%=result[0].number%>">
+
+    </div>
+
+</div>
+
+
+<div class="row">
+    <div class="col-xl-6">
+        <label  class="form-label">Unique ID</label>
+        <input type="text" class="form-control" id="unique_id" value="<%=result[0].unique_id%>">
+    </div>
+    <div class="col-xl-6">
+        <label  class="form-label">Pasword</label>
+        <!-- <input type="text" class="form-control" id="language"> -->
+        <input type="password" class="form-control" id="password" value="<%=result[0].password%>">
+
+    </div>
+
+</div>
+
+
+
+<div class="row">
+    <div class="col-xl-12">
+        <label  class="form-label">Profit Percentage</label>
+        <input type="text" class="form-control" id="percentage" value="<%=result[0].percentage%>">
+    </div>
+  
+
+</div>                             
+
+                                       
+
+										
+									
+										<div class="text-end" style="margin-top: 20px;">
+											<button type="button" class="btn btn-primary save">Save</button>
+										</div>
+									</div>
+
+
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%- include ('./footer.ejs') %>
+
+
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+
+
+        <script>
+
+
+ $('.save').click(function() {
+    const data = {
+        name: $('#name').val(),
+        number : $('#number').val(),
+        unique_id: $('#unique_id').val(),
+        password: $('#password').val(),
+        id: $('#id').val(),
+        percentage: $('#percentage').val(),
+
+
+
+    };
+
+    if(data.name == '' || data.number == '' || data.unique_id == '' || data.password == '' || data.percentage == '') {
+   alert('Mandatory Field Missing');
+} else if(!/^\d{10}$/.test(data.number)) {
+   alert('Enter Correct Mobile Number');
+}
+    else{
+
+      console.log(data)
+
+      $.post('/admin/dashboard/upload/data', data)
+    .done(function(response) {
+        if (response.msg === 'success') {
+            alert('Successfully updated');
+            window.location.reload();
+        } else {
+            alert('Failed to update data');
+        }
+    })
+.fail(function() {
+    alert('An error occurred while processing your request');
+});
+    }
+
+
+});
+
+
+
+        </script>

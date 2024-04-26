@@ -1,0 +1,293 @@
+<%- include ('./header.ejs') %>
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body" style="background-color: #f5f5f5;">
+            <!-- row -->	
+			
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xl-12 wid-100">
+
+						<h3 class="text-primary">Order Overview</h3>
+
+						<div class="row">
+							<div class="col-xl-3 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Pending Order</h6>
+												
+												<h3><%=result[0][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-3 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Ongoing Order</h6>
+												
+												<h3><%=result[1][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-3 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Weekly Order</h6>
+												
+												<h3><%=result[2][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-3 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Monthly Order</h6>
+												
+												<h3><%=result[3][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+
+
+                           
+						
+						
+						</div>
+
+
+							<h3 class="text-primary">Product Overview</h3>
+
+
+
+						<div class="row">
+							<div class="col-xl-4 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Laptop</h6>
+												
+												<h3><%=result[8][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-4 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Mobile</h6>
+												
+												<h3><%=result[9][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-4 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Apple</h6>
+												<h3><%=result[10][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+
+
+								<div class="col-xl-4 col-sm-6">
+									<div class="card chart-grd same-card" style="padding: 8px;">
+										<div class="card-body depostit-card p-0">
+											<div class="depostit-card-media d-flex justify-content-between pb-0">
+												<div>
+													<h6>Accessories</h6>
+													
+													<h3><%=result[11][0].counter%></h3>
+												</div>
+												
+											</div>
+										</div>
+									</div>
+								</div>
+	
+	
+								<div class="col-xl-4 col-sm-6">
+									<div class="card chart-grd same-card" style="padding: 8px;">
+										<div class="card-body depostit-card p-0">
+											<div class="depostit-card-media d-flex justify-content-between pb-0">
+												<div>
+													<h6>New Parts</h6>
+													
+													<h3><%=result[12][0].counter%></h3>
+												</div>
+												
+											</div>
+										</div>
+									</div>
+								</div>
+	
+	
+								<div class="col-xl-4 col-sm-6">
+									<div class="card chart-grd same-card" style="padding: 8px;">
+										<div class="card-body depostit-card p-0">
+											<div class="depostit-card-media d-flex justify-content-between pb-0">
+												<div>
+													<h6>Refurbished Parts</h6>
+													<h3><%=result[13][0].counter%></h3>
+												</div>
+												
+											</div>
+										</div>
+									</div>
+								</div>
+	
+
+						
+						</div>
+
+
+						<h3 class="text-primary">Payment Overview</h3>
+
+						<div class="row">
+							<div class="col-xl-6 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Weekly Payment</h6>
+												
+												<h3><%=result[4][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-6 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Monthly Payment</h6>
+												
+												<h3><%=result[5][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+						
+						</div>
+
+
+						<h3 class="text-primary">User Overview</h3>
+
+
+						<div class="row">
+							<div class="col-xl-6 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Verified User</h6>
+												
+												<h3><%=result[6][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+
+							<div class="col-xl-6 col-sm-6">
+								<div class="card chart-grd same-card" style="padding: 8px;">
+									<div class="card-body depostit-card p-0">
+										<div class="depostit-card-media d-flex justify-content-between pb-0">
+											<div>
+												<h6>Unverified User</h6>
+												
+												<h3><%=result[7][0].counter%></h3>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+
+						
+						</div>
+						
+
+					
+
+					
+			
+					
+					
+					
+				
+				
+				</div>
+			
+			</div>
+        </div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+	
+	
+		
+        <%- include ('./footer.ejs') %>
+     

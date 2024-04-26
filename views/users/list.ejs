@@ -1,0 +1,251 @@
+<%- include ('.././header.ejs') %>
+
+
+<style>
+    #dataTable {
+ border-collapse: collapse;
+ width: 100%;
+}
+#empoloyees-tblwrapper th, #dataTable td {
+ border: 1px solid #ddd;
+ padding: 8px;
+}
+#empoloyees-tblwrapper th {
+ background-color: #f2f2f2;
+}
+#searchInput {
+ margin-bottom: 10px;
+ padding: 8px;
+}
+</style>
+
+    <!--**********************************
+            Content body start
+        ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive active-projects style-1">
+                                <div class="tbl-caption">
+                                    <h4 class="heading mb-0"><%=status.replace(/_/g, ' ').toUpperCase() %> USER LIST</h4>
+                                    <div>
+
+
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                    </div>
+                                </div>
+                                <table id="empoloyees-tblwrapper" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S. No.</th>
+                                            <th>Unique ID</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Number</th>
+                                            <th>GST No.</th>
+                                            <th>Wallet</th>
+                                            <th>Image</th>
+                                            <th>Created At</th>
+                                            <th>Orders</th>
+                                            <th>Transaction</th>
+                                            <th>Logs</th>
+
+                                            <% if(status !== 'delete'){ %>
+                                            <th>Update Data</th>
+                                            <th>Delete Data</th>
+
+                                            <% } else { %>
+
+                                                <th>Restore Data</th>
+                                                <th>Permanently Delete</th>
+                                                
+                                                <% } %>
+
+                                           
+
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for(i=0;i<result.length;i++){ %>
+
+                                            <tr>
+                                                <td>
+                                                    <%=i+1%></td>
+                                                    <td><span>
+                                                        <%=result[i].unique_id%>
+                                                    </span></td>
+                                                <td><span>
+                                                        <%=result[i].name%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].email%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].number%>
+                                                    </span></td>
+
+
+                                                    <td><span>
+                                                        <%=result[i].gst%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].wallet%>
+                                                    </span></td>
+
+
+                                                    
+                                                <td>
+                                                    <span>
+                                                        <img src='/images/<%=result[i].image%>' style="width: 50px;">
+                                                    </span>
+                                                </td>
+                                              
+                                            
+                                               
+                                                <td><span>
+                                                    <%=result[i].created_at%>
+                                                </span></td>
+
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/users/view/orders?id=<%=result[i].id%>"
+                                                        ><span
+                                                            class="badge badge-primary light border-0">View
+                                                            Orders</span></a>
+                                                </td>
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/users/view/transaction?id=<%=result[i].id%>"
+                                                        ><span
+                                                            class="badge badge-primary light border-0">View
+                                                            Transaction</span></a>
+                                                </td>
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/users/view/logs?id=<%=result[i].id%>"
+                                                        ><span
+                                                            class="badge badge-primary light border-0">View
+                                                            Logs</span></a>
+                                                </td>
+
+
+                                            <% if(status !== 'delete'){ %>
+
+                                                <td>
+                                                    <a href="/admin/dashboard/users/update?id=<%=result[i].id%>"
+                                                        ><span
+                                                            class="badge badge-success light border-0">Update
+                                                            Data</span></a>
+                                                </td>
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/users/delete?id=<%=result[i].id%>&status=<%=status%>&value=delete"><span
+                                                            class="badge badge-danger light border-0">Delete Data</span></a>
+                                                </td>
+                                                
+
+                                                <% } else { %>
+
+
+                                                    <% if(result[i].gst) { %>
+                                                        <td>
+                                                            <a href="/admin/dashboard/users/delete?id=<%=result[i].id%>&status=<%=status%>&value=verified"
+                                                                ><span
+                                                                    class="badge badge-success light border-0">Restore
+                                                                    Data</span></a>
+                                                        </td>
+
+                                                        <% } else { %>
+
+                                                            <td>
+                                                                <a href="/admin/dashboard/users/delete?id=<%=result[i].id%>&status=<%=status%>&value=unverified"
+                                                                    ><span
+                                                                        class="badge badge-success light border-0">Restore
+                                                                        Data</span></a>
+                                                            </td>
+
+                                                            <% } %>
+
+
+                                                   
+    
+    
+                                                    <td>
+                                                        <a href="/admin/dashboard/users/permanent-delete?id=<%=result[i].id%>"><span
+                                                                class="badge badge-danger light border-0">Permanently Delete</span></a>
+                                                    </td>
+
+
+
+                                                    <% } %>
+
+
+
+                                            </tr>
+
+
+                                            <% } %>
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+
+        <%- include ('.././footer.ejs') %>
+
+
+
+    <script>
+document.getElementById("searchInput").addEventListener("keyup", function() {
+ const searchText = this.value.toLowerCase();
+ const table = document.getElementById("empoloyees-tblwrapper");
+ const rows = table.getElementsByTagName("tr");
+ // Start iterating from the second row (skipping the table header)
+ for (let i = 1; i < rows.length; i++) {
+   const row = rows[i];
+   const cells = row.getElementsByTagName("td");
+   let found = false;
+   for (let cell of cells) {
+     const text = cell.textContent.toLowerCase();
+     if (text.includes(searchText)) {
+       found = true;
+       break;
+     }
+   }
+   if (found) {
+     row.style.display = "";
+   } else {
+     row.style.display = "none";
+   }
+ }
+});
+    </script>

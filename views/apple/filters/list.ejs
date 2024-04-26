@@ -1,0 +1,148 @@
+<%- include ('../.././header.ejs') %>
+
+
+<style>
+    #dataTable {
+ border-collapse: collapse;
+ width: 100%;
+}
+#empoloyees-tblwrapper th, #dataTable td {
+ border: 1px solid #ddd;
+ padding: 8px;
+}
+#empoloyees-tblwrapper th {
+ background-color: #f2f2f2;
+}
+#searchInput {
+ margin-bottom: 10px;
+ padding: 8px;
+}
+</style>
+
+    <!--**********************************
+            Content body start
+        ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive active-projects style-1">
+                                <div class="tbl-caption">
+                                    <h4 class="heading mb-0"><%=name.replace(/_/g, ' ').toUpperCase() %> List</h4>
+                                    <div>
+
+
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                    </div>
+                                </div>
+                                <table id="empoloyees-tblwrapper" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S. No.</th>
+                                            <th>Name</th>
+                                            <% if(isImage) { %>
+                                            <th>Image</th>
+                                            <% } %>
+                                            <th>Update Data</th>
+                                            <th>Delete Data</th>
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for(i=0;i<result.length;i++){ %>
+
+                                            <tr>
+                                                <td>
+                                                    <%=i+1%></td>
+                                                <td><span>
+                                                        <%=result[i].name%>
+                                                    </span></td>
+
+
+                                                    <% if(isImage) { %>
+                                                <td>
+                                                    <span>
+                                                        <img src='/images/<%=result[i].image%>' style="width: 50px;">
+                                                    </span>
+                                                </td>
+                                                <% } %>
+                                            
+                                               
+
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/apple/<%=name%>/update?id=<%=result[i].id%>"
+                                                        target="_blank"><span
+                                                            class="badge badge-success light border-0">Update
+                                                            Data</span></a>
+                                                </td>
+
+
+                                                <td>
+                                                    <a href="/admin/dashboard/apple/<%=name%>/delete?id=<%=result[i].id%>"><span
+                                                            class="badge badge-danger light border-0">Delete Data</span></a>
+                                                </td>
+                                                
+
+
+
+                                            </tr>
+
+
+                                            <% } %>
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+
+        <%- include ('../.././footer.ejs') %>
+
+
+
+    <script>
+document.getElementById("searchInput").addEventListener("keyup", function() {
+ const searchText = this.value.toLowerCase();
+ const table = document.getElementById("empoloyees-tblwrapper");
+ const rows = table.getElementsByTagName("tr");
+ // Start iterating from the second row (skipping the table header)
+ for (let i = 1; i < rows.length; i++) {
+   const row = rows[i];
+   const cells = row.getElementsByTagName("td");
+   let found = false;
+   for (let cell of cells) {
+     const text = cell.textContent.toLowerCase();
+     if (text.includes(searchText)) {
+       found = true;
+       break;
+     }
+   }
+   if (found) {
+     row.style.display = "";
+   } else {
+     row.style.display = "none";
+   }
+ }
+});
+    </script>
