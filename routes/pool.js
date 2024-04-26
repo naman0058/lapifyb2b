@@ -3,8 +3,8 @@ var mysql = require('mysql2')
 
 const pool = mysql.createPool({
 
-  host : '127.0.0.1',
-   user: 'root',
+  host : 'db-mysql-blr1-78922-do-user-4199968-0.c.db.ondigitalocean.com',
+  user: 'doadmin',
   password:'123',
     database: 'lapify',
     port:'3306' ,
