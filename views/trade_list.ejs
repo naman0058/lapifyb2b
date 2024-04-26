@@ -1,0 +1,174 @@
+<%- include ('./header.ejs') %>
+
+<style>
+    #dataTable {
+ border-collapse: collapse;
+ width: 100%;
+}
+#empoloyees-tblwrapper th, #dataTable td {
+ border: 1px solid #ddd;
+ padding: 8px;
+}
+#empoloyees-tblwrapper th {
+ background-color: #f2f2f2;
+}
+#searchInput {
+ margin-bottom: 10px;
+ padding: 8px;
+}
+</style>
+
+    <!--**********************************
+            Content body start
+        ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive active-projects style-1">
+                                <div class="tbl-caption">
+                                    <h4 class="heading mb-0">Trade List</h4>
+                                    <div>
+
+
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                    </div>
+                                </div>
+                                <table id="empoloyees-tblwrapper" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Exc</th>
+                                            <th>Serise</th>
+                                            <th>Buy</th>
+                                            <th>Avg. Buying Price</th>
+                                            <th>Sell</th>
+                                            <th>Avg. Selling Price</th>
+                                            <th>Net Position</th>
+                                            <th>Wt. Avg. Price</th>
+                                            <th>BE Price</th>
+                                            <th>Actual Profit/Loss</th>
+
+
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for(i=0;i<result.length;i++){ %>
+
+                                            <tr>
+
+                                                <td>
+                                                   
+                                                    <span>
+                                                        <%=result[i].date%>
+                                                    </span></td>
+
+                                                <td>
+                                                   
+                                                    <span>
+                                                        <%=result[i].Exc%>
+                                                    </span></td>
+                                                <td><span>
+                                                        <%=result[i].serise%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].buy%>
+                                                    </span></td>
+
+                                                <td>
+                                                    <span>
+                                                        <%=result[i].avg_buying_price%>
+                                                    </span>
+                                                </td>
+                                            
+                                                <td><span>
+                                                    <%=result[i].sell%>
+                                                </span></td>
+
+
+
+                                                <td><span>
+                                                    <%=result[i].avg_sell_rate%>
+                                                </span></td>
+
+
+                                                <td><span>
+                                                    <%=result[i].net_position%>
+                                                </span></td>
+
+
+                                                <td><span>
+                                                    <%=result[i].wt_avg_price%>
+                                                </span></td>
+
+                                                <td><span>
+                                                    <%=result[i].be_price%>
+                                                </span></td>
+
+                                                <td><span>
+                                                    <%=result[i].actual_pl%>
+                                                </span></td>
+
+
+
+
+
+                                            </tr>
+
+
+                                            <% } %>
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+
+    <%- include ('./footer.ejs') %>
+
+
+    <script>
+document.getElementById("searchInput").addEventListener("keyup", function() {
+ const searchText = this.value.toLowerCase();
+ const table = document.getElementById("empoloyees-tblwrapper");
+ const rows = table.getElementsByTagName("tr");
+ // Start iterating from the second row (skipping the table header)
+ for (let i = 1; i < rows.length; i++) {
+   const row = rows[i];
+   const cells = row.getElementsByTagName("td");
+   let found = false;
+   for (let cell of cells) {
+     const text = cell.textContent.toLowerCase();
+     if (text.includes(searchText)) {
+       found = true;
+       break;
+     }
+   }
+   if (found) {
+     row.style.display = "";
+   } else {
+     row.style.display = "none";
+   }
+ }
+});
+    </script>

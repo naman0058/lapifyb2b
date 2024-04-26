@@ -1,0 +1,151 @@
+<%- include ('./header.ejs') %>
+
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+		
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Link Account	
+								</div>
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+									
+
+<div class="row">
+    <div class="col-xl-6">
+        <label  class="form-label">Main Account Holder</label>
+        <select class="form-control" id="language"></select>
+    </div>
+    <div class="col-xl-6">
+        <label  class="form-label">Second Account Holder</label>
+        <!-- <input type="text" class="form-control" id="language"> -->
+        <select class="form-control" id="language1"></select>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+                                        
+
+                                       
+
+										
+									
+										<div class="text-end" style="margin-top: 20px;">
+											<button type="button" class="btn btn-primary save">Save</button>
+										</div>
+									</div>
+
+
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%- include ('./footer.ejs') %>
+
+
+
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+
+
+        <script>
+
+
+
+
+$.getJSON(`/admin/dashboard/users/show`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('language', data, 'Choose Main Account Holder', 0)
+    fillDropDown('language1', data, 'Choose Second Account Holder', 0)
+
+  
+})
+
+
+function fillDropDown(id, data, label, selectedid = 0) {
+    $(`#${id}`).empty()
+    $(`#${id}`).append($('<option>').val("null").text(label))
+
+    $.each(data, (i, item) => {
+        if (item.id == selectedid) {
+            $(`#${id}`).append($('<option selected>').val(item.unique_id).text(item.name))
+        } else {
+            $(`#${id}`).append($('<option>').val(item.unique_id).text(item.name))
+        }
+    })
+}
+
+
+ $('.save').click(function() {
+    const data = {
+        main_account_holder: $('#language').val(),
+        second_account_holder : $('#language1').val(),
+    };
+
+
+    if(data.main_account_holder == '' || data.second_account_holder == '' || data.main_account_holder == 'null' || data.second_account_holder == 'null' ) {
+   alert('Mandatory Field Missing');
+} else if(data.main_account_holder == data.second_account_holder) {
+   alert('Same Account Can not be linked');
+}
+    else{
+
+      console.log(data)
+
+$.post('/admin/dashboard/account/link', data)
+.done(function(response) {
+    if (response.msg === 'success') {
+        alert('Successfully updated');
+        window.location.reload();
+    } 
+    else if(response.msg === 'exists'){
+      alert('Account Already Link')
+    } else {
+        alert('Failed to update data');
+    }
+})
+.fail(function() {
+    alert('An error occurred while processing your request');
+});
+    }
+
+
+});
+
+
+
+        </script>

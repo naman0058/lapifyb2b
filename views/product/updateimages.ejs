@@ -1,0 +1,414 @@
+<%- include ('.././header.ejs') %>
+
+<link rel="stylesheet" href="https://elusiveicons.com/assets/elusive-icons/css/elusive-icons.css">
+
+
+		
+		<!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+			
+			<div class="container-fluid">
+				<!-- Row -->
+				<div class="row">
+					
+					<div class="col-xl-12">
+						<div class="filter cm-content-box box-primary">
+							<div class="content-title">
+								<div class="cpa">
+									<i class="fa-solid fa-envelope me-1"></i>Update Images	  <span style="color: green;margin-left: 20px;"><%=msg%></span>
+								</div>
+
+                                <input type="hidden" id="pagename" value="<%=response%>">
+                                <input type="hidden" id="id" value="<%=id%>">
+                                <input type="hidden" id="productid" value="<%=productid%>">
+
+
+								<div class="tools">
+									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
+								</div>
+							</div>
+							<div class="cm-content-body form excerpt">
+								<div class="card-body">
+									
+                                    <form id="myForm"  method="post" enctype="multipart/form-data">
+
+
+
+
+
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+  
+  <div class="col-xl-12">
+    
+          
+              <label  class="form-label">Update Image </label>
+              <input type="file" class="form-control" name="files[]" />
+
+  </div>
+
+ 
+
+</div>
+
+
+										
+									
+										<div class="text-end" style="margin-top: 20px;">
+											<button type="button" onclick="submitForm()" value="Upload Files" name="submit" class="btn btn-primary save">Save</button>
+										</div>
+									</div>
+
+
+                </form>
+
+                <div id="loader-overlay">
+                    <div id="loader"></div>
+            </div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+        <!--**********************************
+            Content body end
+        ***********************************-->
+		
+		
+		
+        <%- include ('.././footer.ejs') %>
+
+
+
+        <script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+
+        <script>
+            var exampleArray = [
+  {
+    id: 100,
+    user: "Carlos pira longo",
+    date: "22/10/2016",
+    content: "1 dato mas"
+  },
+  {
+    id: 200,
+    user: "Andres de lprimer",
+    date: "22/10/2017",
+    content: "2 datos mas"
+  },
+  {
+    id: 300,
+    user: "Daniel de segundo",
+    date: "22/10/2014",
+    content: "3 datos mas"
+  }
+];
+
+var contenttext = '12';
+
+// register modal component
+Vue.component("history", {
+  template: "#history-template",
+  props: {
+    history: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: String
+    },
+  },
+  
+
+});
+
+
+// start app
+var vm = new Vue({
+  el: "#loadHistorys",
+  data: {
+    hist: exampleArray,
+    value: contenttext
+  }
+});
+
+ CKEDITOR.replace('description');
+
+
+
+
+//  $('#submit').click(function(e) {
+//   e.preventDefault();
+//   alert('run')
+//   let content = $("#editor").html().trim();
+//   alert("VALUE SUBMITTED: \n" + content);  
+// });
+
+$('.uploadImage').submit(function (e) {
+      e.preventDefault();
+     alert('done')
+      $(this).ajaxSubmit({
+      
+        contentType: 'application/json',
+        data:data,
+        success: function (response) {
+          console.log(response)
+             if (response.msg === 'success') {
+        alert('Successfully updated');
+        window.location.reload();
+    } 
+    else if(response.msg === 'exists'){
+      alert('Project Name Already Registered')
+    } else {
+        alert('Failed to update data');
+    }
+        }
+      });
+      return false;
+
+    
+    });
+
+
+//  $('.save').click(function() {
+//     const data = {
+//         admin_features: CKEDITOR.instances['admin_features'].getData(),
+//         user_features: CKEDITOR.instances['user_features'].getData(),
+//         other_features: CKEDITOR.instances['other_features'].getData(),
+//         how_to_run: CKEDITOR.instances['readme_text'].getData(),
+//         credentials: CKEDITOR.instances['login_credentials'].getData(),
+//         description: $('#descriptionTextArea').val(),
+//         name: $('#name').val(),
+//         seo_name : $('#name').val().toLowerCase().replace(/\s+/g, '-'),
+//         category: $('#language').val(),
+//         status:'pending'
+
+//     };
+
+//     if(data.admin_features == '' || data.user_features == '' || data.how_to_run == '' || data.credentials == '' || data.description == '' || data.name == '' || data.category == ''){
+//       alert('Mandatory Field Missing')
+//     }
+//     else{
+
+//       console.log(data)
+
+// $.post('/affiliate/dashboard/source_code/add', data)
+// .done(function(response) {
+//     if (response.msg === 'success') {
+//         alert('Successfully updated');
+//         window.location.reload();
+//     } 
+//     else if(response.msg === 'exists'){
+//       alert('Project Name Already Registered')
+//     } else {
+//         alert('Failed to update data');
+//     }
+// })
+// .fail(function() {
+//     alert('An error occurred while processing your request');
+// });
+//     }
+
+
+// });
+
+
+let pagename = $('#pagename').val()
+let id = $('#id').val()
+let productid = $('#productid').val()
+
+
+$.getJSON(`/admin/dashboard/parts-and-accessories/getData/${pagename}`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('subcategory', data, 'Choose Sub-Category', 0)
+  
+})
+
+
+$.getJSON(`/admin/dashboard/parts-and-accessories/getData/brand`, data => {
+    brand = data
+    console.log('leagues',data)
+    fillDropDown('brand', data, 'Choose Brand', 0)
+  
+})
+
+
+function fillDropDown(id, data, label, selectedid = 0) {
+    $(`#${id}`).empty()
+    $(`#${id}`).append($('<option>').val("null").text(label))
+
+    $.each(data, (i, item) => {
+        if (item.id == selectedid) {
+            $(`#${id}`).append($('<option selected>').val(item.id).text(item.name))
+        } else {
+            $(`#${id}`).append($('<option>').val(item.id).text(item.name))
+        }
+    })
+}
+        </script>
+
+
+
+<script src="https://cdn.ckeditor.com/4.7.0/full/ckeditor.js"></script>
+        <script src="https://unpkg.com/vue@2.3.4"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+        <script>
+            var exampleArray = [
+  {
+    id: 100,
+    user: "Carlos pira longo",
+    date: "22/10/2016",
+    content: "1 dato mas"
+  },
+  {
+    id: 200,
+    user: "Andres de lprimer",
+    date: "22/10/2017",
+    content: "2 datos mas"
+  },
+  {
+    id: 300,
+    user: "Daniel de segundo",
+    date: "22/10/2014",
+    content: "3 datos mas"
+  }
+];
+
+var contenttext = '12';
+
+// register modal component
+Vue.component("history", {
+  template: "#history-template",
+  props: {
+    history: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: String
+    },
+  },
+  
+
+});
+
+
+// start app
+var vm = new Vue({
+  el: "#loadHistorys",
+  data: {
+    hist: exampleArray,
+    value: contenttext
+  }
+});
+
+ CKEDITOR.replace('admin_features');
+
+
+
+
+//  $('#submit').click(function(e) {
+//   e.preventDefault();
+//   alert('run')
+//   let content = $("#editor").html().trim();
+//   alert("VALUE SUBMITTED: \n" + content);  
+// });
+
+
+ 
+
+function submitForm() {
+
+    let pagename = $('#pagename').val()
+let id = $('#id').val()
+let productid = $('#productid').val()
+
+
+    const files = document.querySelector("[type=file]").files;
+
+    const url = "https://api.cloudinary.com/v1_1/dggf8vl9p/image/upload";
+
+  const form = document.querySelector("form");
+
+  const loaderOverlay = document.getElementById("loader-overlay");
+
+  const loader = document.getElementById("loader");
+
+  loaderOverlay.style.display = "flex"; // Show overlay
+
+  const a = [];
+
+  const formData = new FormData();
+
+  for (let i = 0; i < files.length; i++) {
+
+    let file = files[i];
+
+    formData.append("file", file);
+
+    formData.append("upload_preset", "docs_upload_example_us_preset");
+
+    fetch(url, {
+
+      method: "POST",
+
+      body: formData,
+
+    })
+
+      .then((response) => response.json())
+
+      .then((data) => {
+
+        a.push({ url: data.url });
+
+        if (a.length === files.length) {
+
+           
+            console.log('images url',a)
+
+            $.ajax({
+  url: '/admin/dashboard/product/update/screenshots',
+  method: 'POST',
+  contentType: 'application/json',
+  data: JSON.stringify({ url: a, id }), // Assuming values.url is an array of URLs
+  success: function(response) {
+   if(response.msg=='success'){
+    window.location.href = `/admin/dashboard/product/${pagename}/images?id=${productid}`
+   }
+   else{
+    alert('An error Occured.Please Try Again Later')
+   }
+    // Handle success response
+  },
+  error: function(xhr, status, error) {
+    console.error('Error:', error);
+    // Handle error
+  }
+});
+
+            loaderOverlay.style.display = "none"; // Hide overlay after response
+        }
+
+      })
+
+      .catch((error) => console.error("Error:", error));
+
+  }
+
+}
+
+</script>
