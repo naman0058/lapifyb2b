@@ -166,8 +166,10 @@ router.post('/upload/screenshots', async (req, res) => {
         LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
         LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
         WHERE d.category = '${req.params.name}' and d.status = true
-        GROUP BY d.id
-        ORDER BY d.id DESC
+        GROUP BY 
+        d.id, f1.name, f2.name, f3.name, lqr._id
+    ORDER BY 
+        d.id DESC;
     `;
     }
 
@@ -185,8 +187,10 @@ router.post('/upload/screenshots', async (req, res) => {
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
         WHERE d.category = '${req.params.name}' and d.status = true
-        GROUP BY d.id
-        ORDER BY d.id DESC
+        GROUP BY 
+        d.id, f1.name, f2.name, lqr._id
+    ORDER BY 
+        d.id DESC;
     `;
     
     }
@@ -208,8 +212,10 @@ router.post('/upload/screenshots', async (req, res) => {
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
         LEFT JOIN ${filtertable} f3 ON lqr.processor = f3.id
         WHERE d.category = '${req.params.name}' and d.status = true
-        GROUP BY d.id
-        ORDER BY d.id DESC
+        GROUP BY 
+    d.id, f1.name, f2.name, f3.name, lqr._id
+ORDER BY 
+    d.id DESC;
     `;
     }
 
