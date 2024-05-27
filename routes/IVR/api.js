@@ -51,7 +51,7 @@ const pool = require("./pool"); // Assuming you have a db.js file for your datab
 
 // Middleware to validate table names
 const validateTableName = (req, res, next) => {
-    const tablename = '';
+    let tablename = '';
     if(req.body.tablename){
         tablename = req.body.tablename
     }
