@@ -33,7 +33,9 @@
                             <div class="table-responsive active-projects style-1">
                                 <div class="tbl-caption">
                                     <h4 class="heading mb-0"><%=name.replace(/_/g, ' ').toUpperCase() %> List</h4>
-                                    <div>
+
+                                   <a href="/admin/dashboard/laptop/<%=name%>"> <button type="button" class="btn btn-primary btn-sm">Add <%=name.replace(/_/g, ' ').toUpperCase() %></button></a>
+                                    <div> 
 
 
                                         <input type="text" class="form-control" id="searchInput" placeholder="Search">

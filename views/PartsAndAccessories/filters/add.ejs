@@ -18,7 +18,9 @@
 							<div class="content-title">
 								<div class="cpa">
 									<i class="fa-solid fa-envelope me-1"></i>Add <%= response.name.replace(/_/g, ' ').toUpperCase() %>	  <span style="color: green;margin-left: 20px;"><%=msg%></span>
-								</div>
+                  <a href="/admin/dashboard/parts-and-accessories/<%=response.name%>/list"> <button type="button" class="btn btn-primary btn-sm"><%=response.name.replace(/_/g, ' ').toUpperCase() %> List</button></a>
+							
+                </div>
 
 								<div class="tools">
 									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>

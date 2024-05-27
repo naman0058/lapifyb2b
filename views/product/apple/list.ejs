@@ -50,6 +50,7 @@
                                           <th>Brand</th>
                                           <th>Price</th>
                                           <th>Quantity</th>
+                                          <th>In App</th>
                                           <th>QC Report</th>
                                           <th>View Image</th>
                                           <th>Update Image</th>
@@ -100,6 +101,10 @@
                                                 </span></td>
 
                                              
+                                                <td><span>
+                                                  <%=result[i].in_app.toUpperCase()%>
+                                              </span></td>
+
                                                 <td>
                                                     <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#qcModal" 
                                                     data-bs-images="Processor:<%=result[i].pocessor_name.toUpperCase()%>,Power On:<%=result[i].power_on.toUpperCase()%>,

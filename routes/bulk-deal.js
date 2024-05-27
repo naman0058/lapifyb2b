@@ -7,7 +7,7 @@ var verify = require('./verify');
 const upload = require('./multer');
 var folder = 'bulkDeal'
 var isimage = ['accessories','refurbished_parts','new_parts']
-var databasetable = 'bulkDeal'
+var databasetable = 'bulkdeal'
 
 
 router.get('/', verify.adminAuthenticationToken, (req, res) => {

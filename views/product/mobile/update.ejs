@@ -36,6 +36,27 @@
 
 
 
+
+                
+                    <div class="row" style="margin-top: 20px;">
+
+                      <div class="col-xl-12">
+                        <label  class="form-label">Product (Hide / Show )</label>
+                           <select name="in_app" class="form-control">
+                            <option value="hide" <%=result[0].in_app === 'hide' ? 'selected' : '' %>>Hide</option>
+                            <option value="show" <%=result[0].in_app === 'show' ? 'selected' : '' %>>Show</option>
+                  
+                           </select>
+                    </div>
+                            
+                  
+                    </div>
+
+
+
+
+
+                    
 <div class="row" style="margin-top: 20px;">
 
   
@@ -343,6 +364,8 @@
             <option value="damage" <%=result[0].body === 'damage' ? 'selected' : '' %>>DAMAGE</option>
             <option value="scratch" <%=result[0].body === 'scratch' ? 'selected' : '' %>>SCRATCH</option>
             <option value="dent" <%=result[0].body === 'dent' ? 'selected' : '' %>>DENT</option>
+            <option value="sign_of_usage" <%=result[0].body === 'sign_of_usage' ? 'selected' : '' %>>Sign Of Usage</option>
+
     </select>
   </div>
 
