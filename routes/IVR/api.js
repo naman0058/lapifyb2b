@@ -66,7 +66,7 @@ const validateTableName = (req, res, next) => {
 };
 
 router.post('/insert', validateTableName, (req, res) => {
-    console.log('data comes')
+    console.log('data comes',req.body)
     let { tablename, ...data } = req.body;
     pool.query(`INSERT INTO ?? SET ?`, [tablename, data], (err, result) => {
         if (err) {
