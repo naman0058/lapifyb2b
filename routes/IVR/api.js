@@ -97,6 +97,24 @@ router.post('/clientinsert', upload.single('image'), (req, res) => {
     });
 });
 
+
+
+router.post('/teaminsert', upload.single('image'), (req, res) => {
+    console.log('data comes',req.body)
+    console.log('data comes',req.file)
+
+
+    let { tablename, ...data } = req.body;
+    req.body['image'] = req.file.filename
+    pool.query(`INSERT INTO team_members SET ?`, data, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: 'Database error' });
+        }
+        res.json({ msg: 'success' });
+    });
+});
+
 router.get('/show', validateTableName, (req, res) => {
     let { tablename } = req.query;
     pool.query(`SELECT * FROM ?? ORDER BY id DESC`, [tablename], (err, result) => {
