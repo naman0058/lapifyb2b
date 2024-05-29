@@ -87,7 +87,7 @@ router.post('/clientinsert', upload.single('image'), (req, res) => {
 
 
     let { tablename, ...data } = req.body;
-    req.body['image'] = req.file.filename
+    data['image'] = req.file.filename
     pool.query(`INSERT INTO sub_admin SET ?`, data, (err, result) => {
         if (err) {
             console.error(err);
@@ -100,12 +100,13 @@ router.post('/clientinsert', upload.single('image'), (req, res) => {
 
 
 router.post('/teaminsert', upload.single('image'), (req, res) => {
-    console.log('data comes',req.body)
-    console.log('data comes',req.file)
+   
 
 
     let { tablename, ...data } = req.body;
-    req.body['image'] = req.file.filename
+    data['image'] = req.file.filename
+    console.log('data comes',req.body)
+
     pool.query(`INSERT INTO team_members SET ?`, data, (err, result) => {
         if (err) {
             console.error(err);
