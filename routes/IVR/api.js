@@ -48,6 +48,8 @@
 const express = require('express');
 const router = express.Router();
 const pool = require("./pool"); // Assuming you have a db.js file for your database connection
+var upload = require('./multer');
+
 
 // Middleware to validate table names
 const validateTableName = (req, res, next) => {
@@ -69,6 +71,20 @@ router.post('/insert', validateTableName, (req, res) => {
     console.log('data comes',req.body)
     let { tablename, ...data } = req.body;
     pool.query(`INSERT INTO ?? SET ?`, [tablename, data], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: 'Database error' });
+        }
+        res.json({ msg: 'success' });
+    });
+});
+
+
+
+router.post('/clientinsert', upload.single('image'), (req, res) => {
+    console.log('data comes',req.body)
+    let { tablename, ...data } = req.body;
+    pool.query(`INSERT INTO client SET ?`, data, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
