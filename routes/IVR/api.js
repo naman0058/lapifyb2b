@@ -116,6 +116,13 @@ router.get('/delete', validateTableName, (req, res) => {
     });
 });
 
+
+router.get('/cities',(req,res)=>{
+    pool.query(`select * from city where stateid = '${req.query.stateid}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
 module.exports = router;
 
 
