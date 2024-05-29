@@ -48,7 +48,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require("./pool"); // Assuming you have a db.js file for your database connection
-var upload = require('./multer');
+var upload = require('../multer');
 
 
 // Middleware to validate table names
