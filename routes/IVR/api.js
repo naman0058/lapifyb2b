@@ -83,8 +83,13 @@ router.post('/insert', validateTableName, (req, res) => {
 
 router.post('/clientinsert', upload.single('image'), (req, res) => {
     console.log('data comes',req.body)
+    console.log('data comes',req.file)
+    console.log('data comes',req.files)
+
+
     let { tablename, ...data } = req.body;
-    pool.query(`INSERT INTO client SET ?`, data, (err, result) => {
+    body['image'] = req.file.filename
+    pool.query(`INSERT INTO sub_admin SET ?`, data, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
