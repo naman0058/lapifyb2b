@@ -271,6 +271,17 @@ router.get('/team/dashboard',(req,res)=>{
     })
 })
 
+
+
+
+
+router.get('/single-detail',(req,res)=>{
+    pool.query(`select * from ${req.query.tablename} where id = '${req.query.id}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
+
 module.exports = router;
 
 
