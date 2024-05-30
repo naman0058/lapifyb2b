@@ -289,7 +289,7 @@ router.post('/clientupdate',upload.single('image'), (req, res) => {
     console.log(req.body)
    
 
-    if(req.file){
+    if(req.file.filename){
     body['image'] = req.file.filename
     }
 
