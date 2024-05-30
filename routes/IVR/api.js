@@ -169,7 +169,7 @@ router.get('/profile',(req,res)=>{
     pool.query(`select p.*, 
     (select s.name from state s where s.id = p.state) as statename,
     (select c.name from city c where c.id = p.city) as cityname,
-    (select c.name from community c where c.name = p.Community) as communityname
+    (select c.name from community c where c.id = p.Community) as communityname
     from ${req.query.tablename} p where p.id = '${req.query.id}'`,(err,result)=>{
         if(err) throw err;
         else res.json(result)
