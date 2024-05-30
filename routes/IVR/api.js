@@ -130,7 +130,7 @@ router.get('/show', validateTableName, (req, res) => {
 
 router.post('/update',upload.single('image'), (req, res) => {
     console.log(req.body)
-    let { id, ...data } = req.body;
+    let { tablename,id, ...data } = req.body;
 
     if(req.file){
     data['image'] = req.file.filename
@@ -141,12 +141,12 @@ router.post('/update',upload.single('image'), (req, res) => {
     }
 
 
-    console.log('table',req.body.tablename)
+    console.log('table',req)
     console.log('id',id)
     console.log('data',data)
 
 
-    pool.query(`UPDATE ?? SET ? WHERE id = ?`, [req.body.tablename, data, id], (err, result) => {
+    pool.query(`UPDATE ?? SET ? WHERE id = ?`, [data, id], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
