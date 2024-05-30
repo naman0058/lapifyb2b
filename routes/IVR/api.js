@@ -130,7 +130,6 @@ router.get('/show', validateTableName, (req, res) => {
 
 router.post('/update',upload.single('image'), (req, res) => {
     console.log(req.body)
-    console.log(req.file)
     let { tablename, id, ...data } = req.body;
 
     if(req.file){
@@ -140,6 +139,13 @@ router.post('/update',upload.single('image'), (req, res) => {
     if (!id) {
         return res.status(400).json({ msg: 'ID is required' });
     }
+
+
+    console.log('table',tablename)
+    console.log('id',id)
+    console.log('data',data)
+
+
     pool.query(`UPDATE ?? SET ? WHERE id = ?`, [tablename, data, id], (err, result) => {
         if (err) {
             console.error(err);
