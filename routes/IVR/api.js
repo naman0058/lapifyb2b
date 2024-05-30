@@ -202,6 +202,16 @@ router.get('/teamprofile',(req,res)=>{
     })
 })
 
+
+
+router.get('/adminprofile',(req,res)=>{
+    pool.query(`select p.*
+    from team_members p where p.id = '${req.query.id}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
+
 module.exports = router;
 
 
