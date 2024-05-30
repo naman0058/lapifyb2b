@@ -162,6 +162,16 @@ router.get('/cities',(req,res)=>{
         else res.json(result)
     })
 })
+
+
+
+router.get('/profile',(req,res)=>{
+    pool.query(`select * from ${req.query.tablename} where id = '${req.query.id}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
+
 module.exports = router;
 
 
