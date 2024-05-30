@@ -216,7 +216,7 @@ router.get('/adminprofile',(req,res)=>{
 
 
 router.get('/admin/dashboard',(req,res)=>{
-    var query = `select * from admin`;
+    var query = `select * from admin;`
     var query1 = `select count(id) as counter from sub_admin;`
     var query2 = `select count(id) as counter from team_members;`
     var query3 = `select count(id) as counter from department;`
