@@ -195,7 +195,7 @@ router.get('/profile',(req,res)=>{
 router.get('/teamprofile',(req,res)=>{
     pool.query(`select p.*, 
     (select s.name from state s where s.id = p.state) as statename,
-    (select c.name from city c where c.id = p.city) as cityname,
+    (select c.name from city c where c.id = p.city) as cityname
     from team_members p where p.id = '${req.query.id}'`,(err,result)=>{
         if(err) throw err;
         else res.json(result)
