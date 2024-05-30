@@ -212,6 +212,65 @@ router.get('/adminprofile',(req,res)=>{
     })
 })
 
+
+
+
+router.get('/admin/dashboard',(req,res)=>{
+    var query = `select * from admin`;
+    var query1 = `select count(id) as counter from sub_admin`;
+    var query2 = `select count(id) as counter from team_members`;
+    var query3 = `select count(id) as counter from department`;
+    var query4 = `select count(id) as counter from community`;
+    pool.query(query+query1+query2+query3+query4,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
+
+
+router.get('/client/dashboard',(req,res)=>{
+    var query = `select * from sub_admin`;
+    var query1 = `select count(id) as counter from team_members`;
+    var query2 = `select count(id) as counter from subadmin_directory`;
+    var query3 = `select count(id) as counter from internal_directory`;
+    var query4 = `select count(id) as counter from recordings`;
+    var query5 = `select count(id) as counter from recordings`;
+    var query6 = `select count(id) as counter from recordings where status = 'active'`;
+    var query7 = `select count(id) as counter from recordings where status = 'pending'`;
+    var query8 = `select count(id) as counter from recordings where status = 'hold'`;
+    var query9 = `select count(id) as counter from recordings where status = 'stuck'`;
+    var query10 = `select count(id) as counter from recordings where status = 'working'`;
+    var query11 = `select count(id) as counter from internal_enquiry`;
+
+
+    pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
+
+
+router.get('/team/dashboard',(req,res)=>{
+    var query = `select * from team_members`;
+    var query2 = `select count(id) as counter from team_directory`;
+    var query3 = `select count(id) as counter from internal_directory`;
+    var query4 = `select count(id) as counter from recordings`;
+    var query5 = `select count(id) as counter from recordings`;
+    var query6 = `select count(id) as counter from recordings where status = 'active'`;
+    var query7 = `select count(id) as counter from recordings where status = 'pending'`;
+    var query8 = `select count(id) as counter from recordings where status = 'hold'`;
+    var query9 = `select count(id) as counter from recordings where status = 'stuck'`;
+    var query10 = `select count(id) as counter from recordings where status = 'working'`;
+    var query11 = `select count(id) as counter from internal_enquiry`;
+
+   
+
+    pool.query(query+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
+
 module.exports = router;
 
 
