@@ -141,12 +141,12 @@ router.post('/update',upload.single('image'), (req, res) => {
     }
 
 
-    console.log('table',req)
+    console.log('table',tablename)
     console.log('id',id)
     console.log('data',data)
 
 
-    pool.query(`UPDATE ?? SET ? WHERE id = ?`, [data, id], (err, result) => {
+    pool.query(`UPDATE ?? SET ? WHERE id = ?`, [tablename,data, id], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
