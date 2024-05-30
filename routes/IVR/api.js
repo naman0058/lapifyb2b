@@ -229,17 +229,17 @@ router.get('/admin/dashboard',(req,res)=>{
 
 
 router.get('/client/dashboard',(req,res)=>{
-    var query = `select * from sub_admin`;
-    var query1 = `select count(id) as counter from team_members`;
-    var query2 = `select count(id) as counter from subadmin_directory`;
-    var query3 = `select count(id) as counter from internal_directory`;
-    var query4 = `select count(id) as counter from recordings`;
-    var query5 = `select count(id) as counter from recordings`;
-    var query6 = `select count(id) as counter from recordings where status = 'active'`;
-    var query7 = `select count(id) as counter from recordings where status = 'pending'`;
-    var query8 = `select count(id) as counter from recordings where status = 'hold'`;
-    var query9 = `select count(id) as counter from recordings where status = 'stuck'`;
-    var query10 = `select count(id) as counter from recordings where status = 'working'`;
+    var query = `select * from sub_admin where id = '${req.query.id}'`;
+    var query1 = `select count(id) as counter from team_members where subadmin_id = '${req.query.departmentid}'`;
+    var query2 = `select count(id) as counter from subadmin_directory where subadmin_id = '${req.query.id}'`;
+    var query3 = `select count(id) as counter from internal_directory where subadmin_id = '${req.query.id}'`;
+    var query4 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}'`;
+    var query5 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}'`;
+    var query6 = `select count(id) as counter from recordings where status = 'active' and departmentid = '${req.query.departmentid}' `;
+    var query7 = `select count(id) as counter from recordings where status = 'pending' and departmentid = '${req.query.departmentid}'`;
+    var query8 = `select count(id) as counter from recordings where status = 'hold' and departmentid = '${req.query.departmentid}'`;
+    var query9 = `select count(id) as counter from recordings where status = 'stuck' and departmentid = '${req.query.departmentid}'`;
+    var query10 = `select count(id) as counter from recordings where status = 'working' and departmentid = '${req.query.departmentid}'`;
     var query11 = `select count(id) as counter from internal_enquiry`;
 
 
@@ -251,17 +251,17 @@ router.get('/client/dashboard',(req,res)=>{
 
 
 router.get('/team/dashboard',(req,res)=>{
-    var query = `select * from team_members`;
-    var query2 = `select count(id) as counter from team_directory`;
-    var query3 = `select count(id) as counter from internal_directory`;
-    var query4 = `select count(id) as counter from recordings`;
-    var query5 = `select count(id) as counter from recordings`;
-    var query6 = `select count(id) as counter from recordings where status = 'active'`;
-    var query7 = `select count(id) as counter from recordings where status = 'pending'`;
-    var query8 = `select count(id) as counter from recordings where status = 'hold'`;
-    var query9 = `select count(id) as counter from recordings where status = 'stuck'`;
-    var query10 = `select count(id) as counter from recordings where status = 'working'`;
-    var query11 = `select count(id) as counter from internal_enquiry`;
+    var query = `select * from team_members where id = '${req.query.id}'`;
+    var query2 = `select count(id) as counter from team_directory where team_id = '${req.query.id}'`;
+    var query3 = `select count(id) as counter from internal_directory where subadmin_id = '${req.query.subadmin_id}'`;
+    var query4 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}'`;
+    var query5 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}'`;
+    var query6 = `select count(id) as counter from recordings where status = 'active' and departmentid = '${req.query.departmentid}' `;
+    var query7 = `select count(id) as counter from recordings where status = 'pending' and departmentid = '${req.query.departmentid}'`;
+    var query8 = `select count(id) as counter from recordings where status = 'hold' and departmentid = '${req.query.departmentid}'`;
+    var query9 = `select count(id) as counter from recordings where status = 'stuck' and departmentid = '${req.query.departmentid}'`;
+    var query10 = `select count(id) as counter from recordings where status = 'working' and departmentid = '${req.query.departmentid}'`;
+    var query11 = `select count(id) as counter from internal_enquiry where subadmin_id = '${req.query.subadmin_id}'`;
 
    
 
