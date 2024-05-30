@@ -54,7 +54,7 @@ var upload = require('../multer');
 // Middleware to validate table names
 const validateTableName = (req, res, next) => {
     let tablename = '';
-    console.log('tablename',tablename);
+    console.log('tablename',req.body.tablename);
     if(req.body.tablename){
         tablename = req.body.tablename
     }
