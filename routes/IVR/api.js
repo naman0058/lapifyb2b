@@ -234,7 +234,7 @@ router.get('/client/dashboard',(req,res)=>{
     var query = `select * from sub_admin where id = '${req.query.id}';`
     var query1 = `select count(id) as counter from team_members where subadmin_id = '${req.query.departmentid}';`
     var query2 = `select count(id) as counter from subadmin_directory where subadmin_id = '${req.query.id}';`
-    var query3 = `select count(id) as counter from internal_directory where subadmin_id = '${req.query.id}';`
+    var query3 = `select count(id) as counter from my_directory where subadmin_id = '${req.query.id}';`
     var query4 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}';`
     var query5 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}';`
     var query6 = `select count(id) as counter from recordings where status = 'active' and departmentid = '${req.query.departmentid}' ;`
@@ -255,7 +255,7 @@ router.get('/client/dashboard',(req,res)=>{
 router.get('/team/dashboard',(req,res)=>{
     var query = `select * from team_members where id = '${req.query.id}';`
     var query2 = `select count(id) as counter from team_directory where team_id = '${req.query.id}';`
-    var query3 = `select count(id) as counter from internal_directory where subadmin_id = '${req.query.subadmin_id}';`
+    var query3 = `select count(id) as counter from my_directory where subadmin_id = '${req.query.subadmin_id}';`
     var query4 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}';`
     var query5 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}';`
     var query6 = `select count(id) as counter from recordings where status = 'active' and departmentid = '${req.query.departmentid}' ;`
