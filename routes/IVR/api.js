@@ -292,7 +292,7 @@ router.post('/clientupdate',upload.single('image'), (req, res) => {
     body['image'] = req.file.filename
     }
 
-    console.log(req.body)
+    console.log(req.file)
 
 
     pool.query(`UPDATE sub_admin SET ? WHERE id = ?`, [req.body,req.body.id], (err, result) => {
