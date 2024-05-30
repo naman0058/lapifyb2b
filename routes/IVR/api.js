@@ -130,7 +130,7 @@ router.get('/show', validateTableName, (req, res) => {
 
 router.post('/update',upload.single('image'), (req, res) => {
     console.log(req.body)
-    let { tablename, id, ...data } = req.body;
+    let { id, ...data } = req.body;
 
     if(req.file){
     data['image'] = req.file.filename
