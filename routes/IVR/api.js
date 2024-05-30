@@ -235,7 +235,6 @@ router.get('/client/dashboard',(req,res)=>{
     var query1 = `select count(id) as counter from team_members where subadmin_id = '${req.query.departmentid}';`
     var query2 = `select count(id) as counter from subadmin_directory where subadmin_id = '${req.query.id}';`
     var query3 = `select count(id) as counter from my_directory where subadmin_id = '${req.query.id}';`
-    var query4 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}';`
     var query5 = `select count(id) as counter from recordings where departmentid = '${req.query.departmentid}';`
     var query6 = `select count(id) as counter from recordings where status = 'active' and departmentid = '${req.query.departmentid}' ;`
     var query7 = `select count(id) as counter from recordings where status = 'pending' and departmentid = '${req.query.departmentid}';`
@@ -245,7 +244,7 @@ router.get('/client/dashboard',(req,res)=>{
     var query11 = `select count(id) as counter from internal_enquiry;`
 
 
-    pool.query(query+query1+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11,(err,result)=>{
+    pool.query(query+query1+query2+query3+query5+query6+query7+query8+query9+query10+query11,(err,result)=>{
         if(err) throw err;
         else res.json(result)
     })
@@ -306,6 +305,28 @@ let body = req.body
     });
 });
 
+
+
+
+router.post('/teamupdate',upload.single('image'), (req, res) => {
+   
+    let body = req.body
+        if(req.file){
+        body['image'] = req.file.filename
+        }
+    
+    
+    
+    
+        pool.query(`UPDATE team_members SET ? WHERE id = ?`, [req.body,req.body.id], (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ msg: 'Database error' });
+            }
+            res.json({ msg: 'success' });
+        });
+    });
+    
 module.exports = router;
 
 
