@@ -54,6 +54,7 @@ var upload = require('../multer');
 // Middleware to validate table names
 const validateTableName = (req, res, next) => {
     let tablename = '';
+    console.log('tablename',tablename);
     if(req.body.tablename){
         tablename = req.body.tablename
     }
@@ -127,8 +128,14 @@ router.get('/show', validateTableName, (req, res) => {
     });
 });
 
-router.post('/update', validateTableName, (req, res) => {
+router.post('/update', validateTableName,upload.single('image'), (req, res) => {
     let { tablename, id, ...data } = req.body;
+    console.log(req.body)
+
+    if(req.file){
+    data['image'] = req.file.filename
+    }
+
     if (!id) {
         return res.status(400).json({ msg: 'ID is required' });
     }
