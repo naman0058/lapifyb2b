@@ -128,7 +128,7 @@ router.get('/show', validateTableName, (req, res) => {
     });
 });
 
-router.post('/update', validateTableName,upload.single('image'), (req, res) => {
+router.post('/update',upload.single('image'), (req, res) => {
     console.log(req.body)
     console.log(req.file)
     let { tablename, id, ...data } = req.body;
