@@ -282,6 +282,34 @@ router.get('/single-detail',(req,res)=>{
     })
 })
 
+
+
+
+router.post('/clientupdate',upload.single('image'), (req, res) => {
+    console.log(req.body)
+   
+
+    if(req.file){
+    data['image'] = req.file.filename
+    }
+
+
+
+
+    console.log('table',tablename)
+    console.log('id',id)
+    console.log('data',data)
+
+
+    pool.query(`UPDATE sub_admin SET ? WHERE id = ?`, [req.body,req.body.id], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ msg: 'Database error' });
+        }
+        res.json({ msg: 'success' });
+    });
+});
+
 module.exports = router;
 
 
