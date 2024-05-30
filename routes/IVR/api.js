@@ -184,6 +184,8 @@ router.get('/profile',(req,res)=>{
     (select s.name from state s where s.id = p.state) as statename,
     (select c.name from city c where c.id = p.city) as cityname,
     (select c.name from community c where c.id = p.Community) as communityname
+    (select c.name from department c where c.id = p.departmentid) as departmentname
+
     from ${req.query.tablename} p where p.id = '${req.query.id}'`,(err,result)=>{
         if(err) throw err;
         else res.json(result)
@@ -292,7 +294,7 @@ let body = req.body
     body['image'] = req.file.filename
     }
 
-    
+
 
 
     pool.query(`UPDATE sub_admin SET ? WHERE id = ?`, [req.body,req.body.id], (err, result) => {
