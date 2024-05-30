@@ -217,10 +217,10 @@ router.get('/adminprofile',(req,res)=>{
 
 router.get('/admin/dashboard',(req,res)=>{
     var query = `select * from admin`;
-    var query1 = `select count(id) as counter from sub_admin`;
-    var query2 = `select count(id) as counter from team_members`;
-    var query3 = `select count(id) as counter from department`;
-    var query4 = `select count(id) as counter from community`;
+    var query1 = `select count(id) as counter from sub_admin;`
+    var query2 = `select count(id) as counter from team_members;`
+    var query3 = `select count(id) as counter from department;`
+    var query4 = `select count(id) as counter from community;`
     pool.query(query+query1+query2+query3+query4,(err,result)=>{
         if(err) throw err;
         else res.json(result)
