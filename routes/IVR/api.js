@@ -160,7 +160,7 @@ router.get('/show', validateTableName, (req, res) => {
         queryParams = [tablename];
     }
 
-    pool.query(query, params, (err, result) => {
+    pool.query(query, queryParams, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
