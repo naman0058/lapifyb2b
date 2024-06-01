@@ -160,12 +160,25 @@ router.get('/show', validateTableName, (req, res) => {
         queryParams = [tablename];
     }
 
+    else if (tablename === 'sub_admin') {
+        query = `SELECT 
+                    t.*, 
+                    (SELECT s.name FROM state s WHERE s.id = t.state) AS statename, 
+                    (SELECT c.name FROM city c WHERE c.id = t.city) AS cityname, 
+                    (SELECT c.name FROM community c WHERE c.id = t.community) AS communityname, 
+                    (SELECT d.name FROM department d WHERE d.id = t.departmentid) AS departmentname 
+                 FROM ?? t 
+                 ORDER BY t.id DESC`;
+        queryParams = [tablename];
+    }
+
+
     pool.query(query, queryParams, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
         }
-        const keysToRemove = ['state', 'city', 'departmentid', 'subadmin_id'];
+        const keysToRemove = ['state', 'city', 'departmentid', 'subadmin_id' , 'community'];
         const cleanedResult = result.map(row => {
             keysToRemove.forEach(key => {
                 delete row[key];
