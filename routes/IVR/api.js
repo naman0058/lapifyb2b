@@ -165,14 +165,15 @@ router.get('/show', validateTableName, (req, res) => {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
         }
-        result = result.map(row => {
-            delete row.state;
-            delete row.city;
-            delete row.departmentid;
-            delete row.subadmin_id;
+        const keysToRemove = ['state', 'city', 'departmentid', 'subadmin_id'];
+        const cleanedResult = result.map(row => {
+            keysToRemove.forEach(key => {
+                delete row[key];
+            });
             return row;
         });
-        res.json(result);
+
+        res.json(cleanedResult);
 
     });
 });
