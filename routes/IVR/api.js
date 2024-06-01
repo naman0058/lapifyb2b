@@ -117,9 +117,50 @@ router.post('/teaminsert', upload.single('image'), (req, res) => {
     });
 });
 
+// router.get('/show', validateTableName, (req, res) => {
+//     let { tablename } = req.query;
+//     pool.query(`SELECT * FROM ?? ORDER BY id DESC`, [tablename], (err, result) => {
+//         if (err) {
+//             console.error(err);
+//             return res.status(500).json({ msg: 'Database error' });
+//         }
+//         res.json(result);
+//     });
+// });
+
+
+
 router.get('/show', validateTableName, (req, res) => {
     let { tablename } = req.query;
-    pool.query(`SELECT * FROM ?? ORDER BY id DESC`, [tablename], (err, result) => {
+    let query = `SELECT * FROM ?? ORDER BY id DESC`;
+    let queryParams = [tablename];
+
+    if (tablename === 'internal_enquiry') {
+        query = `SELECT 
+                    t.*, 
+                    (SELECT s.name FROM state s WHERE s.id = t.state) AS statename, 
+                    (SELECT c.name FROM city c WHERE c.id = t.city) AS cityname 
+                 FROM ?? t 
+                 ORDER BY t.id DESC`;
+        queryParams = [tablename];
+    } else if (tablename === 'team_directory') {
+        query = `SELECT t.* FROM ?? t ORDER BY t.id DESC`;
+        queryParams = [tablename];
+    } else if (tablename === 'my_directory' || tablename === 'subadmin_directory') {
+        query = `SELECT t.* FROM ?? t ORDER BY t.id DESC`;
+        queryParams = [tablename];
+    } else if (tablename === 'team_members' || tablename === 'sub_admin') {
+        query = `SELECT 
+                    t.*, 
+                    (SELECT s.name FROM state s WHERE s.id = t.state) AS statename, 
+                    (SELECT c.name FROM city c WHERE c.id = t.city) AS cityname, 
+                    (SELECT d.name FROM department d WHERE d.id = t.departmentid) AS departmentname 
+                 FROM ?? t 
+                 ORDER BY t.id DESC`;
+        queryParams = [tablename];
+    }
+
+    pool.query(query, queryParams, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
@@ -127,6 +168,7 @@ router.get('/show', validateTableName, (req, res) => {
         res.json(result);
     });
 });
+
 
 router.post('/update',upload.single('image'), (req, res) => {
     console.log(req.body)
