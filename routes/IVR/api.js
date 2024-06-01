@@ -160,12 +160,20 @@ router.get('/show', validateTableName, (req, res) => {
         queryParams = [tablename];
     }
 
-    pool.query(query, queryParams, (err, result) => {
+    pool.query(query, params, (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
         }
+        result = result.map(row => {
+            delete row.state;
+            delete row.city;
+            delete row.departmentid;
+            delete row.subadmin_id;
+            return row;
+        });
         res.json(result);
+
     });
 });
 
