@@ -599,4 +599,18 @@ router.get('/user/trade/details', verify.userAuthenticationToken, async (req, re
     
     
 
+
+
+
+router.get('/get-filter',async(req,res)=>{
+    try {
+        const { tabledata, filter } = req.query;
+        const result = await user.getFilter(tabledata, filter);
+        res.json(result);
+      } catch (error) {
+        console.error('Error fetching filtered data:', error);
+        res.status(500).json({ error: 'An error occurred while fetching the filtered data' });
+      }
+})
+
 module.exports = router

@@ -198,6 +198,17 @@ async function updateOrders(id, data) {
 
 
 
+async function getFilter(filtertable,filters){
+  try {
+     let result = await queryAsync(`select * from ${filtertable} where filters = '${filters}' and status = true order by name`);
+     return result;
+  } catch (error) {
+    console.error('Error while updating user:', error);
+    throw new Error('Internal server error');
+  }
+}  
+
+
 
 // userlist()
 
@@ -209,5 +220,6 @@ module.exports= {
   getTransaction,
   getTransactionDetails,
   getLogs,
-  updateOrders
+  updateOrders,
+  getFilter
 }

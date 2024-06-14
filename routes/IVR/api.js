@@ -178,7 +178,7 @@ router.get('/show', validateTableName, (req, res) => {
             console.error(err);
             return res.status(500).json({ msg: 'Database error' });
         }
-        const keysToRemove = ['state', 'city', 'departmentid', 'subadmin_id' , 'Community'];
+        const keysToRemove = ['state', 'city', 'departmentid', 'subadmin_id' , 'Community', 'team_id'];
         const cleanedResult = result.map(row => {
             keysToRemove.forEach(key => {
                 delete row[key];
