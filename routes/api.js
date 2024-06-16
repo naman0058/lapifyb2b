@@ -6,6 +6,12 @@ const fs = require("fs");
 const xlsx = require("xlsx");
 var upload = require('./multer');
 var user = require('./function');
+var isimage = ['accessories','refurbished_parts','new_parts' ,'parts ']
+var laptopfilter = ['laptop']
+var mobilefilter = ['mobile']
+var applefilter = ['apple']
+
+var databasetable = 'product'
 
 
 const util = require('util');
@@ -612,5 +618,190 @@ router.get('/get-filter',async(req,res)=>{
         res.status(500).json({ error: 'An error occurred while fetching the filtered data' });
       }
 })
+
+
+
+
+
+router.get('/get-product', (req, res) => {
+    let { category, model, brand, status = true, generation } = req.query;
+
+    console.log(category);
+
+    let query = `
+        SELECT p.*, (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+        l.generation
+        FROM product p
+        LEFT JOIN laptop_qcreport l ON l.productid = p.id
+        WHERE 1=1
+    `;
+  
+    if (brand) query += ` AND p.brand = '${brand}'`;
+    if (model) query += ` AND p.modelno = '${model}'`;
+    if (category) {
+        // Handling multiple categories for 'Parts & Accessories'
+        if (category === 'Parts ') {
+            query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
+        } else {
+            query += ` AND p.category = '${category}'`;
+        }
+    }
+    if (status) query += ` AND p.status = ${status}`;
+    if (generation) query += ` AND l.generation = '${generation}'`;
+
+    pool.query(query, (err, results) => {
+        if (err) {
+            console.error('Error executing query:', err);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+        res.json({ result: results, value: req.query });
+    });
+});
+
+
+
+
+
+
+
+router.get('/product_description', (req, res) => {
+    let filtertable = '';
+  
+    const tableName = `${req.query.category}_qcreport`;
+
+    console.log('tbname',tableName)
+
+
+    if (isimage.includes(req.query.category)) {
+        filtertable = 'parts_and_accessories_filters';
+    }
+    if (laptopfilter.includes(req.query.category)) {
+        filtertable = 'laptop_filters';
+    }
+    if (mobilefilter.includes(req.query.category)) {
+        filtertable = 'mobile_filters';
+    }
+    if (applefilter.includes(req.query.category)) {
+        filtertable = 'apple_filters';
+    }
+
+
+    if (isimage.includes(req.query.category)) {
+
+    var query = `
+    SELECT d.*, 
+    GROUP_CONCAT(s.url) AS productimages, 
+    f1.name AS subcategoryname, 
+    f2.name AS brandname
+    FROM ${databasetable} d
+    LEFT JOIN screenshots s ON d.id = s.productid
+    LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+    LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+    WHERE  d.id = '${req.query.id}' and d.status = true
+    GROUP BY d.id
+    ORDER BY d.id DESC
+`;
+    }
+
+
+
+    if(laptopfilter.includes(req.query.category)){
+        var query = `
+        SELECT d.*, 
+        GROUP_CONCAT(s.url) AS productimages, 
+        f1.name AS subcategoryname, 
+        f2.name AS brandname,
+        lqr.*,   -- Select all columns from laptop_qcreport
+        f3.name AS type_name,
+        f4.name AS generation_name,
+        f5.name AS processor_name,
+        f6.name AS ram_name
+        FROM ${databasetable} d
+        LEFT JOIN screenshots s ON d.id = s.productid
+        LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+        LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+        LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
+        LEFT JOIN ${filtertable} f3 ON lqr.type = f3.id
+        LEFT JOIN ${filtertable} f4 ON lqr.generation = f4.id
+        LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
+        LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
+        WHERE  d.id = '${req.query.id}' and d.status = true
+        GROUP BY 
+        d.id, f1.name, f2.name, f3.name, lqr._id
+    ORDER BY 
+        d.id DESC;
+    `;
+    }
+
+
+    if(mobilefilter.includes(req.query.category)){
+        var query = `
+        SELECT d.*, 
+        GROUP_CONCAT(s.url) AS productimages, 
+        f1.name AS subcategoryname, 
+        f2.name AS brandname,
+        lqr.*  -- Select all columns from laptop_qcreport
+        FROM ${databasetable} d
+        LEFT JOIN screenshots s ON d.id = s.productid
+        LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+        LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+        LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
+        WHERE  d.id = '${req.query.id}' and d.status = true
+        GROUP BY 
+        d.id, f1.name, f2.name, lqr._id
+    ORDER BY 
+        d.id DESC;
+    `;
+    
+    }
+
+
+
+    if(applefilter.includes(req.query.category)){
+        var query = `
+        SELECT d.*, 
+        GROUP_CONCAT(s.url) AS productimages, 
+        f1.name AS subcategoryname, 
+        f2.name AS brandname,
+        lqr.*,   -- Select all columns from laptop_qcreport
+        f3.name AS pocessor_name
+        FROM ${databasetable} d
+        LEFT JOIN screenshots s ON d.id = s.productid
+        LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+        LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+        LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
+        LEFT JOIN ${filtertable} f3 ON lqr.processor = f3.id
+        WHERE  d.id = '${req.query.id}' and d.status = true
+        GROUP BY 
+    d.id, f1.name, f2.name, f3.name, lqr._id
+ORDER BY 
+    d.id DESC;
+    `;
+    }
+
+
+
+    
+    pool.query(query, (err, result) => {
+        if (err) {
+            console.error('Error fetching data:', err);
+            res.status(500).json({ msg: 'error' });
+        } else {
+            if (isimage.includes(req.query.category)) {
+                res.json({response: req.query.category, result })
+                // res.json(result)
+
+            }
+            else {
+                res.json({response: req.query.category, result })
+
+                //  res.render(`${folder}/${req.query.category}/list`, { response: req.query.category, msg: req.query.message, result });
+                // res.json(result)
+            }
+        }
+    });
+});
+
 
 module.exports = router
