@@ -6,7 +6,7 @@ const queryAsync = util.promisify(pool.query).bind(pool);
 var verify = require('./verify');
 const upload = require('./multer');
 var folder = 'laptop/filters'
-var isimage = ['brand','type', 'generation']
+var isimage = ['brand','type', 'generation','banner']
 var databasetable = 'laptop_filters'
 
 

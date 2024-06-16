@@ -625,7 +625,7 @@ router.get('/get-filter',async(req,res)=>{
 
 router.get('/get-product', (req, res) => {
     let { category, model, brand, status = true, generation } = req.query;
-
+    category = category.toLowerCase().replace(/ /g, "_");
     console.log(category);
 
     let query = `
@@ -667,10 +667,10 @@ router.get('/get-product', (req, res) => {
 
 router.get('/product_description', (req, res) => {
     let filtertable = '';
+
   
     const tableName = `${req.query.category}_qcreport`;
 
-    console.log('tbname',tableName)
 
 
     if (isimage.includes(req.query.category)) {
@@ -688,6 +688,8 @@ router.get('/product_description', (req, res) => {
 
 
     if (isimage.includes(req.query.category)) {
+
+        console.log('run this side')
 
     var query = `
     SELECT d.*, 
@@ -802,6 +804,32 @@ ORDER BY
         }
     });
 });
+
+
+
+router.get('/get-subcategory',(req,res)=>{
+
+    if (isimage.includes(req.query.category)) {
+        filtertable = 'parts_and_accessories_filters';
+    }
+    if (laptopfilter.includes(req.query.category)) {
+        filtertable = 'laptop_filters';
+    }
+    if (mobilefilter.includes(req.query.category)) {
+        filtertable = 'mobile_filters';
+    }
+    if (applefilter.includes(req.query.category)) {
+        filtertable = 'apple_filters';
+    }
+    console.log('category',req.query.category)
+    console.log('filters',req.query.filters)
+
+
+    pool.query(`select * from ${filtertable} where filters = '${req.query.filters}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})
 
 
 module.exports = router
