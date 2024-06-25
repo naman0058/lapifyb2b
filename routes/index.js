@@ -279,8 +279,23 @@ router.get("/read1", async (req, res) => {
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
-  res.render("index", { title: "Express" });
+  var query = `select * from outlet order by id desc;`
+  var query1 = `select * from laptop_filters where filters = 'apk' order by id desc limit 1;`
+  pool.query(query+query1,(err,result)=>{
+    if(err) throw err;
+    else res.render("index", { title: "Express" ,msg:req.query.msg,result});
+  
+  })
 });
+
+
+router.post('/contactus',(req,res)=>{
+  let body = req.body;
+  pool.query(`insert into contact_us set ?`,body,(err,result)=>{
+    if(err) throw err;
+    else res.redirect(`/?msg=Our Team Will Contact You Soon`)
+  })
+})
 
 
 

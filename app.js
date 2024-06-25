@@ -27,6 +27,7 @@ var apple = require('./routes/apple');
 var inventory = require('./routes/inventory');
 var ivrapi = require('./routes/IVR/api');
 var api = require('./routes/api');
+var outlet = require('./routes/outlet');
 
 var app = express();
 
@@ -55,6 +56,7 @@ app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 app.use('/api/v1',api);
 app.use('/admin/dashboard/laptop',laptop);
+app.use('/admin/dashboard/outlet',outlet);
 app.use('/admin/dashboard/mobile',mobile);
 app.use('/admin/dashboard/parts-and-accessories',PartsAndAccessories)
 app.use('/admin/dashboard/bulk-deal',bulkDeal);

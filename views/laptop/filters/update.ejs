@@ -57,9 +57,16 @@
 
   
   <div class="col-xl-12">
+
+    <% 
+    let uploadName = 'Image';
+    if (response.name.replace(/_/g, ' ').toUpperCase() === 'APK') { 
+        uploadName = 'APK';
+    } 
+%>
     
           
-              <label  class="form-label">Upload Image </label>
+              <label  class="form-label">Upload <%=uploadName%> </label>
       <input type="file" class="form-control" name="image" id="image">
   </div>
 

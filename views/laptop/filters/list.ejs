@@ -44,10 +44,19 @@
                                 <table id="empoloyees-tblwrapper" class="table">
                                     <thead>
                                         <tr>
+                                            <% 
+                                            let uploadName = 'Image';
+                                            if (name.replace(/_/g, ' ').toUpperCase() === 'APK') { 
+                                                uploadName = 'APK';
+                                            } 
+                                        %>
+                                            
                                             <th>S. No.</th>
                                             <th>Name</th>
                                             <% if(isImage) { %>
-                                            <th>Image</th>
+
+
+                                            <th><%=uploadName%></th>
                                             <% } %>
                                             <th>Update Data</th>
                                             <th>Delete Data</th>

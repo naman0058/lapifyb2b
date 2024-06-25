@@ -6,7 +6,7 @@ const queryAsync = util.promisify(pool.query).bind(pool);
 var verify = require('./verify');
 const upload = require('./multer');
 var folder = 'laptop/filters'
-var isimage = ['brand','type', 'generation','banner']
+var isimage = ['brand','type', 'generation','banner','apk']
 var databasetable = 'laptop_filters'
 
 
@@ -130,5 +130,17 @@ router.get('/getData/:filter',(req,res)=>{
 
 
 
+router.get('/contact/form',verify.adminAuthenticationToken,(req,res)=>{
+    pool.query(`select * from contact_us order by id desc`,(err,result)=>{
+        if(err) throw err;
+        else res.render(`${folder}/contactlist`,{result})
+        // else res.json(result)
+
+    })
+  })
+
+
+
+  
 
 module.exports = router;
