@@ -623,24 +623,64 @@ router.get('/get-filter',async(req,res)=>{
 
 
 
+// router.get('/get-product', (req, res) => {
+//     let { category, model, brand, status = true, generation } = req.query;
+//     category = category.toLowerCase().replace(/ /g, "_");
+//     console.log(category);
+
+//     let query = `
+//         SELECT p.*, (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+//         l.generation
+//         FROM product p
+//         LEFT JOIN laptop_qcreport l ON l.productid = p.id
+//         WHERE 1=1
+//     `;
+  
+//     if (brand) query += ` AND p.brand = '${brand}'`;
+//     if (model) query += ` AND p.modelno = '${model}'`;
+//     if (category) {
+//         // Handling multiple categories for 'Parts & Accessories'
+//         if (category === 'Parts ') {
+//             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
+//         } else {
+//             query += ` AND p.category = '${category}'`;
+//         }
+//     }
+//     if (status) query += ` AND p.status = ${status}`;
+//     if (generation) query += ` AND l.generation = '${generation}'`;
+
+//     pool.query(query, (err, results) => {
+//         if (err) {
+//             console.error('Error executing query:', err);
+//             res.status(500).send('Internal Server Error');
+//             return;
+//         }
+//         res.json({ result: results, value: req.query });
+//     });
+// });
+
+
+
 router.get('/get-product', (req, res) => {
-    let { category, model, brand, status = true, generation } = req.query;
+    let { category, model, brand, status = true, generation, userid } = req.query;
     category = category.toLowerCase().replace(/ /g, "_");
     console.log(category);
 
     let query = `
-        SELECT p.*, (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-        l.generation
+        SELECT p.*, 
+            (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+            l.generation,
+            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = '${userid}') AS cart_count
         FROM product p
         LEFT JOIN laptop_qcreport l ON l.productid = p.id
         WHERE 1=1
     `;
-  
+
     if (brand) query += ` AND p.brand = '${brand}'`;
     if (model) query += ` AND p.modelno = '${model}'`;
     if (category) {
         // Handling multiple categories for 'Parts & Accessories'
-        if (category === 'Parts ') {
+        if (category === 'parts_') {
             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
         } else {
             query += ` AND p.category = '${category}'`;
@@ -658,6 +698,7 @@ router.get('/get-product', (req, res) => {
         res.json({ result: results, value: req.query });
     });
 });
+
 
 
 
