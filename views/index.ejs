@@ -198,114 +198,40 @@
       <h2>Meet Our Expert Team</h2>
     </div>
     <div class="row">
+
+      <% for(i=0;i<result[2].length;i++){ %>
       <div class="col-lg-4 col-md-6">
         <div class="team-text">
           <div class="team-img">
-            <img alt="team" src="assets/img/team-1.png">
+            <img alt="team" src="/images/<%=result[2][i].image%>" style="width: 230px;height: 230px;">
           </div>
-          <span>Expert Consultant</span>
-          <h5>Thomas Willimes</h5>
+          <span><%=result[2][i].designation%></span>
+          <h5><%=result[2][i].name%></h5>
           <div class="callto">
             <i>
               <svg fill="none" height="112" viewBox="0 0 24 24" width="112" xmlns="http://www.w3.org/2000/svg"><g clip-rule="evenodd" fill="rgb(0,0,0)" fill-rule="evenodd"><path d="m7 2.75c-.41421 0-.75.33579-.75.75v17c0 .4142.33579.75.75.75h10c.4142 0 .75-.3358.75-.75v-17c0-.41421-.3358-.75-.75-.75zm-2.25.75c0-1.24264 1.00736-2.25 2.25-2.25h10c1.2426 0 2.25 1.00736 2.25 2.25v17c0 1.2426-1.0074 2.25-2.25 2.25h-10c-1.24264 0-2.25-1.0074-2.25-2.25z"></path><path d="m10.25 5c0-.41421.3358-.75.75-.75h2c.4142 0 .75.33579.75.75s-.3358.75-.75.75h-2c-.4142 0-.75-.33579-.75-.75z"></path><path d="m9.25 19c0-.4142.33579-.75.75-.75h4c.4142 0 .75.3358.75.75s-.3358.75-.75.75h-4c-.41421 0-.75-.3358-.75-.75z"></path></g></svg>
             </i>
-            <a href="callto:+12344502086">+1234 450 2086</a>
+            <a href="callto:<%=result[2][i].number%>"><%=result[2][i].number%></a>
           </div>
           <div class="follow">
             <a href="#"><img alt="follow" src="assets/img/follow.png"></a>
             <ul class="social-media-icon">
               <li>
-                <a href="#">
+                <a href="<%=result[2][i].fb_link%>">
                   <i class="fab fa-facebook-f icon"></i>    </a>
               </li>
               <li>
-                <a href="#"><i class="fab fa-twitter icon"></i></a>
+                <a href="<%=result[2][i].insta_link%>"><i class="fab fa-instagram icon"></i></a>
               </li>
             </ul>
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="team-text">
-          <div class="team-img">
-            <img alt="team" src="assets/img/team-2.png">
-          </div>
-          <span>Expert Consultant</span>
-          <h5>Willimes Domson</h5>
-          <div class="callto">
-            <i>
-              <svg fill="none" height="112" viewBox="0 0 24 24" width="112" xmlns="http://www.w3.org/2000/svg"><g clip-rule="evenodd" fill="rgb(0,0,0)" fill-rule="evenodd"><path d="m7 2.75c-.41421 0-.75.33579-.75.75v17c0 .4142.33579.75.75.75h10c.4142 0 .75-.3358.75-.75v-17c0-.41421-.3358-.75-.75-.75zm-2.25.75c0-1.24264 1.00736-2.25 2.25-2.25h10c1.2426 0 2.25 1.00736 2.25 2.25v17c0 1.2426-1.0074 2.25-2.25 2.25h-10c-1.24264 0-2.25-1.0074-2.25-2.25z"></path><path d="m10.25 5c0-.41421.3358-.75.75-.75h2c.4142 0 .75.33579.75.75s-.3358.75-.75.75h-2c-.4142 0-.75-.33579-.75-.75z"></path><path d="m9.25 19c0-.4142.33579-.75.75-.75h4c.4142 0 .75.3358.75.75s-.3358.75-.75.75h-4c-.41421 0-.75-.3358-.75-.75z"></path></g></svg>
-            </i>
-            <a href="callto:+12344502086">+1234 450 2086</a>
-          </div>
-          <div class="follow">
-            <a href="#"><img alt="follow" src="assets/img/follow.png"> </a>
-            <ul class="social-media-icon">
-              <li>
-                <a href="#">
-                  <i class="fab fa-facebook-f icon"></i>    </a>
-              </li>
-              <li>
-                <a href="#"><i class="fab fa-twitter icon"></i></a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="team-text mb-0">
-          <div class="team-img">
-            <img alt="team" src="assets/img/team-3.png">
-          </div>
-          <span>Expert Consultant</span>
-          <h5>Maikal Qlark</h5>
-          <div class="callto">
-            <i>
-              <svg fill="none" height="112" viewBox="0 0 24 24" width="112" xmlns="http://www.w3.org/2000/svg"><g clip-rule="evenodd" fill="rgb(0,0,0)" fill-rule="evenodd"><path d="m7 2.75c-.41421 0-.75.33579-.75.75v17c0 .4142.33579.75.75.75h10c.4142 0 .75-.3358.75-.75v-17c0-.41421-.3358-.75-.75-.75zm-2.25.75c0-1.24264 1.00736-2.25 2.25-2.25h10c1.2426 0 2.25 1.00736 2.25 2.25v17c0 1.2426-1.0074 2.25-2.25 2.25h-10c-1.24264 0-2.25-1.0074-2.25-2.25z"></path><path d="m10.25 5c0-.41421.3358-.75.75-.75h2c.4142 0 .75.33579.75.75s-.3358.75-.75.75h-2c-.4142 0-.75-.33579-.75-.75z"></path><path d="m9.25 19c0-.4142.33579-.75.75-.75h4c.4142 0 .75.3358.75.75s-.3358.75-.75.75h-4c-.41421 0-.75-.3358-.75-.75z"></path></g></svg>
-            </i>
-            <a href="callto:+12344502086">+1234 450 2086</a>
-          </div>
-          <div class="follow">
-            <a href="#"><img alt="follow" src="assets/img/follow.png"></a>
-            <ul class="social-media-icon">
-              <li>
-                <a href="#">
-                  <i class="fab fa-facebook-f icon"></i>    </a>
-              </li>
-              <li>
-                <a href="#"><i class="fab fa-twitter icon"></i></a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+
+      <% } %>
+     
     </div>
-    <div class="row">  
-      <div class="col-lg-3 col-sm-6">
-        <div class="count-style">
-          <h2 data-max="1"><sup>K</sup></h2>
-          <span>completed projects</span> 
-        </div>
-      </div>
-      <div class="col-lg-3 col-sm-6">
-        <div class="count-style">
-          <h2 data-max="15"><sup>m</sup></h2>
-          <span>Customer Satisfaction</span> 
-        </div>
-      </div>
-      <div class="col-lg-3 col-sm-6">
-        <div class="count-style">
-          <h2 data-max="43"><sup>+</sup></h2>
-          <span>Team members</span> 
-        </div>
-      </div>
-      <div class="col-lg-3 col-sm-6">
-        <div class="count-style">
-          <h2 data-max="12"><sup>m</sup></h2>
-          <span>Customer Satisfaction</span> 
-        </div>
-      </div>
-    </div>
+  
   </div>
 </section>
 
@@ -721,9 +647,9 @@
 
       <% for(i=0;i<result[0].length;i++){ %>
 
-      <div class="col-lg-4">
+      <div class="col-lg-4" style="margin-top: 20px;">
         <div class="card">
-          <img class="card-img-top" src="/images/<%=result[0][i].image%>" alt="Card image cap">
+          <img class="card-img-top" src="https://egadgetworld.in//images/<%=result[0][i].image%>" alt="Card image cap" style="height: 250px;object-fit: cover;">
           <div class="card-body">
             <h5 class="card-title"><%=result[0][i].name%></h5>
             <p class="card-text"><%=result[0][i].address%></p>

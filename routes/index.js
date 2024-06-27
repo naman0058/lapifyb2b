@@ -279,9 +279,10 @@ router.get("/read1", async (req, res) => {
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
-  var query = `select * from outlet order by id desc;`
+  var query = `select * from outlet where status = true order by id desc;`
   var query1 = `select * from laptop_filters where filters = 'apk' order by id desc limit 1;`
-  pool.query(query+query1,(err,result)=>{
+  var query2 = `select * from team where status = true order by id desc;`
+  pool.query(query+query1+query2,(err,result)=>{
     if(err) throw err;
     else res.render("index", { title: "Express" ,msg:req.query.msg,result});
   

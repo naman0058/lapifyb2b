@@ -34,7 +34,7 @@
                                 <div class="tbl-caption">
                                     <h4 class="heading mb-0"><%=name.replace(/_/g, ' ').toUpperCase() %> List</h4>
 
-                                   <a href="/admin/dashboard/outlet/outlet"> <button type="button" class="btn btn-primary btn-sm">Add <%=name.replace(/_/g, ' ').toUpperCase() %></button></a>
+                                   <a href="/admin/dashboard/team/team"> <button type="button" class="btn btn-primary btn-sm">Add <%=name.replace(/_/g, ' ').toUpperCase() %></button></a>
                                     <div> 
 
 
@@ -48,7 +48,8 @@
                                             
                                             <th>S. No.</th>
                                             <th>Name</th>
-                                            <th>Address</th>
+                                            <th>Number</th>
+                                            <th>Designation</th>
                                             <th>FB Link</th>
                                             <th>Insta Link</th>
                                             <th>Image</th>
@@ -70,7 +71,12 @@
                                                     </span></td>
 
                                                     <td><span>
-                                                        <%=result[i].address%>
+                                                        <%=result[i].number%>
+                                                    </span></td>
+
+
+                                                    <td><span>
+                                                        <%=result[i].designation%>
                                                     </span></td>
 
 
@@ -95,7 +101,7 @@
 
 
                                                 <td>
-                                                    <a href="/admin/dashboard/outlet/<%=name%>/update?id=<%=result[i].id%>"
+                                                    <a href="/admin/dashboard/team/<%=name%>/update?id=<%=result[i].id%>"
                                                         target="_blank"><span
                                                             class="badge badge-success light border-0">Update
                                                             Data</span></a>
@@ -103,7 +109,7 @@
 
 
                                                 <td>
-                                                    <a href="/admin/dashboard/outlet/<%=name%>/delete?id=<%=result[i].id%>"><span
+                                                    <a href="/admin/dashboard/team/<%=name%>/delete?id=<%=result[i].id%>"><span
                                                             class="badge badge-danger light border-0">Delete Data</span></a>
                                                 </td>
                                                 

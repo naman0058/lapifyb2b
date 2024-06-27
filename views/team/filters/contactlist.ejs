@@ -32,9 +32,8 @@
                         <div class="card-body p-0">
                             <div class="table-responsive active-projects style-1">
                                 <div class="tbl-caption">
-                                    <h4 class="heading mb-0"><%=name.replace(/_/g, ' ').toUpperCase() %> List</h4>
+                                    <h4 class="heading mb-0">Contact List</h4>
 
-                                   <a href="/admin/dashboard/outlet/outlet"> <button type="button" class="btn btn-primary btn-sm">Add <%=name.replace(/_/g, ' ').toUpperCase() %></button></a>
                                     <div> 
 
 
@@ -45,15 +44,11 @@
                                     <thead>
                                         <tr>
                                            
-                                            
                                             <th>S. No.</th>
                                             <th>Name</th>
-                                            <th>Address</th>
-                                            <th>FB Link</th>
-                                            <th>Insta Link</th>
-                                            <th>Image</th>
-                                            <th>Update Data</th>
-                                            <th>Delete Data</th>
+                                            <th>Email</th>
+                                            <th>Number</th>
+                                            <th>Purpose</th>
 
 
                                         </tr>
@@ -70,43 +65,22 @@
                                                     </span></td>
 
                                                     <td><span>
-                                                        <%=result[i].address%>
+                                                        <%=result[i].email%>
                                                     </span></td>
 
 
                                                     <td><span>
-                                                        <%=result[i].fb_link%>
+                                                        <%=result[i].number%>
                                                     </span></td>
 
 
                                                     <td><span>
-                                                        <%=result[i].insta_link%>
+                                                        <%=result[i].purpose%>
                                                     </span></td>
 
 
-                                                <td>
-                                                    <span>
-                                                        <img src='/images/<%=result[i].image%>' style="width: 50px;">
-                                                    </span>
-                                                </td>
-                                            
                                                
-
-
-
-                                                <td>
-                                                    <a href="/admin/dashboard/outlet/<%=name%>/update?id=<%=result[i].id%>"
-                                                        target="_blank"><span
-                                                            class="badge badge-success light border-0">Update
-                                                            Data</span></a>
-                                                </td>
-
-
-                                                <td>
-                                                    <a href="/admin/dashboard/outlet/<%=name%>/delete?id=<%=result[i].id%>"><span
-                                                            class="badge badge-danger light border-0">Delete Data</span></a>
-                                                </td>
-                                                
+ 
 
 
 
