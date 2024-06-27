@@ -873,4 +873,48 @@ router.get('/get-subcategory',(req,res)=>{
 })
 
 
+
+router.post('/update-cart', (req, res) => {
+    const { productid, userid, quantity/* add other required fields */ } = req.body;
+    const cartData = {
+        productid,
+        userid,
+        quantity,
+        /* add other fields from req.body */
+    };
+
+
+    console.log(req.body)
+
+    // Use parameterized queries to prevent SQL injection
+    pool.query('SELECT * FROM cart WHERE productid = ? AND userid = ?', [productid, userid], (err, result) => {
+        if (err) {
+            console.error('Error selecting from cart:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        
+        if (result.length > 0) {
+            // If record exists, update it
+            pool.query('UPDATE cart SET ? WHERE productid = ? AND userid = ?', [cartData, productid, userid], (err, result) => {
+                if (err) {
+                    console.error('Error updating cart:', err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+                res.json({ msg: 'success' });
+            });
+        } else {
+            // If record does not exist, insert it
+            pool.query('INSERT INTO cart SET ?', cartData, (err, result) => {
+                if (err) {
+                    console.error('Error inserting into cart:', err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+                res.json({ msg: 'success' });
+            });
+        }
+    });
+});
+
+
+
 module.exports = router
