@@ -258,6 +258,35 @@ function formatDate(date) {
 }
 
 
+
+function generateOrderNumber(prefix = 'ORD') {
+    // Get the current timestamp
+    const timestamp = Date.now().toString(); // Convert to string
+
+    // Generate a random number
+    const randomNumber = Math.floor(Math.random() * 1000000).toString(); // Convert to string
+
+    // Combine the prefix, timestamp, and random number
+    const orderNumber = `${prefix}-${timestamp}-${randomNumber}`;
+
+    return orderNumber;
+}
+
+
+function generateUniqueId(prefix = 'LPY') {
+    // Get the current timestamp
+    const timestamp = Date.now().toString(); // Convert to string
+
+    // Generate a random number
+    const randomNumber = Math.floor(Math.random() * 10000).toString(); // Convert to string
+
+    // Combine the prefix, timestamp, and random number
+    const orderNumber = `${prefix}-${timestamp}-${randomNumber}`;
+
+    return orderNumber;
+}
+
+
 // console.log('Last Financial Year',getCurrentYearDates())
 
   
@@ -271,7 +300,9 @@ function formatDate(date) {
     getCurrentYearDates,
     userAuthenticationToken,
     getCurrentDate,
-    getLastFinancialYearDates
+    getLastFinancialYearDates,
+    generateOrderNumber,
+    generateUniqueId
   }
 
 

@@ -46,6 +46,44 @@ router.post('/user/login', async (req, res) => {
 
 
 
+router.post('/user/signup', async (req, res) => {
+    const { number, password, email, name } = req.body;
+    const body = {
+        number,
+        password,
+        email,
+        name,
+        created_at: verify.getCurrentDate(),
+        wallet: 0,
+        status: 'unverified',
+        gst: 'ss',
+        unique_id: verify.generateUniqueId() // Generate unique ID with prefix 'lpy'
+    };
+
+    try {
+        // Use parameterized queries to prevent SQL injection
+        const query = 'SELECT * FROM users WHERE number = ? OR email = ?';
+        const result = await queryAsync(query, [number, email]);
+
+        if (result.length > 0) {
+            res.json({
+                msg: 'account_exists'
+            });
+        } else {
+            const insertQuery = 'INSERT INTO users SET ?';
+            const insertResult = await queryAsync(insertQuery, body);
+            res.json({
+                msg: 'success',
+                result: insertResult
+            });
+        }
+    } catch (err) {
+        console.error('Error while signing up:', err);
+        res.status(500).json({ msg: 'Internal server error' });
+    }
+});
+
+
 
 router.get('/user/dashboard', verify.userAuthenticationToken, async (req, res) => {
     try {
@@ -702,7 +740,25 @@ router.get('/get-product', (req, res) => {
 
 
 
+router.get('/get-counter',(req,res)=>{
+    pool.query(`select sum(quantity) as counter from cart where userid = '${req.query.userid}'`,(err,result)=>{
+        if(err) throw err;
+        else {
+            res.json(result);
+        }
+    })
+})
 
+
+
+router.get('/get-single-counter',(req,res)=>{
+    pool.query(`select sum(quantity) as counter from cart where userid = '${req.query.userid}' and productid = '${req.query.productid}'`,(err,result)=>{
+        if(err) throw err;
+        else {
+            res.json(result);
+        }
+    })
+})
 
 
 
@@ -914,6 +970,264 @@ router.post('/update-cart', (req, res) => {
         }
     });
 });
+
+
+
+router.get('/mycart', (req, res) => {
+    const userId = req.query.userid; // Assuming userid is passed as a query parameter
+
+    pool.query(`
+SELECT cart.*,
+       product.name as name,
+       product.skuno as skuno,
+       product.modelno as modelno,
+       product.description as description,
+       product.price as price,
+       product.id as product_id,
+       (SELECT s.url FROM screenshots s WHERE s.productid = product.id ORDER BY id LIMIT 1) AS image,
+       cart.quantity * product.price AS total_amount
+FROM cart
+JOIN product ON cart.productid = product.id
+WHERE cart.userid = ?
+  AND cart.quantity > 0;
+`, [userId], (err, result) => {
+        if (err) {
+            console.error("Error executing query:", err);
+            res.status(500).json({ error: 'Database error' }); // Handle error response
+        } else {
+            res.json(result); // Send JSON response with query result
+        }
+    });
+});
+
+
+
+router.get('/get-delivery-address',(req,res)=>{
+    pool.query(`select * from address where userid = '${req.query.userid}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json(result)
+    })
+})  
+
+
+router.post('/save-address',(req,res)=>{
+    let body = req.body;
+    pool.query(`insert into address set ?`,body,(err,result)=>{
+        if(err) throw err;
+        else {
+             res.json({msg:'success'})
+        }
+    })
+})
+
+
+
+
+// router.post('/submit-order',(req,res)=>{
+//     let orderid = verify.generateOrderNumber()
+//     let created_at = verify.getCurrentDate()
+//     let total_amount = 0;
+//     pool.query(`select c.* , 
+//         (select p.category from product p where p.id = c.productid) as category,
+//         (select p.price from product p where p.id = c.productid) as productprice
+//          from cart c where c.userid = '${req.body.userid}'`,(err,result)=>{
+//         if(err) throw err;
+//         else{
+//              for(i=0;i<result.length;i++){
+//                 let result = result;
+
+            
+
+//                 let bookingdata = {
+//                      userid : req.body.userid,
+//                      orderid : orderid,
+//                      productid : result[i].productid,
+//                      amount : result[i].productprice * result[i].quantity ,
+//                      created_at : created_at,
+//                      category : result[i].category,
+//                      quantity : result[i].quantity,
+
+    
+    
+//                 }
+
+
+//                 total_amount = total_amount + bookingdata.amount;
+
+
+//                 pool.query(`insert into booking set ?`,bookingdata,(err,result)=>{
+//                     if(err) throw err;
+//                     else console.log('Order Placed Successfully')
+//                 })
+    
+
+//              }
+
+
+//              let orderdata = {
+//                 userid : req.body.userid,
+//                 orderid:orderid,
+//                 created_at:created_at,
+//                 status:'pending',
+//                 amount : total_amount
+//              }
+
+
+
+//              pool.query(`insert into orders set ?`,orderdata,(err,result)=>{
+//                 if(err) throw err;
+//                 else {
+//                     res.json({msg:'succcess'})
+//                 }
+//              })
+            
+          
+
+            
+//         }
+//     })
+// })
+
+
+
+
+router.post('/submit-order', async (req, res) => {
+    try {
+        const orderid = verify.generateOrderNumber();
+        const created_at = verify.getCurrentDate();
+        const userid = req.body.userid;
+        const address = req.body.address;
+
+        // Fetch products from the cart
+        const cartResults = await queryAsync(`
+            SELECT c.*, 
+                   (SELECT p.category FROM product p WHERE p.id = c.productid) AS category,
+                   (SELECT p.price FROM product p WHERE p.id = c.productid) AS productprice
+            FROM cart c
+            WHERE c.userid = ? and quantity > 0`, [userid]);
+
+        if (!Array.isArray(cartResults)) {
+            throw new Error('Failed to fetch cart results');
+        }
+
+        let total_amount = 0;
+        let bookingData = [];
+
+        // Calculate total amount and prepare booking data
+        cartResults.forEach(item => {
+            const amount = item.productprice * item.quantity;
+            total_amount += amount;
+
+            bookingData.push({
+                userid,
+                orderid,
+                productid: item.productid,
+                amount,
+                created_at,
+                category: item.category,
+                quantity: item.quantity,
+                address,
+            });
+        });
+
+        // Insert booking data into 'booking' table
+        await Promise.all(bookingData.map(data => queryAsync(`INSERT INTO booking SET ?`, data)));
+
+        // Insert order data into 'orders' table
+        const orderData = {
+            userid,
+            orderid,
+            created_at,
+            status: 'pending',
+            amount: total_amount,
+            address,
+            updated_at:created_at
+
+        };
+        await queryAsync(`INSERT INTO orders SET ?`, orderData);
+        await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [userid]);
+
+        res.json({ msg: 'success' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'An error occurred' });
+    }
+
+
+});
+
+
+
+
+
+router.get('/myorder', (req, res) => {
+    const userId = req.query.userid; // Assuming userid is passed as a query parameter
+
+    pool.query(`
+SELECT booking.*,
+       product.name as name,
+       product.skuno as skuno,
+       product.modelno as modelno,
+       product.description as description,
+       product.id as product_id,
+       (SELECT s.url FROM screenshots s WHERE s.productid = product.id ORDER BY id LIMIT 1) AS image
+FROM booking
+JOIN product ON booking.productid = product.id
+WHERE booking.userid = ?
+  AND booking.status = '${req.query.status}';
+`, [userId], (err, result) => {
+        if (err) {
+            console.error("Error executing query:", err);
+            res.status(500).json({ error: 'Database error' }); // Handle error response
+        } else {
+            res.json(result); // Send JSON response with query result
+        }
+    });
+});
+
+
+
+
+router.post(`/submit-review`,(req,res)=>{
+    let body = req.body;
+    body.created_at = verify.getCurrentDate
+    pool.query(`insert into review set ?`,body,(err,result)=>{
+        if(err) throw err;
+        else{
+            res.json({msg:'success'})
+        }
+    })
+})
+
+
+router.get(`/get-review`,(req,res)=>{
+  
+    pool.query(`select * from review where userid = '${req.query.userid}' and productid = '${req.query.productid}'`,(err,result)=>{
+        if(err) throw err;
+        else{
+            res.json({msg:'success'})
+        }
+    })
+})
+
+
+
+router.get('/check-review',(req,res)=>{
+    pool.query(`select * from review where userid = '${req.query.userid}' and productid = '${req.query.productid}'`,(err,result)=>{
+        if(err) throw err;
+        else if(result.length>0){
+            res.json({
+                msg : 'exists',
+                result
+            })
+        }
+        else{
+            res.json({
+                msg : 'not_reviewed'
+            })
+        }
+    })
+})
 
 
 

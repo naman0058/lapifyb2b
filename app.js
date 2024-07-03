@@ -6,6 +6,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const { createServer } = require("http");
+const cors = require('cors');
 
 
 const httpServer = createServer(app);
@@ -32,6 +33,7 @@ var team = require('./routes/team');
 
 
 var app = express();
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -44,6 +46,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+const corsOptions = {
+  origin: 'http://localhost:19006', // Your React Native Expo URL or other allowed origins
+  optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 app.use(cookieSession({
   name: 'session',
