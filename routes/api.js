@@ -1233,4 +1233,39 @@ router.get('/check-review',(req,res)=>{
 
 
 
+// 
+
+
+
+
+
+  router.get('/search', (req, res) => {
+    const searchTerm = req.query.q;
+  const userId = req.query.userid;
+    if (!searchTerm) {
+      return res.status(400).json({ error: 'Search term is required' });
+    }
+  
+    const query = `
+     SELECT p.*, 
+       (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+       (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count
+FROM product p 
+WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
+   OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
+
+    `;
+  
+    const searchValue = `%${searchTerm}%`;
+  const values = [userId, searchValue, searchValue, searchValue, searchValue, searchValue, searchValue, searchValue];
+
+    pool.query(query, values, (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: 'Database query failed' });
+      }
+      res.json(results);
+    });
+  });
+
+
 module.exports = router
