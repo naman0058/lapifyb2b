@@ -151,6 +151,9 @@ router.get('/show', validateTableName, (req, res) => {
     } else if (tablename === 'my_directory' || tablename === 'subadmin_directory') {
         query = `SELECT t.* FROM ?? t ORDER BY t.id DESC`;
         queryParams = [tablename];
+    } else if (tablename === 'recordings') {
+        query = `SELECT t.* FROM ?? t where departmentid = ${req.query.departmentid} ORDER BY t.id DESC`;
+        queryParams = [tablename];
     } else if (tablename === 'team_members') {
         query = `SELECT 
                     t.*, 
