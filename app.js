@@ -54,6 +54,9 @@ const corsOptions = {
 app.use(cookieSession({
   name: 'session',
   keys: ['lapify_b2b_app'],
+  resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true },
 
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
