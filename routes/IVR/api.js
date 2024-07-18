@@ -396,7 +396,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
     router.get('/collectDepartmant', (req, res) => {
-        // try {
+        try {
             const data = {
                 CallSid: req.query.CallSid,
                 CallFrom: req.query.CallFrom,
@@ -424,10 +424,10 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
             // Send a 200 OK status
             res.status(200).send('Data saved to session successfully');
-        // } catch (error) {
-        //     console.error('Error saving data to session:', error);
-        //     res.status(500).send('Error saving data');
-        // }
+        } catch (error) {
+            console.error('Error saving data to session:', error);
+            res.status(500).send('Error saving data');
+        }
     });
     
 
