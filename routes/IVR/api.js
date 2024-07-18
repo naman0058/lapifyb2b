@@ -456,7 +456,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
         // Check if CallSid matches between recordingData and callData
         if (recordingData.CallSid === callData.CallSid) {
             // Update digits in callData
-            callData.digits = recordingData.digits;
+            recordingData.digits = callData.digits;
         }
     
         try {
