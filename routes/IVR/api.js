@@ -417,7 +417,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             };
     
             // Save the data in session
-            req.session.callData = data;
+            req.session.callsData = data;
     
             // Debugging output
             console.log('Data saved to session:', req.session.callData);
@@ -433,7 +433,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
     router.get('/checksession',(req,res)=>{
-        res.json(req.session.callData)
+        res.json(req.session.callsData)
     })
     
     
@@ -441,10 +441,10 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     router.get('/saveRecording', async (req, res) => {
         // Fetch callData from session
         try {
-        const callData = req.session.callData || {};
+        const callsData = req.session.callsData || {};
 
 
-        console.log('Call Data',req.session.callData)
+        console.log('Call Data',req.session.callsData)
 
   
     
@@ -472,15 +472,15 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
         console.log('Recording Data Callsid', recordingData.CallSid)
-        console.log('Call Data Callsid', callData.CallSid)
+        console.log('Call Data Callsid', callsData.CallSid)
 
 
        
     
         // Check if CallSid matches between recordingData and callData
-        if (recordingData.CallSid === callData.CallSid) {
+        if (recordingData.CallSid === callsData.CallSid) {
             // Update digits in callData
-            recordingData.digits = callData.digits;
+            recordingData.digits = callsData.digits;
         }
     
        
