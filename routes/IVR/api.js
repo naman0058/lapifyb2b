@@ -420,8 +420,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
         // Send a 200 OK status
         // res.json(req.session.callData);
-        // res.status(200);
-        res.json({mgs:'suce'})
+        res.status(200);
 
     });
     
