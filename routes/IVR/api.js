@@ -425,6 +425,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
     
     router.get('/saveRecording', async (req, res) => {
+        res.json(req.session.callData)
         const recordingData = {
           CallSid: req.query.CallSid,
           CallFrom: req.query.CallFrom,
