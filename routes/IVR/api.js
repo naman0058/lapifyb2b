@@ -395,7 +395,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
 
-    router.get('/collectDepartmant', (req, res) => {
+    router.get('/collectDepartmant', async(req, res) => {
         try {
             const data = {
                 CallSid: req.query.CallSid,
@@ -417,7 +417,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             };
     
             // Save the data in session
-            req.session.callsData = data;
+           await req.session.callsData = data;
     
             // Debugging output
             console.log('Data saved to session:', req.session.callsData);
