@@ -49,6 +49,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require("./pool"); // Assuming you have a db.js file for your database connection
 var upload = require('../multer');
+const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 
 
@@ -453,7 +454,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
       // Save mergedData to the MySQL recording table
       try {
         const [result] = await queryAsync(
-          'INSERT INTO recording (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO recordings (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             mergedData.CallSid,
             mergedData.CallFrom,
