@@ -413,14 +413,17 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
                 From: req.query.From,
                 To: req.query.To,
                 CurrentTime: req.query.CurrentTime,
-                // digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
+                digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
             };
     
             // Save the data in session
-            req.session.callsData = data;
+            // req.session.callsData = data;
+            localStorage.setItem('callsData', JSON.stringify(data));
+            const callsDataString = localStorage.getItem('callsData');
+
     
             // Debugging output
-            console.log('Data saved to session:', req.session.callsData);
+            console.log('Data saved to session:', JSON.parse(callsDataString);
     
             // Send a 200 OK status
             res.status(200).send('Data saved to session successfully');
@@ -432,20 +435,20 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
 
 
-    router.get('/checksession',(req,res)=>{
-        res.json(req.session.callsData)
-    })
+ 
     
     
     
     router.get('/saveRecording', async (req, res) => {
         // Fetch callData from session
-        console.log('Call Data',req.session.callsData)
+       
 
         try {
-        console.log('Call Data',req.session.callsData)
+            const callsDataString = localStorage.getItem('callsData');
 
-        const callsData = req.session.callsData || {};
+        console.log('Call Data',JSON.parse(callsDataString))
+
+        const callsData = JSON.parse(callsDataString) || {};
 
 
 
