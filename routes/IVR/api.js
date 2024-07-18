@@ -413,7 +413,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
                 From: req.query.From,
                 To: req.query.To,
                 CurrentTime: req.query.CurrentTime,
-                digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
+                // digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
             };
     
             // Save the data in session
