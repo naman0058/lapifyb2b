@@ -332,10 +332,12 @@ router.get('/team/dashboard',(req,res)=>{
     var query9 = `select count(id) as counter from recordings where status = 'stuck' and departmentid = '${req.query.departmentid}';`
     var query10 = `select count(id) as counter from recordings where status = 'working' and departmentid = '${req.query.departmentid}';`
     var query11 = `select count(id) as counter from internal_enquiry where subadmin_id = '${req.query.subadmin_id}';`
+    var query12 = `select count(id) as counter from recordings where status = 'completed' and departmentid = '${req.query.departmentid}';`
+
 
    
 
-    pool.query(query+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11,(err,result)=>{
+    pool.query(query+query2+query3+query4+query5+query6+query7+query8+query9+query10+query11+query12,(err,result)=>{
         if(err) throw err;
         else res.json(result)
     })
