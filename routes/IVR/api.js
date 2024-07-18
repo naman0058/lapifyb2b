@@ -396,34 +396,40 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
     router.get('/collectDepartmant', (req, res) => {
-        const data = {
-            CallSid: req.query.CallSid,
-            CallFrom: req.query.CallFrom,
-            CallTo: req.query.CallTo,
-            Direction: req.query.Direction,
-            Created: req.query.Created,
-            DialCallDuration: req.query.DialCallDuration,
-            StartTime: req.query.StartTime,
-            EndTime: req.query.EndTime,
-            CallType: req.query.CallType,
-            DialWhomNumber: req.query.DialWhomNumber,
-            flow_id: req.query.flow_id,
-            tenant_id: req.query.tenant_id,
-            From: req.query.From,
-            To: req.query.To,
-            CurrentTime: req.query.CurrentTime,
-            digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
-        };
+        try {
+            const data = {
+                CallSid: req.query.CallSid,
+                CallFrom: req.query.CallFrom,
+                CallTo: req.query.CallTo,
+                Direction: req.query.Direction,
+                Created: req.query.Created,
+                DialCallDuration: req.query.DialCallDuration,
+                StartTime: req.query.StartTime,
+                EndTime: req.query.EndTime,
+                CallType: req.query.CallType,
+                DialWhomNumber: req.query.DialWhomNumber,
+                flow_id: req.query.flow_id,
+                tenant_id: req.query.tenant_id,
+                From: req.query.From,
+                To: req.query.To,
+                CurrentTime: req.query.CurrentTime,
+                digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
+            };
     
-        // Save the data in session
-        req.session.callData = data;
+            // Save the data in session
+            req.session.callData = data;
     
-        // Send a 200 OK status
-        // res.json(req.session.callData);
-        res.status(200).send('Data saved to session and inserted/updated into MySQL successfully');
-
-
+            // Debugging output
+            console.log('Data saved to session:', req.session.callData);
+    
+            // Send a 200 OK status
+            res.status(200).send('Data saved to session successfully');
+        } catch (error) {
+            console.error('Error saving data to session:', error);
+            res.status(500).send('Error saving data');
+        }
     });
+    
 
 
     router.get('/checksession',(req,res)=>{
@@ -434,6 +440,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
     router.get('/saveRecording', async (req, res) => {
         // Fetch callData from session
+        try {
         const callData = req.session.callData || {};
 
 
@@ -476,7 +483,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             recordingData.digits = callData.digits;
         }
     
-        try {
+       
             // If CallSid matches, update existing record, otherwise insert new record
            
                 // Perform insert operation
