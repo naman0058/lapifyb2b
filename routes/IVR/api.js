@@ -49,6 +49,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require("./pool"); // Assuming you have a db.js file for your database connection
 var upload = require('../multer');
+const queryAsync = util.promisify(pool.query).bind(pool);
 
 
 // Middleware to validate table names
@@ -389,6 +390,101 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             }
             res.json({ msg: 'success' });
         });
+    });
+
+
+
+    router.get('/collectDepartmant', (req, res) => {
+        const data = {
+            CallSid: req.query.CallSid,
+            CallFrom: req.query.CallFrom,
+            CallTo: req.query.CallTo,
+            Direction: req.query.Direction,
+            Created: req.query.Created,
+            DialCallDuration: req.query.DialCallDuration,
+            StartTime: req.query.StartTime,
+            EndTime: req.query.EndTime,
+            CallType: req.query.CallType,
+            DialWhomNumber: req.query.DialWhomNumber,
+            flow_id: req.query.flow_id,
+            tenant_id: req.query.tenant_id,
+            From: req.query.From,
+            To: req.query.To,
+            CurrentTime: req.query.CurrentTime,
+            digits: req.query.digits
+        };
+    
+        // Save the data in session
+        req.session.callData = data;
+    
+        // Send a 200 OK status
+        res.sendStatus(200);
+    });
+    
+    
+    
+    router.get('/saveRecording', async (req, res) => {
+      const recordingData = {
+        CallSid: req.query.CallSid,
+        CallFrom: req.query.CallFrom,
+        CallTo: req.query.CallTo,
+        Direction: req.query.Direction,
+        Created: req.query.Created,
+        DialCallDuration: req.query.DialCallDuration,
+        RecordingUrl: req.query.RecordingUrl,
+        StartTime: req.query.StartTime,
+        EndTime: req.query.EndTime,
+        CallType: req.query.CallType,
+        DialWhomNumber: req.query.DialWhomNumber,
+        flow_id: req.query.flow_id,
+        tenant_id: req.query.tenant_id,
+        From: req.query.From,
+        To: req.query.To,
+        RecordingAvailableBy: req.query.RecordingAvailableBy,
+        CurrentTime: req.query.CurrentTime
+      };
+    
+      // Fetch callData from session
+      const callData = req.session.callData || {};
+    
+      // Merge callData with recordingData
+      const mergedData = { ...callData, ...recordingData };
+    
+      // Save mergedData to the MySQL recording table
+      try {
+        const [result] = await queryAsync(
+          'INSERT INTO recording (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            mergedData.CallSid,
+            mergedData.CallFrom,
+            mergedData.CallTo,
+            mergedData.Direction,
+            mergedData.Created,
+            mergedData.DialCallDuration,
+            mergedData.RecordingUrl,
+            mergedData.StartTime,
+            mergedData.EndTime,
+            mergedData.CallType,
+            mergedData.DialWhomNumber,
+            mergedData.flow_id,
+            mergedData.tenant_id,
+            mergedData.From,
+            mergedData.To,
+            mergedData.RecordingAvailableBy,
+            mergedData.CurrentTime,
+            mergedData.digits
+          ]
+        );
+    
+        // Clear the session data if needed
+        req.session.callData = null;
+    
+        // Send a 200 OK status
+        res.status(200).send('Data saved to session and inserted into MySQL successfully');
+      } catch (error) {
+        console.error('Error inserting data into MySQL:', error);
+        res.status(500).send('Error saving data');
+      }
     });
     
 module.exports = router;
