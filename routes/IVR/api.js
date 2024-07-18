@@ -412,84 +412,90 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             From: req.query.From,
             To: req.query.To,
             CurrentTime: req.query.CurrentTime,
-            digits: req.query.digits
+            digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
         };
     
         // Save the data in session
         req.session.callData = data;
     
         // Send a 200 OK status
-        res.sendStatus(200);
+        res.json(req.session.callData);
     });
     
     
     
     router.get('/saveRecording', async (req, res) => {
-        res.json(req.session.callData)
-        // const recordingData = {
-        //   CallSid: req.query.CallSid,
-        //   CallFrom: req.query.CallFrom,
-        //   CallTo: req.query.CallTo,
-        //   Direction: req.query.Direction,
-        //   Created: req.query.Created,
-        //   DialCallDuration: req.query.DialCallDuration,
-        //   RecordingUrl: req.query.RecordingUrl,
-        //   StartTime: req.query.StartTime,
-        //   EndTime: req.query.EndTime,
-        //   CallType: req.query.CallType,
-        //   DialWhomNumber: req.query.DialWhomNumber,
-        //   flow_id: req.query.flow_id,
-        //   tenant_id: req.query.tenant_id,
-        //   From: req.query.From,
-        //   To: req.query.To,
-        //   RecordingAvailableBy: req.query.RecordingAvailableBy,
-        //   CurrentTime: req.query.CurrentTime
-        // };
-      
-        // // Fetch callData from session
-        // const callData = req.session.callData || {};
-      
-        // // Merge callData with recordingData
-        // const mergedData = { ...callData, ...recordingData };
-      
-        // // Save mergedData to the MySQL recording table
-        // try {
-        //   await queryAsync(
-        //     'INSERT INTO recordings (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        //     [
-        //       mergedData.CallSid,
-        //       mergedData.CallFrom,
-        //       mergedData.CallTo,
-        //       mergedData.Direction,
-        //       mergedData.Created,
-        //       mergedData.DialCallDuration,
-        //       mergedData.RecordingUrl,
-        //       mergedData.StartTime,
-        //       mergedData.EndTime,
-        //       mergedData.CallType,
-        //       mergedData.DialWhomNumber,
-        //       mergedData.flow_id,
-        //       mergedData.tenant_id,
-        //       mergedData.From,
-        //       mergedData.To,
-        //       mergedData.RecordingAvailableBy,
-        //       mergedData.CurrentTime,
-        //       mergedData.digits
-        //     ]
-        //   );
-      
-        //   // Clear the session data if needed
-        //   req.session.callData = null;
-      
-        //   // Send a 200 OK status
-        //   res.status(200).send('Data saved to session and inserted into MySQL successfully');
-        // } catch (error) {
-        //   console.error('Error inserting data into MySQL:', error);
-        //   res.status(500).send('Error saving data');
-        // }
-          res.status(200).send('Data saved to session and inserted into MySQL successfully');
-
-      });
+        // Fetch callData from session
+        const callData = req.session.callData || {};
+    
+        // Prepare recordingData from request
+        const recordingData = {
+            CallSid: req.query.CallSid,
+            CallFrom: req.query.CallFrom,
+            CallTo: req.query.CallTo,
+            Direction: req.query.Direction,
+            Created: req.query.Created,
+            DialCallDuration: req.query.DialCallDuration,
+            RecordingUrl: req.query.RecordingUrl,
+            StartTime: req.query.StartTime,
+            EndTime: req.query.EndTime,
+            CallType: req.query.CallType,
+            DialWhomNumber: req.query.DialWhomNumber,
+            flow_id: req.query.flow_id,
+            tenant_id: req.query.tenant_id,
+            From: req.query.From,
+            To: req.query.To,
+            RecordingAvailableBy: req.query.RecordingAvailableBy,
+            CurrentTime: req.query.CurrentTime,
+            digits: req.query.digits
+        };
+    
+        // Check if CallSid matches between recordingData and callData
+        if (recordingData.CallSid === callData.CallSid) {
+            // Update digits in callData
+            callData.digits = recordingData.digits;
+        }
+    
+        try {
+            // If CallSid matches, update existing record, otherwise insert new record
+           
+                // Perform insert operation
+                await queryAsync(
+                    'INSERT INTO recordings (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [
+                        recordingData.CallSid,
+                        recordingData.CallFrom,
+                        recordingData.CallTo,
+                        recordingData.Direction,
+                        recordingData.Created,
+                        recordingData.DialCallDuration,
+                        recordingData.RecordingUrl,
+                        recordingData.StartTime,
+                        recordingData.EndTime,
+                        recordingData.CallType,
+                        recordingData.DialWhomNumber,
+                        recordingData.flow_id,
+                        recordingData.tenant_id,
+                        recordingData.From,
+                        recordingData.To,
+                        recordingData.RecordingAvailableBy,
+                        recordingData.CurrentTime,
+                        recordingData.digits
+                    ]
+                );
+            
+    
+            // Clear the session data after successful operation
+            req.session.callData = null;
+    
+            // Send a 200 OK status
+            res.status(200).send('Data saved to session and inserted/updated into MySQL successfully');
+        } catch (error) {
+            console.error('Error inserting/updating data into MySQL:', error);
+            res.status(500).send('Error saving data');
+        }
+    });
+    
     
 module.exports = router;
 
