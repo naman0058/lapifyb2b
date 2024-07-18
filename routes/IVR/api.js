@@ -417,7 +417,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             };
     
             // Save the data in session
-           await req.session.callsData = data;
+            req.session.callsData = data;
     
             // Debugging output
             console.log('Data saved to session:', req.session.callsData);
