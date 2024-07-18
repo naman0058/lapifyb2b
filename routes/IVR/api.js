@@ -440,11 +440,14 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
     router.get('/saveRecording', async (req, res) => {
         // Fetch callData from session
+        console.log('Call Data',req.session.callsData)
+
         try {
+        console.log('Call Data',req.session.callsData)
+
         const callsData = req.session.callsData || {};
 
 
-        console.log('Call Data',req.session.callsData)
 
   
     
