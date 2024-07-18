@@ -423,7 +423,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
     
             // Debugging output
-            console.log('Data saved to session:', JSON.parse(callsDataString);
+            console.log('Data saved to local:', JSON.parse(callsDataString))
     
             // Send a 200 OK status
             res.status(200).send('Data saved to session successfully');
