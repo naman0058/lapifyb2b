@@ -395,7 +395,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
 
-    router.get('/collectDepartmant', (req, res) => {
+    router.get('/collectDepartmant', async(req, res) => {
         try {
             const data = {
                 CallSid: req.query.CallSid,
