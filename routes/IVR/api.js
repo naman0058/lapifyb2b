@@ -424,6 +424,11 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
     });
+
+
+    router.get('/checksession',(req,res)=>{
+        res.json(req.session.callData)
+    })
     
     
     
