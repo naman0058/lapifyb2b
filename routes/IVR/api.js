@@ -419,7 +419,9 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
         req.session.callData = data;
     
         // Send a 200 OK status
-        res.json(req.session.callData);
+        // res.json(req.session.callData);
+        res.status(200);
+
     });
     
     
