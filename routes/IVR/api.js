@@ -463,7 +463,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
             // Fetch existing data from collectdepartment based on CallSid
             const [rows] = await queryAsync('SELECT digits FROM collectdepartment WHERE CallSid = ?', [recordingData.CallSid]);
-    
+             console.log('rows',rows)
             if (rows.length > 0) {
                 // Update recordingData digits based on collectdepartment digits
                 recordingData.digits = rows[0].digits;
