@@ -431,7 +431,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
         // Fetch callData from session
         const callData = req.session.callData || {};
 
-        res.json(callData)
+  
     
         // Prepare recordingData from request
         const recordingData = {
@@ -454,6 +454,11 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             CurrentTime: req.query.CurrentTime,
             digits: req.query.digits
         };
+
+        res.json({
+            recordingData : recordingData.CallSid,
+            callData : callData.CallSid
+        })
     
         // Check if CallSid matches between recordingData and callData
         if (recordingData.CallSid === callData.CallSid) {
