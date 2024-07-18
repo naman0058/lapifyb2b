@@ -395,7 +395,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
 
 
 
-    router.get('/collectDepartmant', async(req, res) => {
+    router.get('/collectDepartmant', async (req, res) => {
         try {
             const data = {
                 CallSid: req.query.CallSid,
@@ -416,20 +416,19 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
                 digits: parseInt(req.query.digits.replace(/"/g, ''), 10)
             };
     
-            // Save the data in session
-            // req.session.callsData = data;
-            localStorage.setItem('callsData', JSON.stringify(data));
-            const callsDataString = localStorage.getItem('callsData');
-
-    
-            // Debugging output
-            console.log('Data saved to local:', JSON.parse(callsDataString))
-    
-            // Send a 200 OK status
-            res.status(200).send('Data saved to session successfully');
+            // Insert data into MySQL table
+            pool.query('INSERT INTO collectdepartment SET ?', data, (error, results) => {
+                if (error) {
+                    console.error('Error inserting data:', error);
+                    res.status(500).send('Error inserting data into MySQL');
+                } else {
+                    console.log('Data inserted successfully');
+                    res.status(200).send('Data inserted into MySQL table successfully');
+                }
+            });
         } catch (error) {
-            console.error('Error saving data to session:', error);
-            res.status(500).send('Error saving data');
+            console.error('Error processing request:', error);
+            res.status(500).send('Error processing request');
         }
     });
     
@@ -438,56 +437,38 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
  
     
     
-    
     router.get('/saveRecording', async (req, res) => {
-        // Fetch callData from session
-       
-
         try {
-            const callsDataString = localStorage.getItem('callsData');
-
-        console.log('Call Data',JSON.parse(callsDataString))
-
-        const callsData = JSON.parse(callsDataString) || {};
-
-
-
-  
+            // Prepare recordingData from request
+            const recordingData = {
+                CallSid: req.query.CallSid,
+                CallFrom: req.query.CallFrom,
+                CallTo: req.query.CallTo,
+                Direction: req.query.Direction,
+                Created: req.query.Created,
+                DialCallDuration: req.query.DialCallDuration,
+                RecordingUrl: req.query.RecordingUrl,
+                StartTime: req.query.StartTime,
+                EndTime: req.query.EndTime,
+                CallType: req.query.CallType,
+                DialWhomNumber: req.query.DialWhomNumber,
+                flow_id: req.query.flow_id,
+                tenant_id: req.query.tenant_id,
+                From: req.query.From,
+                To: req.query.To,
+                RecordingAvailableBy: req.query.RecordingAvailableBy,
+                CurrentTime: req.query.CurrentTime,
+                digits: req.query.digits
+            };
     
-        // Prepare recordingData from request
-        const recordingData = {
-            CallSid: req.query.CallSid,
-            CallFrom: req.query.CallFrom,
-            CallTo: req.query.CallTo,
-            Direction: req.query.Direction,
-            Created: req.query.Created,
-            DialCallDuration: req.query.DialCallDuration,
-            RecordingUrl: req.query.RecordingUrl,
-            StartTime: req.query.StartTime,
-            EndTime: req.query.EndTime,
-            CallType: req.query.CallType,
-            DialWhomNumber: req.query.DialWhomNumber,
-            flow_id: req.query.flow_id,
-            tenant_id: req.query.tenant_id,
-            From: req.query.From,
-            To: req.query.To,
-            RecordingAvailableBy: req.query.RecordingAvailableBy,
-            CurrentTime: req.query.CurrentTime,
-            digits: req.query.digits
-        };
-
-
-        console.log('Recording Data Callsid', recordingData.CallSid)
-        console.log('Call Data Callsid', callsData.CallSid)
-
-
-       
+            // Fetch existing data from collectdepartment based on CallSid
+            const [rows] = await queryAsync('SELECT digits FROM collectdepartment WHERE CallSid = ?', [recordingData.CallSid]);
     
-        // Check if CallSid matches between recordingData and callData
-        if (recordingData.CallSid === callsData.CallSid) {
-            // Update digits in callData
-            recordingData.digits = callsData.digits;
-        }
+            if (rows.length > 0) {
+                // Update recordingData digits based on collectdepartment digits
+                recordingData.digits = rows[0].digits;
+            }
+    
     
        
             // If CallSid matches, update existing record, otherwise insert new record
