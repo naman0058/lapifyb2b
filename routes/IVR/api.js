@@ -453,7 +453,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
     
       // Save mergedData to the MySQL recording table
       try {
-        const [result] = await queryAsync(
+        const [result] = pool.query(
           'INSERT INTO recordings (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [
             mergedData.CallSid,
