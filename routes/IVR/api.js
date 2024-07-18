@@ -431,6 +431,9 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
         // Fetch callData from session
         const callData = req.session.callData || {};
 
+
+        console.log('Call Data',req.session.callData)
+
   
     
         // Prepare recordingData from request
