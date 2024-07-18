@@ -489,7 +489,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
             
     
             // Clear the session data after successful operation
-            req.session.callData = null;
+            // req.session.callData = null;
     
             // Send a 200 OK status
             res.status(200).send('Data saved to session and inserted/updated into MySQL successfully');
