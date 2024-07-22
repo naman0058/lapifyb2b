@@ -47,7 +47,7 @@ router.post('/user/login', async (req, res) => {
 
 
 router.post('/user/signup', async (req, res) => {
-    const { number, password, email, name } = req.body;
+    const { number, password, email, name , gst , firm_name } = req.body;
     const body = {
         number,
         password,
@@ -56,7 +56,9 @@ router.post('/user/signup', async (req, res) => {
         created_at: verify.getCurrentDate(),
         wallet: 0,
         status: 'unverified',
-        gst: 'ss',
+        gst,
+        firm_name,
+        isproduct:'no',
         unique_id: verify.generateUniqueId() // Generate unique ID with prefix 'lpy'
     };
 
@@ -708,7 +710,8 @@ router.get('/get-product', (req, res) => {
         SELECT p.*, 
             (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
             l.generation,
-            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = '${userid}') AS cart_count
+            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = '${userid}') AS cart_count,
+            (select u.isproduct from users u where u.id = '${userid}') as isproductshow
         FROM product p
         LEFT JOIN laptop_qcreport l ON l.productid = p.id
         WHERE 1=1
@@ -792,10 +795,12 @@ router.get('/product_description', (req, res) => {
     SELECT d.*, 
     GROUP_CONCAT(s.url) AS productimages, 
     f1.name AS subcategoryname, 
+    u.isproduct AS isproductshow,
     f2.name AS brandname
     FROM ${databasetable} d
     LEFT JOIN screenshots s ON d.id = s.productid
     LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+    LEFT JOIN users u ON u.id = '${req.query.userid}'
     LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
     WHERE  d.id = '${req.query.id}' and d.status = true
     GROUP BY d.id
@@ -811,6 +816,7 @@ router.get('/product_description', (req, res) => {
         GROUP_CONCAT(s.url) AS productimages, 
         f1.name AS subcategoryname, 
         f2.name AS brandname,
+        u.isproduct AS isproductshow,
         lqr.*,   -- Select all columns from laptop_qcreport
         f3.name AS type_name,
         f4.name AS generation_name,
@@ -818,6 +824,7 @@ router.get('/product_description', (req, res) => {
         f6.name AS ram_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
+        LEFT JOIN users u ON u.id = '${req.query.userid}'
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
@@ -840,9 +847,11 @@ router.get('/product_description', (req, res) => {
         GROUP_CONCAT(s.url) AS productimages, 
         f1.name AS subcategoryname, 
         f2.name AS brandname,
+        u.isproduct AS isproductshow,
         lqr.*  -- Select all columns from laptop_qcreport
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
+        LEFT JOIN users u ON u.id = '${req.query.userid}'
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
@@ -863,10 +872,12 @@ router.get('/product_description', (req, res) => {
         GROUP_CONCAT(s.url) AS productimages, 
         f1.name AS subcategoryname, 
         f2.name AS brandname,
+        u.isproduct AS isproductshow,
         lqr.*,   -- Select all columns from laptop_qcreport
         f3.name AS pocessor_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
+        LEFT JOIN users u ON u.id = '${req.query.userid}'
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
@@ -1249,7 +1260,9 @@ router.get('/check-review',(req,res)=>{
     const query = `
      SELECT p.*, 
        (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-       (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count
+       (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+        (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
+
 FROM product p 
 WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
    OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
@@ -1266,6 +1279,19 @@ WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
       res.json(results);
     });
   });
+  
 
+
+  router.post('/update-profile',upload.single('image'),(req,res)=>{
+    let body = req.body;
+    body.image = req.file.filename;
+
+
+    console.log(body)
+    pool.query(`update users set ? where id = '${req.body.id}'`,body,(err,result)=>{
+        if(err) throw err;
+        else res.json({msg:'success'})
+    })
+  })
 
 module.exports = router
