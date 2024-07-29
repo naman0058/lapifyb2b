@@ -63,6 +63,17 @@ app.use(cookieSession({
 }))
 
 
+
+const host = 'https://egadgetworld.in/';
+const port = 8080;
+
+corsAnywhere.createServer({
+  originWhitelist: [], // Allow all origins
+}).listen(port, host, () => {
+  console.log(`CORS Anywhere proxy running on ${host}:${port}`);
+});
+
+
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 app.use('/api/v1',api);
