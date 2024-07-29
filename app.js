@@ -62,22 +62,12 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
-const corsAnywhere = require('cors-anywhere');
-
-const host = '165.22.210.219';
-const port = 8080;
-
-corsAnywhere.createServer({
-  originWhitelist: [], // Allow all origins
-}).listen(port, host, () => {
-  console.log(`CORS Anywhere proxy running on ${host}:${port}`);
-});
 
 
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 app.use('/api/v1',api);
-app.use('/admin/dashboard/laptop',laptop);
+app.use('/admin/dashboard/laptop',laptop);  
 app.use('/admin/dashboard/outlet',outlet);
 app.use('/admin/dashboard/team',team);
 app.use('/admin/dashboard/mobile',mobile);

@@ -755,9 +755,10 @@ router.get('/get-counter',(req,res)=>{
 
 
 router.get('/get-single-counter',(req,res)=>{
-    pool.query(`select sum(quantity) as counter from cart where userid = '${req.query.userid}' and productid = '${req.query.productid}'`,(err,result)=>{
+    pool.query(`select COALESCE(SUM(quantity), 0) as counter from cart where userid = '${req.query.userid}' and productid = '${req.query.productid}'`,(err,result)=>{
         if(err) throw err;
         else {
+            console.log(result)
             res.json(result);
         }
     })
@@ -933,7 +934,7 @@ router.get('/get-subcategory',(req,res)=>{
     console.log('filters',req.query.filters)
 
 
-    pool.query(`select * from ${filtertable} where filters = '${req.query.filters}'`,(err,result)=>{
+    pool.query(`select * from ${filtertable} where filters = '${req.query.filters}' and status = true`,(err,result)=>{
         if(err) throw err;
         else res.json(result)
     })
@@ -1351,7 +1352,7 @@ WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
     console.log(body)
     pool.query(`update users set ? where id = '${req.body.id}'`,body,(err,result)=>{
         if(err) throw err;
-        else res.json({msg:'success'})
+        else res.json({msg:'success',image:body.image})
     })
   })
 
