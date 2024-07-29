@@ -62,7 +62,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
-
+const corsAnywhere = require('cors-anywhere');
 
 const host = 'https://egadgetworld.in/';
 const port = 8080;
