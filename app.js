@@ -65,7 +65,7 @@ app.use(cookieSession({
 const corsAnywhere = require('cors-anywhere');
 
 const host = '165.22.210.219';
-const port = 3000;
+const port = 8080;
 
 corsAnywhere.createServer({
   originWhitelist: [], // Allow all origins
