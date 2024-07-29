@@ -14,6 +14,9 @@
 	<meta property="og:description" content="W3crm:Customer Relationship Management Admin Bootstrap 5 Template">
 	<meta property="og:image" content="social-image.png">
 	<meta name="format-detection" content="telephone=no">
+
+	<link rel="icon" href="/images/logo.jpg">
+
 	
 	<!-- PAGE TITLE HERE -->
 	<title>Lapify B2B Customer Relationship Management</title>
@@ -90,7 +93,15 @@
   
   </style>
   
+  <style>
+	/* Hide sidebar item on mobile and tablet devices */
+@media (max-width: 1024px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
 
+</style>
 	
 </head>
 <body data-typography="poppins" data-theme-version="light" data-layout="vertical" data-nav-headerbg="black" data-headerbg="color_1">
@@ -116,11 +127,9 @@
             Nav header start
         ***********************************-->
         <div class="nav-header">
-            <a href="index.html" class="brand-logo">
-          <img src="/images/A1.png" style="width: 40px;height: 40px;">
-				<svg class="brand-title" width="47" height="16" viewBox="0 0 47 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M8.36 15.2C7.2933 15.2 6.3 15.0267 5.38 14.68C4.4733 14.32 3.68 13.82 3 13.18C2.3333 12.5267 1.8133 11.76 1.44 10.88C1.0667 9.99999 0.880005 9.03999 0.880005 7.99999C0.880005 6.95999 1.0667 5.99999 1.44 5.11999C1.8133 4.23999 2.34 3.47999 3.02 2.83999C3.7 2.18666 4.49331 1.68666 5.40001 1.33999C6.30671 0.979988 7.3 0.799988 8.38 0.799988C9.5267 0.799988 10.5733 0.999988 11.52 1.39999C12.4667 1.78666 13.2667 2.36666 13.92 3.13999L12.24 4.71999C11.7333 4.17332 11.1667 3.76666 10.54 3.49999C9.9133 3.21999 9.2333 3.07999 8.5 3.07999C7.7667 3.07999 7.0933 3.19999 6.48 3.43999C5.88 3.67999 5.35331 4.01999 4.90001 4.45999C4.46001 4.89999 4.1133 5.41999 3.86 6.01999C3.62 6.61999 3.5 7.27999 3.5 7.99999C3.5 8.71999 3.62 9.37999 3.86 9.97999C4.1133 10.58 4.46001 11.1 4.90001 11.54C5.35331 11.98 5.88 12.32 6.48 12.56C7.0933 12.8 7.7667 12.92 8.5 12.92C9.2333 12.92 9.9133 12.7867 10.54 12.52C11.1667 12.24 11.7333 11.82 12.24 11.26L13.92 12.86C13.2667 13.62 12.4667 14.2 11.52 14.6C10.5733 15 9.52 15.2 8.36 15.2ZM16.4113 15V0.999988H22.1713C23.4113 0.999988 24.4713 1.19999 25.3513 1.59999C26.2446 1.99999 26.9313 2.57332 27.4113 3.31999C27.8913 4.06666 28.1313 4.95332 28.1313 5.97999C28.1313 7.00669 27.8913 7.89329 27.4113 8.63999C26.9313 9.37329 26.2446 9.93999 25.3513 10.34C24.4713 10.7267 23.4113 10.92 22.1713 10.92H17.8513L19.0113 9.73999V15H16.4113ZM25.5713 15L22.0313 9.91999H24.8112L28.3713 15H25.5713ZM19.0113 10.02L17.8513 8.77999H22.0513C23.1979 8.77999 24.0579 8.53329 24.6312 8.03999C25.2179 7.54669 25.5113 6.85999 25.5113 5.97999C25.5113 5.08666 25.2179 4.39999 24.6312 3.91999C24.0579 3.43999 23.1979 3.19999 22.0513 3.19999H17.8513L19.0113 1.91999V10.02ZM31.0402 15V0.999988H33.1802L39.3002 11.22H38.1802L44.2002 0.999988H46.3402L46.3602 15H43.9002L43.8802 4.85999H44.4002L39.2802 13.4H38.1202L32.9202 4.85999H33.5202V15H31.0402Z" fill="black"/>
-				</svg>
+            <a href="/admin/dashboard" class="brand-logo">
+          <img src="/images/logo.png" style="width: 130px;height: 42px;">
+				
             </a>
             <div class="nav-control">
                 <div class="hamburger">
@@ -628,6 +637,9 @@
 		<!--**********************************
             Header start
         ***********************************-->
+
+
+
 		<div class="header">
             <div class="header-content">
                 <nav class="navbar navbar-expand">
@@ -695,7 +707,6 @@
 		  <div class="deznav">
             <div class="deznav-scroll">
 				<ul class="metismenu" id="menu">
-					<li class="menu-title">YOUR COMPANY</li>
 				
 
                     <li><a href="/admin/dashboard" class="" aria-expanded="false">
@@ -712,79 +723,42 @@
 
 
 
-					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
-						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</div>	
-						<span class="nav-text">Website</span>
+					<li class="hide-on-mobile">
+						<a class="has-arrow" href="javascript:void(0);" aria-expanded="false">
+							<div class="menu-icon">
+								<img src="/images/website.png" style="width: 25px;">
+							</div>
+							<span class="nav-text">Website</span>
 						</a>
 						<ul aria-expanded="false">
-
-
-
-
-							<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
-								<div class="menu-icon">
-									
-								</div>	
+							<li><a class="has-arrow" href="javascript:void(0);" aria-expanded="false">
+								<div class="menu-icon"></div>
 								<span class="nav-text">Outlet</span>
-								</a>
-								<ul aria-expanded="false">
-									<li><a href="/admin/dashboard/outlet/outlet">Add Outlet</a></li>
-									<li><a href="/admin/dashboard/outlet/outlet/list">Outlet List</a></li>
-									
-									
-									</li>
-		
-								</ul>
-
-
-
-
-								<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
-									<div class="menu-icon">
-										
-									</div>	
-									<span class="nav-text">Team</span>
-									</a>
-									<ul aria-expanded="false">
-										<li><a href="/admin/dashboard/team/team">Add Team</a></li>
-										<li><a href="/admin/dashboard/team/team/list">Team List</a></li>
-										
-										
-										</li>
-			
-									</ul>
-								
-
-								<li><a href="/admin/dashboard/laptop/contact/form">Contact Form</a></li>
-								<li><a href="/admin/dashboard/laptop/apk">Update APK</a></li>
-
-							</li>
-
-
-
-
+							</a>
+							<ul aria-expanded="false">
+								<li><a href="/admin/dashboard/outlet/outlet">Add Outlet</a></li>
+								<li><a href="/admin/dashboard/outlet/outlet/list">Outlet List</a></li>
+							</ul></li>
+							<li><a class="has-arrow" href="javascript:void(0);" aria-expanded="false">
+								<div class="menu-icon"></div>
+								<span class="nav-text">Team</span>
+							</a>
+							<ul aria-expanded="false">
+								<li><a href="/admin/dashboard/team/team">Add Team</a></li>
+								<li><a href="/admin/dashboard/team/team/list">Team List</a></li>
+							</ul></li>
+							<li><a href="/admin/dashboard/laptop/contact/form">Contact Form</a></li>
+							<li><a href="/admin/dashboard/laptop/apk">Update APK</a></li>
 						</ul>
 					</li>
+					
 
 
-
-
-
-
-
-					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+					<li class="hide-on-mobile"><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/banners.png" style="width: 25px;">
+
+							
 						</div>	
 						<span class="nav-text">Banners</span>
 						</a>
@@ -818,13 +792,13 @@
 
 
 
-                    <li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+                    <li class="hide-on-mobile"><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/laptop.png" style="width: 25px;">
+  
+							  
+							
+							
 						</div>	
 						<span class="nav-text">Laptop Pannel</span>
 						</a>
@@ -1066,13 +1040,12 @@
 
 
 
-					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+					<li class="hide-on-mobile"><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/apple.png" style="width: 25px;">
+  
+							
+							
 						</div>	
 						<span class="nav-text">Apple Pannel</span>
 						</a>
@@ -1127,13 +1100,10 @@
 
 
 
-					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+					<li class="hide-on-mobile"><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/phone.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Mobile Pannel</span>
 						</a>
@@ -1205,13 +1175,10 @@
 
 
 
-					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+					<li class="hide-on-mobile"><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/parts.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Parts & Accessories</span>
 						</a>
@@ -1294,13 +1261,10 @@
 
 
 
-					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+					<li class="hide-on-mobile"><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/bulk.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Bulk Deal</span>
 						</a>
@@ -1321,11 +1285,8 @@
 
 					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/user.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">User Management</span>
 						</a>
@@ -1353,11 +1314,8 @@
 
 					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/order.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Order Management</span>
 						</a>
@@ -1376,21 +1334,18 @@
 
 					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/inventory.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Inventory</span>
 						</a>
 						<ul aria-expanded="false">
-							<li><a href="/admin/dashboard/inventory/laptop">Laptop Invetory</a></li>
-							<li><a href="/admin/dashboard/inventory/mobile">Mobile Inventory</a></li>
-							<li><a href="/admin/dashboard/inventory/apple">Apple Inventory</a></li>
-							<li><a href="/admin/dashboard/inventory/manage/new_parts">New Parts Inventory</a></li>
-							<li><a href="/admin/dashboard/inventory/manage/refurbished_parts">Refurbished Inventory</a></li>
-							<li><a href="/admin/dashboard/inventory/manage/accessories">Accessories Inventory</a></li>
+							<li><a href="/admin/dashboard/inventory/manage/laptop">Laptop Invetory</a></li>
+							<li><a href="/admin/dashboard/inventory/manage/mobile">Mobile Inventory</a></li>
+							<li><a href="/admin/dashboard/inventory/manage/apple">Apple Inventory</a></li>
+							<li><a href="/admin/dashboard/inventory/manage/manage/new_parts">New Parts Inventory</a></li>
+							<li><a href="/admin/dashboard/inventory/manage/manage/refurbished_parts">Refurbished Inventory</a></li>
+							<li><a href="/admin/dashboard/inventory/manage/manage/accessories">Accessories Inventory</a></li>
 
 
 						</ul>
@@ -1404,11 +1359,8 @@
 
 					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/reports.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Reports</span>
 						</a>
@@ -1436,11 +1388,8 @@
 
 					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/laptop-mobile.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Laptop & Mobile</span>
 						</a>
@@ -1511,11 +1460,41 @@
 
 					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
 						<div class="menu-icon">
-							<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path d="M10.5346 2.55658H7.1072C4.28845 2.55658 2.52112 4.55216 2.52112 7.37733V14.9985C2.52112 17.8237 4.2802 19.8192 7.1072 19.8192H15.1959C18.0238 19.8192 19.7829 17.8237 19.7829 14.9985V11.3062" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M8.09214 10.0108L14.9424 3.16057C15.7958 2.30807 17.1791 2.30807 18.0325 3.16057L19.1481 4.27615C20.0015 5.12957 20.0015 6.51374 19.1481 7.36624L12.2648 14.2495C11.8917 14.6226 11.3857 14.8325 10.8577 14.8325H7.42389L7.51006 11.3675C7.52289 10.8578 7.73097 10.372 8.09214 10.0108Z" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M13.9014 4.21895L18.0869 8.40445" stroke="#888888" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
+							<img src="/images/parts1.png" style="width: 25px;">
+
+						</div>	
+						<span class="nav-text">Parts</span>
+						</a>
+						<ul aria-expanded="false">
+						
+
+									<li><a href="/admin/dashboard/product/add/new_parts">Add New Parts</a></li>
+									<li><a href="/admin/dashboard/product/add/refurbished_parts">Add Refurbished Parts</a></li>
+									<li><a href="/admin/dashboard/product/new_parts/list">New Parts List</a></li>
+									<li><a href="/admin/dashboard/product/refurbished_parts/list">Refurbished Parts List</a></li>
+
+									</li>
+		
+							
+							
+
+						</ul>
+
+
+						
+					</li>
+
+
+
+
+
+
+
+
+					<li><a class="has-arrow " href="javascript:void(0);" aria-expanded="false">
+						<div class="menu-icon">
+							<img src="/images/accessories.png" style="width: 25px;">
+
 						</div>	
 						<span class="nav-text">Parts & Accessories</span>
 						</a>
@@ -1523,11 +1502,8 @@
 						
 
 									<li><a href="/admin/dashboard/product/add/accessories">Add Accessories</a></li>
-									<li><a href="/admin/dashboard/product/add/new_parts">Add New Parts</a></li>
-									<li><a href="/admin/dashboard/product/add/refurbished_parts">Add Refurbished Parts</a></li>
-									<li><a href="/admin/dashboard/product/accessories/list">Accessories List</a></li>
-									<li><a href="/admin/dashboard/product/new_parts/list">New Parts List</a></li>
-									<li><a href="/admin/dashboard/product/refurbished_parts/list">Refurbished Parts List</a></li>
+						        	<li><a href="/admin/dashboard/product/accessories/list">Accessories List</a></li>
+								
 
 									</li>
 		

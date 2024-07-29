@@ -16329,7 +16329,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-nav-headerbg="color_4"][data-theme-version="dark"],
 [data-nav-headerbg="color_4"] {
-  --nav-headbg: #2C2C2C;
+  --nav-headbg: #0E8DF1;
   /* .nav-control{
 				background-color:transparent;
 			} */
@@ -19207,7 +19207,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 
 [data-headerbg="color_4"][data-theme-version="dark"],
 [data-headerbg="color_4"] {
-  --headerbg: #2C2C2C;
+  --headerbg: #0E8DF1;
   /* &[data-headerbg="color_8"]{
 					
 				.search-area .input-group-text,
@@ -31910,7 +31910,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-align: center; }
 
 [data-nav-headerbg="color_4"] .nav-header .nav-control {
-  background-color: #202020; }
+  background-color: #0E8DF1; }
 
 [data-nav-headerbg="color_4"] .nav-header .hamburger .line {
   background: #fff; }
