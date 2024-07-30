@@ -122,6 +122,22 @@
 
 
 
+  <div class="col-xl-12">
+    <label  class="form-label">Enter SDD or HDD </label>
+     <input type="text" class="form-control" name="accessories_storage" value="<%=result[0].accessories_storage%>" placeholder="Enter SDD or HDD">
+    </div>
+
+
+
+
+</div>
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
   
     <div class="col-xl-12" style="margin-top: 20px;">
         <label  class="form-label">Description</label>
@@ -426,6 +442,7 @@ function submitForm() {
     const values = {
         description: CKEDITOR.instances['description'].getData(),
         price: $('#price').val(),
+        accessories_storage:$('#accessories_storage').val(),
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),

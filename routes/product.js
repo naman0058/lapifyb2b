@@ -155,7 +155,9 @@ router.post('/upload/screenshots', async (req, res) => {
         f3.name AS type_name,
         f4.name AS generation_name,
         f5.name AS processor_name,
-        f6.name AS ram_name
+        f6.name AS ram_name,
+        f7.name AS graphics_card_name,
+        f8.name AS screen_size_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
@@ -165,6 +167,9 @@ router.post('/upload/screenshots', async (req, res) => {
         LEFT JOIN ${filtertable} f4 ON lqr.generation = f4.id
         LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
         LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
+        LEFT JOIN ${filtertable} f7 ON lqr.graphics_card = f7.id
+        LEFT JOIN ${filtertable} f8 ON lqr.screen_size = f8.id
+
         WHERE d.category = '${req.params.name}' and d.status = true
         GROUP BY 
         d.id, f1.name, f2.name, f3.name, lqr._id
@@ -324,7 +329,7 @@ router.post('/:name/update', verify.adminAuthenticationToken, async (req, res) =
     
 // Define keys to move from body to qcreport
 let keysToMove = ['display','battery','front_camera','back_camera', 'speaker' , 'wifi','bluetooth','network', 'fingerprint','face_id','power_key','volume_key','home_button','body',
-'power_on','keyboard','webcam','touchpad','adapter','processor','storage', 'type','generation','ram'];
+'power_on','keyboard','webcam','touchpad','adapter','processor','storage', 'type','generation','ram', 'graphics_card', 'screen_size' ];
 
 // Remove keys from body and assign them to qcreport
 let qcreport = {};

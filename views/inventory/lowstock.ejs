@@ -1,0 +1,147 @@
+<%- include ('.././header.ejs') %>
+
+
+<style>
+    #dataTable {
+ border-collapse: collapse;
+ width: 100%;
+}
+#empoloyees-tblwrapper th, #dataTable td {
+ border: 1px solid #ddd;
+ padding: 8px;
+}
+#empoloyees-tblwrapper th {
+ background-color: #f2f2f2;
+}
+#searchInput {
+ margin-bottom: 10px;
+ padding: 8px;
+}
+</style>
+
+    <!--**********************************
+            Content body start
+        ***********************************-->
+    <div class="content-body">
+        <!-- row -->
+
+        <div class="container-fluid">
+
+     <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0" style="margin: 20px;">
+                            <h4 class="heading mb-0"> Filters</h4>
+                            <form action="/admin/dashboard/inventory/low-stock" method="get">   
+                                
+                                
+                                
+                                <div class="row" style="margin-top: 20px;">
+                                
+                                <div class="col-lg-6">
+                                    <label  class="form-label">SKU No. </label>
+                                    <input type="text" name="skuno" class="form-control" placeholder="Enter SKU No." value="<%=value.skuno%>">
+
+                                </div>
+                                <div class="col-lg-6">
+                                    <label  class="form-label">Enter Model No. </label>
+                                    <input type="text" name="modelno" class="form-control" placeholder="Enter Model No" value="<%=value.modelno%>">
+
+                                </div>
+
+                            </div>
+
+                            
+                           
+
+
+
+                            <div class="text-end" style="margin-top: 20px;">
+                                <button type="button" class="btn btn-warning" id="reset">Reset</button>
+
+                                <button type="submit" class="btn btn-primary save">Filter</button>
+                            </div>
+                        </form>
+
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive active-projects style-1">
+                                <div class="tbl-caption">
+                                    <h4 class="heading mb-0"> Low Stock Report</h4>
+                                    <div>
+
+
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
+                                    </div>
+                                </div>
+                                <table id="empoloyees-tblwrapper" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>S. No.</th>
+                                            <th>SKU No.</th>
+                                            <th>Model No.</th>
+                                            <th>Quantity</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <% for(i=0;i<result.length;i++){ %>
+
+                                            <tr>
+                                                <td>
+                                                    <%=i+1%></td>
+
+                                                    <td><span>
+                                                        <%=result[i].skuno%>
+                                                    </span></td>
+
+                                                    <td><span>
+                                                        <%=result[i].modelno%>
+                                                    </span></td>
+
+                                                   
+                                                 
+                                                    <td><span>
+                                                        <%=result[i].quantity%>
+                                                    </span></td>
+
+
+                                             
+
+
+                                            </tr>
+
+
+                                            <% } %>
+
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!--**********************************
+            Content body end
+        ***********************************-->
+
+
+
+        <%- include ('.././footer.ejs') %>
+
+

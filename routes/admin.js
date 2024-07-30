@@ -5,6 +5,7 @@ const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 var verify = require('./verify');
 const e = require('express');
+const { update } = require('./function');
 
 
 router.get('/label-name',(req,res)=>{
@@ -720,6 +721,23 @@ router.post('/payout/report/search', verify.adminAuthenticationToken, (req, res)
 
 
 
+
+router.get('/dashboard/master/category/list',(req,res)=>{
+  pool.query(`select * from master_category`,(err,result)=>{
+    if(err) throw err;
+    else res.render(`masterlist`,{result})
+  })
+})
+
+
+router.post('/dashboard/master/category/update-status',(req,res)=>{
+  let body = req.body;
+  console.log(body)
+  pool.query(`update master_category set status = '${req.body.status}' where id = '${req.body.id}'`,(err,result)=>{
+    if(err) throw err;
+    else res.json({msg:'succcess'})
+  })
+})
 
 
 module.exports = router;

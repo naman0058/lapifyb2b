@@ -110,4 +110,46 @@ var applefilter = ['apple']
   });
 
 
+
+
+
+
+  router.get('/low-stock', (req, res) => {
+
+
+    let filtertable = '';
+    let filterfolder = '';
+
+ 
+
+    const { skuno, modelno, from_date, to_date  } = req.query;
+
+
+
+
+  
+    let query = `SELECT p.* FROM product p WHERE 1`;
+
+    
+
+
+    if (skuno) query += ` AND skuno = '${skuno}'`;
+    if (modelno) query += ` AND modelno = '${modelno}'`;
+    if (from_date && !to_date) query += ` AND created_at = '${from_date}'`;
+    if (from_date && to_date) query += ` AND created_at BETWEEN '${from_date}' AND '${to_date}'`;
+    query += ` AND quantity < '20';`
+  
+    pool.query(query, (err, results) => {
+      if (err) {
+        console.error('Error executing query:', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+     res.render(`${folder}/lowstock`,{result:results,value:req.query,pagename:req.params.type,filterfolder})
+    // res.json(results)
+
+    });
+  });
+
 module.exports = router;

@@ -50,7 +50,7 @@
                                           <th>Brand</th>
                                           <th>Price</th>
                                           <th>Quantity</th>
-                                          <th>In App</th>
+                                          <th>HDD Or SSD</th>
                                           <th>View Image</th>
                                           <th>Update Image</th>
                                           <th>Update Data</th>
@@ -100,8 +100,11 @@
 
 
                                                 <td><span>
-                                                  <%=result[i].in_app.toUpperCase()%>
+                                                  <%=result[i].accessories_storage%>
                                               </span></td>
+
+
+                                              
                                              
                                                     <td>
                                                     <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#imageModal" data-bs-images="<%=result[i].productimages%>">View Images</a>

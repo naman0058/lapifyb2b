@@ -100,6 +100,31 @@
 
 
 
+<div class="row" style="margin-top: 20px;">
+
+  
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">Select Graphics Card </label>
+    <select id="graphics_card" class="form-control"></select>
+    </div>
+
+  <div class="col-xl-6">
+    <label  class="form-label">Screen Size</label>
+    <select id="screen_size" class="form-control"></select>
+    </div>
+
+    
+  
+    
+
+
+</div>
+
+
+
+
 
 
 <div class="row" style="margin-top: 20px;">
@@ -527,6 +552,22 @@ $.getJSON(`/admin/dashboard/laptop/getData/ram`, data => {
 })
 
 
+
+$.getJSON(`/admin/dashboard/laptop/getData/graphics_card`, data => {
+    graphics_card = data
+    fillDropDown('graphics_card', data, 'Choose Graphics Card', 0)
+  
+})
+
+
+
+$.getJSON(`/admin/dashboard/laptop/getData/screen_size`, data => {
+  screen_size = data
+    fillDropDown('screen_size', data, 'Choose Screen Size', 0)
+  
+})
+
+
 function fillDropDown(id, data, label, selectedid = 0) {
     $(`#${id}`).empty()
     $(`#${id}`).append($('<option>').val("null").text(label))
@@ -635,6 +676,8 @@ function submitForm() {
         generation:$('#generation').val(),
         processor:$('#processor').val(),
         ram:$('#ram').val(),
+        graphics_card:$('#graphics_card').val(),
+        screen_size:$('#screen_size').val(),
         power_on:$('#power_on').val(),
         keyboard:$('#keyboard').val(),
         battery:$('#battery').val(),
@@ -671,6 +714,12 @@ function submitForm() {
     }
     else if(!QcReports.storage){
     alert('Enter Storage')
+    }
+    else if(QcReports.graphics_card == null || QcReports.graphics_card == 'null'){
+    alert('Select Graphics Card')
+    }
+    else if(QcReports.screen_size == null || QcReports.screen_size == 'null'){
+    alert('Select Screen Size')
     }
     else if(!values.skuno){
         alert('Enter SKU No.')

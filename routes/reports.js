@@ -96,6 +96,33 @@ router.get('/transaction', (req, res) => {
 
     });
   });
+
+
+
+  router.get('/wallet', (req, res) => {
+    const { username, usernumber, status, from_date, to_date, uniqueid , isproduct } = req.query;
+  
+    let query = `SELECT * from users WHERE 1`;
+  
+    if (username) query += ` AND name = '${username}'`;
+    if (usernumber) query += ` AND number = '${usernumber}'`;
+    if (uniqueid) query += ` AND unique_id = '${uniqueid}'`;
+    if (status) query += ` AND status = '${status}'`;
+    if (isproduct) query += ` AND isproduct = '${isproduct}'`;
+    if (from_date && !to_date) query += ` AND created_at = '${from_date}'`;
+    if (from_date && to_date) query += ` AND created_at BETWEEN '${from_date}' AND '${to_date}'`;
+  
+    pool.query(query, (err, results) => {
+      if (err) {
+        console.error('Error executing query:', err);
+        res.status(500).send('Internal Server Error');
+        return;
+      }
+  
+     res.render(`${folder}/wallet`,{result:results,value:req.query})
+
+    });
+  });
   
 
 

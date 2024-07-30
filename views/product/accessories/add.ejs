@@ -94,6 +94,21 @@
 </div>
 
 
+<div class="row" style="margin-top: 20px;">
+
+
+
+  <div class="col-xl-12">
+    <label  class="form-label">Enter SSD or HDD  </label>
+     <input type="text" class="form-control" id="accessories_storage" placeholder="Enter SSD or HDD">
+    </div>
+
+
+  
+
+</div>
+
+
 
 <div class="row" style="margin-top: 20px;">
 
@@ -407,7 +422,7 @@ function submitForm() {
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
         name: $('#modelno').val(),
-
+        accessories_storage : $('#accessories_storage').val(),
         subcategory:$('#subcategory').val(),
         brand:$('#brand').val(),
 
@@ -433,7 +448,7 @@ function submitForm() {
     }
     else if(!values.quantity){
         alert('Enter Quantity')
-    }
+    }    
     else if(!values.description){
         alert('Enter Description')
     }
