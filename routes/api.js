@@ -822,7 +822,9 @@ router.get('/product_description', (req, res) => {
         f3.name AS type_name,
         f4.name AS generation_name,
         f5.name AS processor_name,
-        f6.name AS ram_name
+        f6.name AS ram_name,
+        f7.name AS graphics_card_name,
+        f8.name AS screen_size_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN users u ON u.id = '${req.query.userid}'
@@ -833,6 +835,9 @@ router.get('/product_description', (req, res) => {
         LEFT JOIN ${filtertable} f4 ON lqr.generation = f4.id
         LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
         LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
+        LEFT JOIN ${filtertable} f7 ON lqr.graphics_card = f7.id
+        LEFT JOIN ${filtertable} f8 ON lqr.screen_size = f8.id
+
         WHERE  d.id = '${req.query.id}' and d.status = true
         GROUP BY 
         d.id, f1.name, f2.name, f3.name, lqr._id
@@ -905,6 +910,7 @@ ORDER BY
 
             }
             else {
+                console.log(result)
                 res.json({response: req.query.category, result })
 
                 //  res.render(`${folder}/${req.query.category}/list`, { response: req.query.category, msg: req.query.message, result });
@@ -1356,4 +1362,120 @@ WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
     })
   })
 
+
+
+  router.get('/master/category/list',(req,res)=>{
+    pool.query(`select * from master_category where status = 'true'`,(err,result)=>{
+      if(err) throw err;
+      else res.json(result)
+    })
+  })
+
+
+  router.get('/get-bulkdeal',(req,res)=>{
+    pool.query(`select b.* ,
+            (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
+        
+        from bulkdeal b`,(err,result)=>{
+      if(err) throw err;
+      else res.json(result)
+    })
+  })
+
+
+
+  router.get('/bulkDeal_description',(req,res)=>{
+    pool.query(`select b.* ,
+            (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
+        
+        from bulkdeal b where b.id = '${req.query.id}'`,(err,result)=>{
+      if(err) throw err;
+      else res.json(result)
+    })
+  })
+
+
+//   const puppeteer = require('puppeteer');
+// const path = require('path');
+
+// // Function to wait for a specific amount of time
+// const waitFor = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+// (async () => {
+//   const browser = await puppeteer.launch({ headless: false }); // Set headless: true for background execution
+//   const page = await browser.newPage();
+
+//   // Define your LinkedIn credentials
+//   const username = 'manishajain8877@gmail.com';
+//   const password = '123a@8An';
+
+//   // Log in to LinkedIn
+//   await page.goto('https://www.linkedin.com/login');
+//   await page.type('#username', username);
+//   await page.type('#password', password);
+//   await page.click('[type="submit"]');
+//   await page.waitForNavigation();
+
+//   // Navigate to the job applicants page
+//   await page.goto('https://www.linkedin.com/hiring/jobs/3981227003/applicants/22819906266/detail/?createMode=true&r=UNRATED%2CGOOD_FIT%2CMAYBE');
+//   await waitFor(15000); // Adjust the timeout as needed
+
+//   const downloadPath = path.resolve(__dirname, 'images');
+//   if (!fs.existsSync(downloadPath)) {
+//     fs.mkdirSync(downloadPath);
+//   }
+
+//   // Function to download resumes
+//   const downloadResume = async (resumeLink, applicantName) => {
+//     const viewSource = await page.goto(resumeLink);
+//     const filePath = path.resolve(downloadPath, `${applicantName}.pdf`);
+//     fs.writeFileSync(filePath, await viewSource.buffer());
+//     console.log(`Downloaded: ${applicantName}`);
+//   };
+
+//   // Main loop to process each applicant
+//   while (true) {
+//     // await page.waitForSelector('rtdeco-modal-outlet');
+//     console.log(page)
+//     const applicants = await page.$$('.hiring-applicants__list-container');
+//     // console.log(applicants)
+//     for (const applicant of applicants) {
+//       const applicantName = await applicant.evaluate(el => el.textContent.trim()); // Adjust based on applicant's name element
+//     // console.log(applicantName)
+
+//       await applicant.click();
+//       await waitFor(2000); // Adjust the timeout as needed
+
+//       // Find and download the resume link
+//       const resumeLink = await page.evaluate(() => {
+//         const linkElement = document.querySelector('.hiring-resume-viewer__resume-wrapper--collapsed');
+//     console.log(linkElement)
+
+//         return linkElement ? linkElement.href : null;
+//       });
+
+//       if (resumeLink) {
+//         await downloadResume(resumeLink, applicantName);
+//       }
+
+//       // Go back to the applicant list
+//       await page.goBack();
+//       await waitFor(2000); // Adjust the timeout as needed
+//     }
+
+//     // Navigate to the next page
+//     const nextButton = await page.$('CSS_SELECTOR_FOR_NEXT_PAGE_BUTTON');
+//     if (nextButton) {
+//       await nextButton.click();
+//       await waitFor(5000); // Adjust the timeout as needed
+//     } else {
+//       break; // Exit loop if no more pages
+//     }
+//   }
+
+//   await browser.close();
+// })();
+
+
+  
 module.exports = router
