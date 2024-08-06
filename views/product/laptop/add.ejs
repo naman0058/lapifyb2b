@@ -190,13 +190,20 @@
 
 
   
-  <div class="col-xl-12">
+  <div class="col-xl-6">
     
           
               <label  class="form-label">Upload Multiple Image </label>
               <input type="file" class="form-control" name="files[]" multiple />
 
   </div>
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">Warranty </label>
+    <input type="text" class="form-control" name="Warranty" id="warranty" />
+
+</div>
 
  
 
@@ -662,9 +669,10 @@ function submitForm() {
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
-        name: $('#modelno').val(),
+        name: $('#modelno').val() + ' | ' + $('#processor').val() + ' | ' + $('#generation').val() + ' | ' + $('#ram').val() + ' | ' + $('#storage').val() + ' | ' + $('#screen_size').val(),
         subcategory:$('#subcategory').val(),
         brand:$('#brand').val(),
+        warranty:$('#warranty').val()
 
 
 

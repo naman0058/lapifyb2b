@@ -106,6 +106,29 @@
 </div>
 
 
+<div class="row" style="margin-top: 20px;">
+
+  
+
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">Select RAM </label>
+    <select id="ram" class="form-control"></select>
+    </div>
+
+    
+    <div class="col-xl-6">
+        <label  class="form-label">Enter HDD / SSD
+        </label>
+         <input type="text" id="storage" class="form-control" placeholder="Enter Storage">
+        </div>
+
+    
+
+
+</div>
+
 
 <div class="row" style="margin-top: 20px;">
 
@@ -128,7 +151,7 @@
 
 
   
-  <div class="col-xl-12">
+  <div class="col-xl-6">
     
           
               <label  class="form-label">Upload Multiple Image </label>
@@ -137,8 +160,18 @@
   </div>
 
  
+  <div class="col-xl-6">
+    <label  class="form-label">Warranty </label>
+    <input type="text" class="form-control" name="warranty" id="warranty" />
 
 </div>
+
+</div>
+
+
+
+
+
 
 
 <div class="row" style="margin-top: 20px;">
@@ -530,6 +563,15 @@ $.getJSON(`/admin/dashboard/mobile/getData/condition`, data => {
   
 })
 
+$.getJSON(`/admin/dashboard/mobile/getData/ram`, data => {
+    ram = data
+    console.log('leagues',data)
+    fillDropDown('ram', data, 'Choose RAM', 0)
+  
+})
+
+
+
 
 
 
@@ -639,9 +681,11 @@ function submitForm() {
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
-        name: $('#modelno').val(),
+        name: $('#modelno').val() + ' | ' + $('#ram').val() + ' | ' + $('#storage').val(),
         subcategory:$('#subcategory').val(),
         brand:$('#brand').val(),
+        warranty:$('#warranty').val()
+
 
 
 
@@ -650,6 +694,8 @@ function submitForm() {
 
     const QcReports = {
         display:$('#display').val(),
+        ram:$('#ram').val(),
+        storage:$('#storage').val(),
         front_camera:$('#front_camera').val(),
         back_camera:$('#back_camera').val(),
         battery:$('#battery').val(),
@@ -681,6 +727,12 @@ function submitForm() {
     }
     else if(!values.price){
         alert('Enter Price')
+    }
+    else if(QcReports.ram == null || QcReports.ram == 'null'){
+    alert('Select RAM')
+    }
+    else if(!QcReports.storage){
+    alert('Enter Storage')
     }
     else if(!values.quantity){
         alert('Enter Quantity')

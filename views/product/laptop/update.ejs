@@ -153,6 +153,8 @@
 
 
     <input type="hidden" id="id" name="id" value="<%=result[0].id%>">
+<input type="hidden" id="category" name="category" value="<%=result[0].category%>">
+
 
       <div class="col-xl-6">
         <label  class="form-label">SKU No. </label>
@@ -175,17 +177,24 @@
 
 
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
       <label  class="form-label">Price </label>
        <input type="number" class="form-control" id="price" name="price" value="<%=result[0].price%>" placeholder="Enter Price">
       </div>
 
 
-      <div class="col-xl-6">
+      <div class="col-xl-4">
           <label  class="form-label">Quantity</label>
           <input type="text" class="form-control" id="quantity" name="quantity" value="<%=result[0].quantity%>" placeholder="Enter Quantity" >
 
           </div>
+
+
+          <div class="col-xl-4">
+            <label  class="form-label">Warranty</label>
+            <input type="text" class="form-control" id="warranty" name="warranty" value="<%=result[0].warranty%>" placeholder="Enter warranty" >
+  
+            </div>
 
  
 </div>
@@ -688,7 +697,7 @@ function submitForm() {
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
-        name: $('#modelno').val(),
+        name: $('#modelno').val() + ' | ' + $('#processor').val() + ' | ' + $('#generation').val() + ' | ' + $('#ram').val() + ' | ' + $('#storage').val() + ' | ' + $('#screen_size').val(),
         subcategory:$('#subcategory').val(),
         brand:$('#brand').val(),
 

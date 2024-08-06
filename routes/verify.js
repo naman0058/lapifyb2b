@@ -287,6 +287,23 @@ function generateUniqueId(prefix = 'LPY') {
 }
 
 
+
+async function getDatas(tableName, columnName) {
+    return new Promise((resolve, reject) => {
+        pool.query(`SELECT name FROM ${tableName} WHERE id = ${columnName}`, (err, result) => {
+            if (err) {
+                return reject(err);
+            }
+            if (result.length > 0) {
+                resolve(result[0].name);
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
+
+
 // console.log('Last Financial Year',getCurrentYearDates())
 
   
@@ -302,7 +319,8 @@ function generateUniqueId(prefix = 'LPY') {
     getCurrentDate,
     getLastFinancialYearDates,
     generateOrderNumber,
-    generateUniqueId
+    generateUniqueId,
+    getDatas
   }
 
 

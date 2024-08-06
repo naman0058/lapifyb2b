@@ -854,13 +854,15 @@ router.get('/product_description', (req, res) => {
         f1.name AS subcategoryname, 
         f2.name AS brandname,
         u.isproduct AS isproductshow,
-        lqr.*  -- Select all columns from laptop_qcreport
+        lqr.*,  -- Select all columns from laptop_qcreport
+        f6.name AS ram_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN users u ON u.id = '${req.query.userid}'
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
+        LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
         WHERE  d.id = '${req.query.id}' and d.status = true
         GROUP BY 
         d.id, f1.name, f2.name, lqr._id
@@ -1374,6 +1376,7 @@ WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
 
   router.get('/get-bulkdeal',(req,res)=>{
     pool.query(`select b.* ,
+             (select c.name from laptop_filters c where c.id = b.category) as categoryname,
             (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
         
         from bulkdeal b`,(err,result)=>{
@@ -1476,6 +1479,14 @@ WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
 //   await browser.close();
 // })();
 
+
+
+router.post('/remove-cart',(req,res)=>{
+    pool.query(`delete from cart where productid = '${req.body.productid}' and userid = '${req.body.userid}'`,(err,result)=>{
+        if(err) throw err;
+        else res.json({msg:'success'})
+    })
+})
 
   
 module.exports = router

@@ -48,8 +48,11 @@
                                           <th>Category</th>
                                           <th>Subcategory</th>
                                           <th>Brand</th>
+                                          <th>RAM</th>
+                                          <th>Storgae</th>
                                           <th>Price</th>
                                           <th>Quantity</th>
+                                          <th>Warranty</th>
                                           <th>In App</th>
                                           <th>QC Report</th>
                                           <th>View Image</th>
@@ -90,6 +93,17 @@
                                                     <%=result[i].brandname%>
                                                 </span></td>
 
+                                                <td><span>
+                                                  <%=result[i].ram_name%>
+                                              </span></td>
+
+                                                <td><span>
+                                                  <%=result[i].storage%>
+                                              </span></td>
+
+
+                                                
+
 
                                                 <td><span>
                                                     Rs. <%=result[i].price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })%>
@@ -100,14 +114,19 @@
                                                     <%=result[i].quantity%>
                                                 </span></td>
 
+
                                                 <td><span>
-                                                  <%=result[i].in_app.toUpperCase()%>
+                                                  <%=result[i].warranty%>
+                                              </span></td>
+
+                                                <td><span>
+                                                  <%=result[i].in_app%>
                                               </span></td>
 
                                              
                                                 <td>
                                                     <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#qcModal" 
-                                                    data-bs-images="Display:<%=result[i].display.toUpperCase()%>,Front Camera:<%=result[i].front_camera.toUpperCase()%>,
+                                                    data-bs-images="Ram:<%=result[i].ram_name%>,Storage:<%=result[i].storage%>,Display:<%=result[i].display.toUpperCase()%>,Front Camera:<%=result[i].front_camera.toUpperCase()%>,
                                                     Back Camera:<%=result[i].back_camera.toUpperCase()%>,Battery:<%=result[i].battery.toUpperCase()%>,
                                                     Speaker:<%=result[i].speaker.toUpperCase()%>,Bluetooth:<%=result[i].bluetooth.toUpperCase()%>,
                                                     Wifi:<%=result[i].wifi.toUpperCase()%>,Network:<%=result[i].network.toUpperCase()%>,

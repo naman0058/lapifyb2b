@@ -24,6 +24,9 @@
 
                                 <input type="hidden" id="subcategoryvalue" value="<%=result[0].subcategory%>">
                                 <input type="hidden" id="brandvalue" value="<%=result[0].brand%>">
+                                <input type="hidden" id="ramvalue" value="<%=result[0].ram%>">
+
+
 
 								<div class="tools">
 									<a href="javascript:void(0);" class="expand SlideToolHeader"><i class="fal fa-angle-down"></i></a>
@@ -40,7 +43,7 @@
                 
                     <div class="row" style="margin-top: 20px;">
 
-                      <div class="col-xl-12">
+                      <div class="col-xl-6">
                         <label  class="form-label">Product (Hide / Show )</label>
                            <select name="in_app" class="form-control">
                             <option value="hide" <%=result[0].in_app === 'hide' ? 'selected' : '' %>>Hide</option>
@@ -48,6 +51,13 @@
                   
                            </select>
                     </div>
+
+
+                    <div class="col-xl-6">
+                      <label  class="form-label">Warranty</label>
+                      <input type="text" class="form-control" id="warranty" name="warranty" value="<%=result[0].warranty%>" placeholder="Enter warranty" >
+            
+                      </div>
                             
                   
                     </div>
@@ -66,6 +76,7 @@
         Condition </label>
        <select id="subcategory" class="form-control" name="subcategory" required></select>
 </div>
+<input type="hidden" id="category" name="category" value="<%=result[0].category%>">
 <input type="hidden" id="id" name="id" value="<%=result[0].id%>">
 
 
@@ -131,6 +142,31 @@
  
 </div>
 
+
+
+<div class="row" style="margin-top: 20px;">
+
+  
+
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">Select RAM </label>
+    <select id="ram" name="ram" required class="form-control"></select>
+    </div>
+
+    
+    <div class="col-xl-6">
+        <label  class="form-label">Enter HDD / SSD
+        </label>
+        <input type="text" id="storage" class="form-control" name="storage" value="<%=result[0].storage%>" placeholder="Enter Storage">
+
+        </div>
+
+    
+
+
+</div>
 
 
 <div class="row" style="margin-top: 20px;">
@@ -543,10 +579,19 @@ let pagename = $('#pagename').val()
 
 let subcategoryvalue = $('#subcategoryvalue').val()
 let brandvalue = $('#brandvalue').val()
+let ramvalue = $('#ramvalue').val()
+
 $.getJSON(`/admin/dashboard/mobile/getData/condition`, data => {
     addgroup = data
     console.log('leagues',data)
     fillDropDown('subcategory', data, 'Choose Mobile Condition', subcategoryvalue)
+  
+})
+
+$.getJSON(`/admin/dashboard/mobile/getData/ram`, data => {
+    ram = data
+    console.log('leagues',data)
+    fillDropDown('ram', data, 'Choose RAM',ramvalue)
   
 })
 
@@ -659,7 +704,7 @@ function submitForm() {
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
-        name: $('#modelno').val(),
+        name: $('#modelno').val() + ' | ' + $('#ram').val() + ' | ' + $('#storage').val(),
         subcategory:$('#subcategory').val(),
         brand:$('#brand').val(),
 
@@ -673,6 +718,7 @@ function submitForm() {
         front_camera:$('#front_camera').val(),
         back_camera:$('#back_camera').val(),
         battery:$('#battery').val(),
+        ram:$('#ram').val(),
         speaker:$('#speaker').val(),
         bluetooth:$('#bluetooth').val(),
         wifi:$('#wifi').val(),
@@ -682,7 +728,9 @@ function submitForm() {
         power_key:$('#power_key').val(),
         volume_key:$('#volume_key').val(),
         home_button:$('#home_button').val(),
-        body:$('#body').val()
+        body:$('#body').val(),
+        storage:$('#storage').val()
+
     }
 
     if(values.subcategory == null || values.subcategory == 'null'){
@@ -692,6 +740,12 @@ function submitForm() {
     alert('Select Brand')
     }
   
+    else if(QcReports.ram == null || QcReports.ram == 'null'){
+    alert('Select Laptop RAM')
+    }
+    else if(!QcReports.storage){
+    alert('Enter Storage')
+    }
     
     else if(!values.skuno){
         alert('Enter SKU No.')

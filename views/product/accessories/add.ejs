@@ -98,7 +98,7 @@
 
 
 
-  <div class="col-xl-12">
+  <div class="col-xl-12" id="accessories_storage_column">
     <label  class="form-label">Enter SSD or HDD  </label>
      <input type="text" class="form-control" id="accessories_storage" placeholder="Enter SSD or HDD">
     </div>
@@ -131,13 +131,20 @@
 
 
   
-  <div class="col-xl-12">
+  <div class="col-xl-6">
     
           
               <label  class="form-label">Upload Multiple Image </label>
               <input type="file" class="form-control" name="files[]" multiple />
 
   </div>
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">Warranty </label>
+    <input type="text" class="form-control" name="warranty" id="warranty" />
+
+</div>
 
  
 
@@ -319,6 +326,26 @@ $.getJSON(`/admin/dashboard/parts-and-accessories/getData/${pagename}`, data => 
 })
 
 
+function toggleAccessoriesStorage() {
+    const selectedSubcategory = $('#subcategory').val().toLowerCase();
+    const showFields = ['26', '25', 'pendrive', 'laptops'];
+
+    if (showFields.includes(selectedSubcategory)) {
+      $('#accessories_storage_column').show();
+    } else {
+      $('#accessories_storage_column').hide();
+    }
+  }
+
+  // Bind change event to subcategory select element
+  $(document).on('change', '#subcategory', toggleAccessoriesStorage);
+
+  // Call the function on page load in case a subcategory is already selected
+  $(document).ready(() => {
+    toggleAccessoriesStorage();
+  });
+
+
 $.getJSON(`/admin/dashboard/parts-and-accessories/getData/brand`, data => {
     brand = data
     console.log('leagues',data)
@@ -425,6 +452,8 @@ function submitForm() {
         accessories_storage : $('#accessories_storage').val(),
         subcategory:$('#subcategory').val(),
         brand:$('#brand').val(),
+        warranty:$('#warranty').val()
+
 
 
 

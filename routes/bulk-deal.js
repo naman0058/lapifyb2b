@@ -51,7 +51,9 @@ router.post('/insert', verify.adminAuthenticationToken, upload.fields([{ name: '
 
 router.get('/list',verify.adminAuthenticationToken, (req, res) => {
 
-    pool.query(`SELECT * FROM ${databasetable} WHERE status = true order by id desc`, (err, result) => {
+    pool.query(`SELECT d.* ,
+        (select c.name from laptop_filters c where c.id = d.category) as categoryname
+        FROM ${databasetable} d WHERE d.status = true order by id desc`, (err, result) => {
         if (err) {
             throw err;
         } else {

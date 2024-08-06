@@ -185,12 +185,15 @@ router.post('/upload/screenshots', async (req, res) => {
         GROUP_CONCAT(s.url) AS productimages, 
         f1.name AS subcategoryname, 
         f2.name AS brandname,
-        lqr.*  -- Select all columns from laptop_qcreport
+        lqr.*,  -- Select all columns from laptop_qcreport
+        f6.name AS ram_name
+        
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
+        LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
         WHERE d.category = '${req.params.name}' and d.status = true
         GROUP BY 
         d.id, f1.name, f2.name, lqr._id
@@ -341,19 +344,64 @@ keysToMove.forEach(key => {
 });
 
 
-console.log("body:", body);
-console.log("qcreport:", qcreport);
+// console.log("body:", body);
+// console.log("qcreport:", qcreport);
+
+
+
+if(body.category == 'mobile'){
+    let ramname = await verify.getDatas('mobile_filters',qcreport.ram)
+    body.name = body.modelno + ' | ' + ramname + ' | ' +  qcreport.storage 
+}
+
+if(body.category == 'laptop'){
+    let processorname = await verify.getDatas('laptop_filters',qcreport.processor)
+    let generationname = await verify.getDatas('laptop_filters',qcreport.generation)
+    let ramname = await verify.getDatas('laptop_filters',qcreport.ram)
+
+
+
+    body.name =  body.modelno + ' | ' + processorname + ' | ' + generationname + ' | ' + ramname + ' | ' + qcreport.storage 
+}
+
+
+if(body.category == 'apple'){
+    let processorname = await verify.getDatas('apple_filters',qcreport.processor)
+    let subcategoryrname = await verify.getDatas('apple_filters',body.subcategory)
+
+  
+
+
+
+    body.name =  body.modelno + ' | ' + subcategoryrname + ' | ' + processorname  
+}
+
+
+
+if(body.category == 'accessories' || body.category == 'new_parts' || body.category == 'refurbished_parts'){
+    let brandname = await verify.getDatas('parts_and_accessories_filters',body.brand)
+   
+    body.name =  body.modelno + ' | ' + brandname + ' | ' + body.category.toUpperCase() 
+}
+
+
+
+
+
+
+
+
+
 
     try {
         body.updated_at = verify.getCurrentDate();
-        body.name = body.modelno
                 await queryAsync(`UPDATE ${databasetable} SET ? WHERE id = ?`, [body, body.id]);
    
                 if (!isimage.includes(req.params.name)) {
         await queryAsync(`UPDATE ${tableName} SET ? WHERE productid = ?`, [qcreport, body.id]);
     }
 
-        res.redirect(`/admin/dashboard/product/${encodeURIComponent(name)}/update?id=${encodeURIComponent(body.id)}&message=${encodeURIComponent('Updated Successfully')}`);
+        res.redirect(`/admin/dashboard/product/${encodeURIComponent(name)}/list`);
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal Server Error');
@@ -362,7 +410,7 @@ console.log("qcreport:", qcreport);
 
 
 router.get('/:name/images',(req,res)=>{
-    pool.query(`select * from screenshots where productid = '${req.query.id}' and status = true`,(err,result)=>{
+    pool.query(`select * from screenshots where productid = '${req.query.id}' and status = true || status is null`,(err,result)=>{
         if(err) throw err;
         else {
             res.render(`${folder}/images`, { response: req.params.name, msg: req.query.message, result });
@@ -373,7 +421,7 @@ router.get('/:name/images',(req,res)=>{
 
 
 router.get('/:name/delete/images',(req,res)=>{
-    pool.query(`update screenshots set status = false where id = '${req.query.id}'`,(err,result)=>{
+    pool.query(`delete screenshots where id = '${req.query.id}'`,(err,result)=>{
         if(err) throw err;
         else {
            res.redirect(`/admin/dashboard/product/${req.params.name}/images?id=${req.query.productid}`)

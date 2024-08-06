@@ -50,6 +50,8 @@
                                           <th>Brand</th>
                                           <th>Price</th>
                                           <th>Quantity</th>
+                                          <th>Warranty</th>
+                                          <th>Battery Count Cycle</th>
                                           <th>In App</th>
                                           <th>QC Report</th>
                                           <th>View Image</th>
@@ -100,9 +102,16 @@
                                                     <%=result[i].quantity%>
                                                 </span></td>
 
+                                                <td><span>
+                                                  <%=result[i].warranty%>
+                                              </span></td>
+
+                                              <td><span>
+                                                <%=result[i].battery_count_cycle%>
+                                            </span></td>
                                              
                                                 <td><span>
-                                                  <%=result[i].in_app.toUpperCase()%>
+                                                  <%=result[i].in_app%>
                                               </span></td>
 
                                                 <td>
