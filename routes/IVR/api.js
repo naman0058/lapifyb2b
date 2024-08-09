@@ -480,7 +480,7 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
            
                 // Perform insert operation
                 await queryAsync(
-                    'INSERT INTO recordings (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'INSERT INTO recordings (CallSid, CallFrom, CallTo, Direction, Created, DialCallDuration, RecordingUrl, StartTime, EndTime, CallType, DialWhomNumber, flow_id, tenant_id, `From`, `To`, RecordingAvailableBy, CurrentTime, digits, departmentid , status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         recordingData.CallSid,
                         recordingData.CallFrom,
@@ -499,7 +499,9 @@ router.post('/teamupdate',upload.single('image'), (req, res) => {
                         recordingData.To,
                         recordingData.RecordingAvailableBy,
                         recordingData.CurrentTime,
-                        recordingData.digits
+                        recordingData.digits,
+                        recordingData.digits,
+                        'pending'
                     ]
                 );
             
