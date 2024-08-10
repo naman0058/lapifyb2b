@@ -290,6 +290,56 @@ router.get("/", function (req, res, next) {
 });
 
 
+
+router.get('/privacy-policy',(req,res)=>{
+  var query = `select * from outlet where status = true order by id desc;`
+  var query1 = `select * from laptop_filters where filters = 'apk' order by id desc limit 1;`
+  var query2 = `select * from team where status = true order by id desc;`
+  pool.query(query+query1+query2,(err,result)=>{
+    if(err) throw err;
+    else res.render("privacy", { title: "Express" ,msg:req.query.msg,result});
+  
+  })
+})
+
+
+router.get('/terms-and-conditions',(req,res)=>{
+  var query = `select * from outlet where status = true order by id desc;`
+  var query1 = `select * from laptop_filters where filters = 'apk' order by id desc limit 1;`
+  var query2 = `select * from team where status = true order by id desc;`
+  pool.query(query+query1+query2,(err,result)=>{
+    if(err) throw err;
+    else res.render("terms", { title: "Express" ,msg:req.query.msg,result});
+  
+  })
+})
+
+
+
+router.get('/refund-policy',(req,res)=>{
+  var query = `select * from outlet where status = true order by id desc;`
+  var query1 = `select * from laptop_filters where filters = 'apk' order by id desc limit 1;`
+  var query2 = `select * from team where status = true order by id desc;`
+  pool.query(query+query1+query2,(err,result)=>{
+    if(err) throw err;
+    else res.render("refund", { title: "Express" ,msg:req.query.msg,result});
+  
+  })
+})
+
+
+router.get('/shipping-policy',(req,res)=>{
+  var query = `select * from outlet where status = true order by id desc;`
+  var query1 = `select * from laptop_filters where filters = 'apk' order by id desc limit 1;`
+  var query2 = `select * from team where status = true order by id desc;`
+  pool.query(query+query1+query2,(err,result)=>{
+    if(err) throw err;
+    else res.render("shipping", { title: "Express" ,msg:req.query.msg,result});
+  
+  })
+})
+
+
 router.post('/contactus',(req,res)=>{
   let body = req.body;
   pool.query(`insert into contact_us set ?`,body,(err,result)=>{
