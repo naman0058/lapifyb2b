@@ -753,6 +753,16 @@ router.get('/get-counter',(req,res)=>{
 })
 
 
+router.get('/get-wallet',(req,res)=>{
+    pool.query(`select wallet from users where id = '${req.query.userid}'`,(err,result)=>{
+        if(err) throw err;
+        else {
+            res.json(result);
+        }
+    })
+})
+
+
 
 router.get('/get-single-counter',(req,res)=>{
     pool.query(`select COALESCE(SUM(quantity), 0) as counter from cart where userid = '${req.query.userid}' and productid = '${req.query.productid}'`,(err,result)=>{

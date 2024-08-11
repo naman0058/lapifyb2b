@@ -78,11 +78,37 @@ var instance = new Razorpay({
     res.json(order)
   });
    })
+
+
+
+   router.get('/wallet-generate-order',async(req,res)=>{
+    const amount = req.query.amount;
+  
+   
+  
+  
+   
+  var options = {
+    amount: amount*100,  // amount in the smallest currency unit
+    // amount: 100,  // amount in the smallest currency unit
+    currency: "INR",
+    receipt: generatereceipt()
+  };
+  instance.orders.create(options, function(err, order) {
+    console.log(order);
+    res.json(order)
+  });
+   })
   
 
 
    router.get('/open-payment',(req,res)=>{
     res.render('openpayment',{order:req.query.order})
+   })
+
+
+   router.get('/wallet-open-payment',(req,res)=>{
+    res.render('walletopenpayment',{order:req.query.order})
    })
 
 
@@ -286,6 +312,44 @@ router.get('/razorpay-success', async (req, res) => {
     }
   });
 
+
+
+  router.get('/razorpay-success', async (req, res) => {
+    let body = req.query;
+  
+    if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
+      const data = req.query.orderid + '|' + body.razorpay_payment_id;
+      let generated_signature = hmac_sha256(data, 'M3PlBQetVxVHN6SX3PkqtooV');
+  
+      console.log('razorpayresponse',body)
+      console.log('generated_signature',generated_signature)
+
+
+      if (generated_signature == body.razorpay_signature) {
+        body.orderid = req.query.orderid
+        body.amount = req.query.amount;
+        body.txnid = req.query.orderid;
+        body.userid = req.query.userid;
+        body.created_at = verify.getCurrentDate();
+  
+        pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
+          if (err) throw err;
+          else {
+          pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,(err,result)=>{
+            if(err) throw err;
+            else res.json({msg:'success'})
+          })
+
+
+          }
+        });
+      } else {
+        res.json({ msg: 'Unauthorized Payment' });
+      }
+    } else {
+      res.json({ msg: 'Error Occurred' });
+    }
+  });
 
 
 
