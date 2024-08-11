@@ -235,13 +235,15 @@ router.get('/razorpay-success', async (req, res) => {
 
       if (generated_signature == body.razorpay_signature) {
         body.orderid = req.query.orderid
-        body.amount = req.query.amount;
+        body.amount = req.query.amount/100;
         body.txnid = req.query.orderid;
         body.userid = req.query.userid;
         body.type = req.query.type;
 
         body.created_at = verify.getCurrentDate();
   
+        pool.query(`select * from payment_response where razorpay_signature = '${body.razorpay_signature}' and razorpay_payment_id = '${body.razorpay_payment_id}' and razorpay_order_id = '${body.razorpay_order_id}'`,(err,result)=>{
+
         pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
           if (err) throw err;
           else {
@@ -311,6 +313,7 @@ router.get('/razorpay-success', async (req, res) => {
 
           }
         });
+    })
       } else {
         res.json({ msg: 'Unauthorized Payment' });
       }
@@ -334,24 +337,35 @@ router.get('/razorpay-success', async (req, res) => {
 
       if (generated_signature == body.razorpay_signature) {
         body.orderid = req.query.orderid
-        body.amount = req.query.amount;
+        body.amount = req.query.amount/100;
         body.txnid = req.query.orderid;
         body.userid = req.query.userid;
         body.type = req.query.type;
 
         body.created_at = verify.getCurrentDate();
-  
-        pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
-          if (err) throw err;
-          else {
-          pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,(err,result)=>{
+
+        pool.query(`select * from payment_response where razorpay_signature = '${body.razorpay_signature}' and razorpay_payment_id = '${body.razorpay_payment_id}' and razorpay_order_id = '${body.razorpay_order_id}'`,(err,result)=>{
             if(err) throw err;
-            else res.json({msg:'success'})
-          })
-
-
-          }
-        });
+            else if(result.length>0){
+                res.json({msg:'success',des:'alreadydone'})
+            }
+            else{
+                pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
+                    if (err) throw err;
+                    else {
+          
+                    pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,(err,result)=>{
+                      if(err) throw err;
+                      else res.json({msg:'success'})
+                    })
+          
+          
+                    }
+                  });
+            }
+        })
+  
+       
       } else {
         res.json({ msg: 'Unauthorized Payment' });
       }
