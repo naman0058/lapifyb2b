@@ -364,7 +364,7 @@ router.get('/razorpay-success', async (req, res) => {
                     if (err) throw err;
                     else {
 
-                     pool.query(`insert into transaction(userid,amount,status,orderid,color,created_at,txnid) values('${body.userid}' , '${body.amount}') , 'credit' , '${body.orderid}' , 'green' , '${body.created_at}' , '${body.razorpay_payment_id}'`,async(err,result)=>{
+                     pool.query(`insert into transaction(userid,amount,status,orderid,color,created_at,txnid) values('${body.userid}' , '${body.amount}' , 'credit' , '${body.orderid}' , 'green' , '${body.created_at}' , '${body.razorpay_payment_id}')`,async(err,result)=>{
                         if(err) throw err;
                         else {
                             pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,async(err,result)=>{
