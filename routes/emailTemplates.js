@@ -16,19 +16,18 @@ const emailTemplates = {
             <p>If you have any questions, don’t hesitate to reach out to us at egadgetworldindia@gmail.com.</p>
             <p>Best regards,</p>
             <p>The E-Gadget World Team</p>
-            <p><a href="https://egadgetworld.in/">E-Gadgets World</a></p>
             <p>egadgetworldindia@gmail.com</p>
         `,
     },
     orderCreation: {
         adminSubject: 'New Order Received - Order #{{Order_Number}}',
-        adminMessage: (orderNumber, customerName, productName, orderDate, shippingAddress) => `
+        adminMessage: (orderNumber, customerName, amount, orderDate, shippingAddress) => `
             <p>Dear Admin,</p>
             <p>We are pleased to inform you that a new order has been placed on E-Gadget World.</p>
             <p><strong>Order Details:</strong></p>
             <p>- <strong>Order Number:</strong> ${orderNumber}</p>
             <p>- <strong>Customer Name:</strong> ${customerName}</p>
-            <p>- <strong>Product:</strong> ${productName}</p>
+            <p>- <strong>Amount:</strong>Rs. ${amount}</p>
             <p>- <strong>Order Date:</strong> ${orderDate}</p>
             <p>- <strong>Shipping Address:</strong> ${shippingAddress}</p>
             <p>Please review the order details and ensure that the necessary steps are taken to process and ship the order promptly.</p>
@@ -38,13 +37,13 @@ const emailTemplates = {
             <p>E-Gadget World Team</p>
         `,
         userSubject: 'Order Confirmation - Order #{{Order_Number}}',
-        userMessage: (orderNumber, customerName, productName, orderDate, shippingAddress) => `
+        userMessage: (orderNumber, customerName, amount, orderDate, shippingAddress) => `
             <p>Dear ${customerName},</p>
             <p>Thank you for choosing E-Gadget World!</p>
             <p>We are thrilled to confirm that your order has been successfully placed. Our team will now begin preparing your item for shipment.</p>
             <p><strong>Order Details:</strong></p>
             <p>- <strong>Order Number:</strong> ${orderNumber}</p>
-            <p>- <strong>Product:</strong> ${productName}</p>
+            <p>- <strong>Amount:</strong>Rs. ${amount}</p>
             <p>- <strong>Order Date:</strong> ${orderDate}</p>
             <p>- <strong>Shipping Address:</strong> ${shippingAddress}</p>
             <p>You will receive a notification with the tracking details once your order has been shipped.</p>
@@ -58,35 +57,35 @@ const emailTemplates = {
         userSubject: 'Payment Confirmation for Your Recent Transaction',
         userMessage: (username, amount, transactionId, orderId) => `
             <p>Dear ${username},</p>
-            <p>Thank you for your recent payment. We are pleased to inform you that your payment of ${amount} has been successfully processed.</p>
+            <p>Thank you for your recent payment. We are pleased to inform you that your payment of Rs. ${amount} has been successfully processed.</p>
             <p><strong>Transaction Details:</strong></p>
             <p>- <strong>Transaction ID:</strong> ${transactionId}</p>
             <p>- <strong>Order ID:</strong> ${orderId}</p>
-            <p>- <strong>Amount:</strong> ${amount}</p>
+            <p>- <strong>Amount:</strong>Rs. ${amount}</p>
             <p>- <strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
             <p>If you have any questions or need further assistance, please do not hesitate to contact us.</p>
             <p>Thank you for choosing WordCreation.</p>
             <p>Best regards,</p>
-            <p>The WordCreation Team</p>
-            <p>support@wordcreation.in</p>
-            <p>https://wordcreation.in</p>
+              <p>Best regards,</p>
+            <p>The E-Gadget World Team</p>
+            <p>egadgetworldindia@gmail.com</p>
         `,
         adminSubject: 'Payment Received Confirmation',
         adminMessage: (username, amount, transactionId, orderId) => `
             <p>Dear Admin,</p>
-            <p>We have successfully received a payment from ${username} for ${amount}. Please find the details of the transaction below:</p>
+            <p>We have successfully received a payment from ${username} for Rs. ${amount}. Please find the details of the transaction below:</p>
             <p><strong>Transaction Details:</strong></p>
             <p>- <strong>User Name:</strong> ${username}</p>
             <p>- <strong>Transaction ID:</strong> ${transactionId}</p>
             <p>- <strong>Order ID:</strong> ${orderId}</p>
-            <p>- <strong>Amount:</strong> ${amount}</p>
+            <p>- <strong>Amount:</strong> Rs. ${amount}</p>
             <p>- <strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
             <p>Please update your records accordingly and let us know if any further action is required.</p>
             <p>Thank you for your attention to this matter.</p>
             <p>Best regards,</p>
-            <p>The WordCreation Team</p>
-            <p>support@wordcreation.in</p>
-            <p>https://wordcreation.in</p>
+               <p>Best regards,</p>
+            <p>The E-Gadget World Team</p>
+            <p>egadgetworldindia@gmail.com</p>
         `,
     },
     orderShippingNotification: {
@@ -102,11 +101,9 @@ const emailTemplates = {
             <p>Our team at E-Gadget World has meticulously inspected, upgraded, and packaged your device to ensure it arrives in perfect condition. We’re confident that you’ll love your refurbished laptop as much as we loved bringing it back to life.</p>
             <p>If you have any questions about your order or need further assistance, feel free to reply to this email or contact our customer service team at [Customer Service Email].</p>
             <p>Thank you for choosing E-Gadget World. We appreciate your business and look forward to serving you again!</p>
-            <p>Best regards,</p>
+             <p>Best regards,</p>
             <p>The E-Gadget World Team</p>
-            <p><a href="https://egadgetworld.in/">E-Gadget World</a></p>
-            <p>[Customer Service Email]</p>
-            <p>[Customer Service Phone Number]</p>
+            <p>egadgetworldindia@gmail.com</p>
         `,
     },
     orderCompletionNotification: {
@@ -120,11 +117,9 @@ const emailTemplates = {
             <p>- <strong>Delivery Date:</strong> ${deliveryDate}</p>
             <p>If you have any questions, concerns, or need any assistance with your new device, please don’t hesitate to contact us. We’re here to help and ensure you have the best experience with your purchase.</p>
             <p>Thank you for choosing E-Gadget World. We’re thrilled to have you as part of our community and hope you enjoy your new laptop!</p>
-            <p>Best regards,</p>
+             <p>Best regards,</p>
             <p>The E-Gadget World Team</p>
-            <p><a href="https://egadgetworld.in/">E-Gadget World</a></p>
-            <p>[Customer Service Email]</p>
-            <p>[Customer Service Phone Number]</p>
+            <p>egadgetworldindia@gmail.com</p>
         `,
     }
 };

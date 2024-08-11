@@ -312,6 +312,17 @@ router.get('/razorpay-success', async (req, res) => {
                 };
                 await queryAsync(`INSERT INTO orders SET ?`, orderData);
                 await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [userid]);
+
+
+                let userDetails = await verify.profile(userid)
+
+                const userMessage = emailTemplates.orderCreation.userMessage(orderid , userDetails[0].name ,orderData.amount ,created_at , address );
+                const adminMessage = emailTemplates.orderCreation.adminMessage(orderid , userDetails[0].name ,orderData.amount ,created_at , address  );
+
+
+                await verify.sendUserMail(userDetails[0].email,emailTemplates.orderCreation.userSubject,userMessage)
+                await verify.sendUserMail('jnaman345@gmail.com',emailTemplates.orderCreation.adminSubject,adminMessage)
+                                   
         
                 res.json({ msg: 'success' });
             } catch (err) {
