@@ -30,6 +30,7 @@ var ivrapi = require('./routes/IVR/api');
 var api = require('./routes/api');
 var outlet = require('./routes/outlet');
 var team = require('./routes/team');
+var payment = require('./routes/payment');
 
 
 var app = express();
@@ -80,6 +81,7 @@ app.use('/admin/dashboard/apple',apple);
 app.use('/admin/dashboard/inventory',inventory)
 app.use('/ivr/api/v1',ivrapi);
 app.use('/api/v1',api);
+app.use('/payment',payment)
 
 
 

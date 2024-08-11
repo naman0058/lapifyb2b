@@ -1,0 +1,65 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            // Function to get URL parameters
+            function getOrderDetailsFromURL() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return {
+                    id: urlParams.get('order_id'),
+                    name: urlParams.get('name'),
+                    number: urlParams.get('number'),
+                    email: urlParams.get('email'),
+                    amount: urlParams.get('amount'),
+                    userid: urlParams.get('userid'),
+                    address:urlParams.get('address'),
+
+                };
+            }
+
+            // Fetch the order details from the URL parameters
+            const order = getOrderDetailsFromURL();
+           
+            if (!order.id || !order.name || !order.number || !order.email || !order.amount) {
+                throw new Error("Incomplete order details in URL parameters.");
+            }
+
+            // Proceed with the Razorpay options
+            const options = {
+                "key": "rzp_test_c9ZSQoNdAZavNr", // Enter the Key ID generated from the Dashboard
+                "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": "Word Creation",
+                "description": "Test Transaction",
+                "image": "/images/white1.png",
+                "order_id": order.id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "callback_url": `/payment/razorpay-response?orderid=${order.id}&amount=${order.amount}&name=${order.name}&userid=${order.userid}&address=${order.address}`,
+                "prefill": {
+                    "name": order.name,
+                    "email": order.email,
+                    "contact": order.number
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                },
+                "modal": {
+        "ondismiss": function() {
+            // This function is triggered when the payment modal is closed (cross button is clicked)
+            // alert('Payment was canceled by the user.');
+            // Optionally, you can navigate the user to a different page or take other actions
+            window.location.href = '/payment/razorpay-response'; // Example: Redirecting to a cancellation page
+        }
+    }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        } catch (error) {
+            console.error('Error generating order', error);
+        }
+    });
+</script>

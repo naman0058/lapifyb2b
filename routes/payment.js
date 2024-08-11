@@ -41,8 +41,29 @@ var instance = new Razorpay({
 
 
   router.get('/generate-order',async(req,res)=>{
-    let result =  await user.getOrderDetails(req.query.orderid);
-    let payable_amount = result[0].remaining_payment;
+    const userid = req.query.userid;
+  
+    const cartResults = await queryAsync(`
+        SELECT c.*, 
+               (SELECT p.category FROM product p WHERE p.id = c.productid) AS category,
+               (SELECT p.price FROM product p WHERE p.id = c.productid) AS productprice
+        FROM cart c
+        WHERE c.userid = ? and quantity > 0`, [userid]);
+
+    if (!Array.isArray(cartResults)) {
+        throw new Error('Failed to fetch cart results');
+    }
+
+    let total_amount = 0;
+
+
+    cartResults.forEach(item => {
+        const amount = item.productprice * item.quantity;
+        total_amount += amount;
+
+    })
+
+    let payable_amount = total_amount;
   
   
    
@@ -60,80 +81,103 @@ var instance = new Razorpay({
   
 
 
+   router.get('/open-payment',(req,res)=>{
+    res.render('openpayment',{order:req.query.order})
+   })
+
+
+   router.get('/razorpay-response',(req,res)=>{
+    res.json({msg:'cancelled'})
+   })
+
+
 
 
    router.post('/razorpay-response', async (req, res) => {
     let body = req.body;
   
     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
-      const data = req.session.generateOrderId + '|' + body.razorpay_payment_id;
+      const data = req.query.orderid + '|' + body.razorpay_payment_id;
       let generated_signature = hmac_sha256(data, 'M3PlBQetVxVHN6SX3PkqtooV');
   
+      console.log('razorpayresponse',body)
+      console.log('generated_signature',generated_signature)
+
+
       if (generated_signature == body.razorpay_signature) {
-        body.orderid = req.query.orderid;
-        body.type = req.query.type;
-        body.amount = req.session.payable_amount;
-        body.generateOrderId = req.session.generateOrderId;
-        body.userid = req.session.userid;
+        body.orderid = req.query.orderid
+        body.amount = req.query.amount;
+        body.txnid = req.query.orderid;
+        body.userid = req.query.userid;
         body.created_at = verify.getCurrentDate();
   
-        pool.query(`INSERT INTO payment_response SET ?`, body, (err, result) => {
+        pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
           if (err) throw err;
           else {
-            pool.query(`UPDATE orders SET advance_payment = advance_payment + ${body.amount}, remaining_payment = remaining_payment - ${body.amount}, status = 'ongoing' WHERE orderid = '${body.orderid}'`, async (err, result) => {
-              if (err) throw err;
-              else {
-                let userSubject = `Payment Confirmation for Your Recent Transaction`;
-                let userMessage = `
-                  <p>Dear ${req.session.username},</p>
-                  
-                  <p>Thank you for your recent payment. We are pleased to inform you that your payment of ${req.session.payable_amount} has been successfully processed.</p>
-                  
-                  <p><strong>Transaction Details:</strong></p>
-                  <p>- <strong>Transaction ID:</strong> ${body.razorpay_payment_id}</p>
-                  <p>- <strong>Order ID:</strong> ${req.query.orderid}</p>
-                  <p>- <strong>Amount:</strong> ${req.session.payable_amount}</p>
-                  <p>- <strong>Date:</strong> ${verify.getCurrentDate()}</p>
-                  
-                  <p>If you have any questions or need further assistance, please do not hesitate to contact us.</p>
-                  
-                  <p>Thank you for choosing WordCreation.</p>
-                  
-                  <p>Best regards,</p>
-                  <p>The WordCreation Team</p>
-                  <p>support@wordcreation.ind</p>
-                  <p>https://wordcreation.in</p>
-                `;
-  
-                let adminSubject = `Payment Received Confirmation`;
-                let adminMessage = `
-                  <p>Dear Admin,</p>
-                  
-                  <p>We have successfully received a payment from ${req.session.username} for ${req.session.payable_amount}. Please find the details of the transaction below:</p>
-                  
-                  <p><strong>Transaction Details:</strong></p>
-                  <p>- <strong>User Name:</strong> ${req.session.username}</p>
-                  <p>- <strong>Transaction ID:</strong> ${body.razorpay_payment_id}</p>
-                  <p>- <strong>Order ID:</strong> ${req.query.orderid}</p>
-                  <p>- <strong>Amount:</strong> ${req.session.payable_amount}</p>
-                  <p>- <strong>Date:</strong> ${verify.getCurrentDate()}</p>
-                  
-                  <p>Please update your records accordingly and let us know if any further action is required.</p>
-                  
-                  <p>Thank you for your attention to this matter.</p>
-                  
-                   <p>Best regards,</p>
-                  <p>The WordCreation Team</p>
-                  <p>support@wordcreation.ind</p>
-                  <p>https://wordcreation.in</p>
-                `;
-  
-                // await verify.sendUserMail(req.session.useremail, userSubject, userMessage);
-                // await verify.sendUserMail('contact@wordcreation.in', adminSubject, adminMessage);
-  
-                res.json({msg:'success'})
-              }
-            });
+            try {
+                const orderid = req.query.orderid
+                const created_at = verify.getCurrentDate();
+                const userid = req.query.userid;
+                const address = req.query.address;
+        
+                // Fetch products from the cart
+                const cartResults = await queryAsync(`
+                    SELECT c.*, 
+                           (SELECT p.category FROM product p WHERE p.id = c.productid) AS category,
+                           (SELECT p.price FROM product p WHERE p.id = c.productid) AS productprice
+                    FROM cart c
+                    WHERE c.userid = ? and quantity > 0`, [userid]);
+        
+                if (!Array.isArray(cartResults)) {
+                    throw new Error('Failed to fetch cart results');
+                }
+        
+                let total_amount = 0;
+                let bookingData = [];
+        
+                // Calculate total amount and prepare booking data
+                cartResults.forEach(item => {
+                    const amount = item.productprice * item.quantity;
+                    total_amount += amount;
+        
+                    bookingData.push({
+                        userid,
+                        orderid,
+                        productid: item.productid,
+                        amount,
+                        created_at,
+                        category: item.category,
+                        quantity: item.quantity,
+                        address,
+                    status: 'pending',
+        
+                    });
+                });
+        
+                // Insert booking data into 'booking' table
+                await Promise.all(bookingData.map(data => queryAsync(`INSERT INTO booking SET ?`, data)));
+        
+                // Insert order data into 'orders' table
+                const orderData = {
+                    userid,
+                    orderid,
+                    created_at,
+                    status: 'pending',
+                    amount: total_amount,
+                    address,
+                    updated_at:created_at
+        
+                };
+                await queryAsync(`INSERT INTO orders SET ?`, orderData);
+                await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [userid]);
+        
+                res.json({ msg: 'success' });
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ msg: 'An error occurred' });
+            }
+
+
           }
         });
       } else {
