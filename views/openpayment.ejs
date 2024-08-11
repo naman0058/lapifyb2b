@@ -35,6 +35,7 @@
                 "image": "/images/white1.png",
                 "order_id": order.id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
                 "callback_url": `https://egadgetworld.in/payment/razorpay-response?orderid=${order.id}&amount=${order.amount}&name=${order.name}&userid=${order.userid}&address=${order.address}`,
+                redirect: true,
                 "prefill": {
                     "name": order.name,
                     "email": order.email,
