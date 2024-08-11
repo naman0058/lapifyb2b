@@ -90,13 +90,11 @@ const emailTemplates = {
     },
     orderShippingNotification: {
         userSubject: 'Your E-Gadget World Order Has Shipped!',
-        userMessage: (customerName, orderNumber, trackingNumber, carrierName, trackingLink) => `
+        userMessage: (customerName, orderNumber, trackingLink) => `
             <p>Dear ${customerName},</p>
             <p>We’re excited to let you know that your order ${orderNumber} from E-Gadget World has been shipped! Your refurbished laptop is on its way to you and will arrive soon.</p>
             <p><strong>Shipping Details:</strong></p>
             <p>- <strong>Order Number:</strong> ${orderNumber}</p>
-            <p>- <strong>Tracking Number:</strong> ${trackingNumber}</p>
-            <p>- <strong>Carrier:</strong> ${carrierName}</p>
             <p>You can track your order using the following link: <a href="${trackingLink}">Track Your Order</a></p>
             <p>Our team at E-Gadget World has meticulously inspected, upgraded, and packaged your device to ensure it arrives in perfect condition. We’re confident that you’ll love your refurbished laptop as much as we loved bringing it back to life.</p>
             <p>If you have any questions about your order or need further assistance, feel free to reply to this email or contact our customer service team at [Customer Service Email].</p>

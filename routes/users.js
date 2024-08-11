@@ -9,6 +9,7 @@ const upload = require('./multer');
 var folder = 'users'
 var isimage = ['brand','type']
 var databasetable = 'users'
+const emailTemplates = require('./emailTemplates');
 
 
 
@@ -145,6 +146,30 @@ router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{
   try {
     let body = req.body
     body.updated_at = verify.getCurrentDate();
+    console.log(req.body)
+
+  let orderDetails = await verify.getOrderDetails(req.body.orderid);
+  let userDetails = await verify.profile(orderDetails[0].userid)
+  
+  console.log('orderdetails',orderDetails);
+  console.log('userDetails',userDetails);
+
+
+  if(req.body.status == 'ongoing'){
+  const userMessage = emailTemplates.orderShippingNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.delivery_link );
+  await verify.sendUserMail(userDetails[0].email,emailTemplates.orderShippingNotification.userSubject,userMessage)
+
+
+  }
+
+  else {
+    const userMessage = emailTemplates.orderCompletionNotification.userMessage(orderDetails[0].username, req.body.orderid, updated_at);
+    await verify.sendUserMail(userDetails[0].email,emailTemplates.orderCompletionNotification.userSubject,userMessage)
+    
+  }
+
+
+
 
 
     const result = await user.updateOrders(req.body.orderid,req.body);
