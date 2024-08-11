@@ -318,10 +318,13 @@ router.get('/razorpay-success', async (req, res) => {
 
                 const userMessage = emailTemplates.orderCreation.userMessage(orderid , userDetails[0].name ,orderData.amount ,created_at , address );
                 const adminMessage = emailTemplates.orderCreation.adminMessage(orderid , userDetails[0].name ,orderData.amount ,created_at , address  );
+                const adminSubject = emailTemplates.orderCreation.adminSubject.replace('{{Order_Number}}', orderid);
+                const userSubject = emailTemplates.orderCreation.userSubject.replace('{{Order_Number}}', orderid);
 
 
-                await verify.sendUserMail(userDetails[0].email,emailTemplates.orderCreation.userSubject,userMessage)
-                await verify.sendUserMail('jnaman345@gmail.com',emailTemplates.orderCreation.adminSubject,adminMessage)
+
+                await verify.sendUserMail(userDetails[0].email,userSubject,userMessage)
+                await verify.sendUserMail('jnaman345@gmail.com',adminSubject,adminMessage)
                                    
         
                 res.json({ msg: 'success' });
