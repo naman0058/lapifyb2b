@@ -233,6 +233,8 @@ router.get('/razorpay-success', async (req, res) => {
         body.amount = req.query.amount;
         body.txnid = req.query.orderid;
         body.userid = req.query.userid;
+        body.type = req.query.type;
+
         body.created_at = verify.getCurrentDate();
   
         pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
@@ -314,7 +316,7 @@ router.get('/razorpay-success', async (req, res) => {
 
 
 
-  router.get('/razorpay-success', async (req, res) => {
+  router.get('/wallet-razorpay-success', async (req, res) => {
     let body = req.query;
   
     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
@@ -330,6 +332,8 @@ router.get('/razorpay-success', async (req, res) => {
         body.amount = req.query.amount;
         body.txnid = req.query.orderid;
         body.userid = req.query.userid;
+        body.type = req.query.type;
+
         body.created_at = verify.getCurrentDate();
   
         pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {

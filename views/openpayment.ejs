@@ -14,6 +14,8 @@
                     amount: urlParams.get('amount'),
                     userid: urlParams.get('userid'),
                     address:urlParams.get('address'),
+                    type:urlParams.get('type'),
+                    
 
                 };
             }
@@ -37,7 +39,7 @@
                 "handler": function(response) {
         // Handle the response manually here
         // You can perform an HTTP request here if needed
-        window.location.href = `/payment/razorpay-success?orderid=${order.id}&amount=${order.amount}&name=${order.name}&userid=${order.userid}&address=${order.address}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}&razorpay_order_id=${response.razorpay_order_id}`;
+        window.location.href = `/payment/razorpay-success?orderid=${order.id}&amount=${order.amount}&name=${order.name}&userid=${order.userid}&address=${order.address}&razorpay_payment_id=${response.razorpay_payment_id}&razorpay_signature=${response.razorpay_signature}&razorpay_order_id=${response.razorpay_order_id}&type=${order.type}`;
     },
                 // "callback_url": `https://egadgetworld.in/payment/razorpay-response?orderid=${order.id}&amount=${order.amount}&name=${order.name}&userid=${order.userid}&address=${order.address}`,
                 // redirect: true,
