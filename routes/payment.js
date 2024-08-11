@@ -117,6 +117,11 @@ var instance = new Razorpay({
    })
 
 
+   router.get('/wallet-razorpay-response',(req,res)=>{
+    res.json({msg:'cancelled'})
+   })
+
+
 
 
 //    router.post('/razorpay-response', async (req, res) => {
