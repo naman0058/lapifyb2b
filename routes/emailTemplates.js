@@ -97,7 +97,7 @@ const emailTemplates = {
             <p>- <strong>Order Number:</strong> ${orderNumber}</p>
             <p>You can track your order using the following link: <a href="${trackingLink}">Track Your Order</a></p>
             <p>Our team at E-Gadget World has meticulously inspected, upgraded, and packaged your device to ensure it arrives in perfect condition. We’re confident that you’ll love your refurbished laptop as much as we loved bringing it back to life.</p>
-            <p>If you have any questions about your order or need further assistance, feel free to reply to this email or contact our customer service team at [Customer Service Email].</p>
+            <p>If you have any questions about your order or need further assistance, feel free to reply to this email or contact our customer service team at egadgetworldindia@gmail.com.</p>
             <p>Thank you for choosing E-Gadget World. We appreciate your business and look forward to serving you again!</p>
              <p>Best regards,</p>
             <p>The E-Gadget World Team</p>

@@ -314,6 +314,36 @@ router.get('/dashboard/customer/account/link',verify.adminAuthenticationToken,(r
 })
 
 
+router.get('/dashboard/promotion',verify.adminAuthenticationToken,(req,res)=>{
+  res.render(`laptop/filters/promotion`,{msg:''})
+})
+
+
+
+
+router.post('/dashboard/promotion', async (req, res) => {
+
+  let body = req.body;  
+
+  console.log(body)
+  
+const { default: pLimit } = await import('p-limit');
+const limit = pLimit(100); 
+
+  pool.query(`SELECT * FROM users`, async (err, result) => {
+    if (err) throw err;
+
+    const tasks = result.map(user => 
+      limit(() => verify.sendPromotionalMail(user, req.body.subject, req.body.message))
+    );
+
+    await Promise.all(tasks);
+    res.redirect(`/admin/dashboard/promotion?message=${encodeURIComponent('Promotional Mail Sent Successfully.')}`);
+  });
+});
+
+
+
 router.get('/dashboard/users/show', async (req, res) => {
   try {
     let query = `SELECT * FROM users`;

@@ -163,7 +163,7 @@ router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{
   }
 
   else {
-    const userMessage = emailTemplates.orderCompletionNotification.userMessage(orderDetails[0].username, req.body.orderid, updated_at);
+    const userMessage = emailTemplates.orderCompletionNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.updated_at);
     await verify.sendUserMail(userDetails[0].email,emailTemplates.orderCompletionNotification.userSubject,userMessage)
     
   }

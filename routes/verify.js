@@ -500,6 +500,65 @@ const transporter = nodemailer.createTransport({
       }
       
 
+
+
+      const axios = require('axios');
+
+const sendWhatsAppMessage = async (phoneNumber, templateName, languageCode, bodyParameters = [], buttonParameters = []) => {
+    const messageData = {
+        messaging_product: 'whatsapp',
+        to: phoneNumber,
+        type: 'template',
+        template: {
+            name: templateName,
+            language: {
+                code: languageCode
+            },
+            components: []
+        }
+    };
+
+    if (bodyParameters.length > 0) {
+        messageData.template.components.push({
+            type: 'body',
+            parameters: bodyParameters.map(param => ({
+                type: 'text',
+                text: param
+            }))
+        });
+    }
+
+    if (buttonParameters.length > 0) {
+        messageData.template.components.push({
+            type: 'button',
+            sub_type: 'url', // or 'flow' depending on your need
+            index: 0,
+            parameters: buttonParameters.map(param => ({
+                type: 'text',
+                text: param
+            }))
+        });
+    }
+
+    try {
+        const response = await axios.post(
+            'https://graph.facebook.com/v20.0/389545867577984/messages',
+            messageData,
+            {
+                headers: {
+                    'Authorization': 'Bearer YOUR_ACCESS_TOKEN', // Replace with your actual token
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        console.log('Message sent response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error sending message:', error.response ? error.response.data : error.message);
+        throw new Error('Error sending message');
+    }
+};
+
   
 
   module.exports = {
@@ -519,7 +578,8 @@ const transporter = nodemailer.createTransport({
     sendPromotionalMail,
     sendUserMail,
     profile,
-    getOrderDetails
+    getOrderDetails,
+    sendWhatsAppMessage
   }
 
 
