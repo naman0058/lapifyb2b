@@ -16,6 +16,9 @@ var databasetable = 'product'
 
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
+const emailTemplates = require('./emailTemplates');
+
+
 
 
 router.post('/user/login', async (req, res) => {
@@ -74,6 +77,9 @@ router.post('/user/signup', async (req, res) => {
         } else {
             const insertQuery = 'INSERT INTO users SET ?';
             const insertResult = await queryAsync(insertQuery, body);
+            const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
+
+            await verify.sendUserMail(body.email,emailTemplates.welcomeMessage.userSubject,userMessage)
             res.json({
                 msg: 'success',
                 result: insertResult

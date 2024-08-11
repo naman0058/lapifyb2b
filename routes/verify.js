@@ -306,6 +306,200 @@ async function getDatas(tableName, columnName) {
 
 // console.log('Last Financial Year',getCurrentYearDates())
 
+
+
+const nodemailer = require('nodemailer');
+
+
+
+
+// Create a transporter for sending emails
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'filemakr@gmail.com',
+      pass: 'mlgv tdpy tlnx sorq',
+    },
+  });
+
+
+
+
+  
+  
+    async function sendInviduallyMail(result,subject,message) {
+      try {
+        console.log('Data Recieve',result); 
+        // Fetch recipients from an API (replace 'api_url' with your API endpoint)
+        const recipients = result; // Assuming the API returns an array of recipients
+    
+        // Loop through recipients and send emails
+     
+    
+            // console.log('recipients',recipients)
+            try {
+              const mailOptions = {
+                from: 'support@wordcreation.in',
+                to: result.email,
+                subject: subject,
+                html: `
+                <html>
+                  <head>
+                    <style>
+                      body {
+                        style="font-family: Georgia;
+                        color: black;
+                      }
+                      strong {
+                        font-weight: bold;
+                      }
+                    </style>
+                  </head>
+                  <body style="font-family: Georgia;color:'black'">
+                    ${message}
+                  </body>
+                </html>
+              `,
+            
+              };
+    
+              // Send the email
+              const info = await transporter.sendMail(mailOptions);
+              console.log('information',info)
+              console.log(`Email sent to ${result.email}: ${info.response}`);
+            } catch (emailError) {
+              console.error(`Error sending email to ${result.email}:`, emailError);
+            }
+          
+        
+      } catch (fetchError) {
+        console.error('Error fetching recipients or sending emails:', fetchError);
+      }
+    }
+  
+  
+  
+  
+    async function sendPromotionalMail(result, subject, message) {
+      try {
+        console.log('Data Received', result);
+        
+        const mailOptions = {
+          from: 'support@wordcreation.in',
+          to: result.email,
+          subject: subject,
+          html: `
+            <html>
+              <head>
+                <style>
+                  body {
+                    font-family: Georgia;
+                    color: black;
+                  }
+                  strong {
+                    font-weight: bold;
+                  }
+                </style>
+              </head>
+              <body style="font-family: Georgia; color: black;">
+                ${message}
+              </body>
+            </html>
+          `,
+        };
+    
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Information', info);
+        console.log(`Email sent to ${result.email}: ${info.response}`);
+      } catch (emailError) {
+        console.error(`Error sending email to ${result.email}:`, emailError);
+      }
+    }
+  
+  
+  
+    async function sendUserMail(result,subject,message) {
+      try {
+        console.log('Data Recieve',result); 
+        console.log('Data Recieve',subject); 
+        console.log('Data Recieve',message); 
+  
+        // Fetch recipients from an API (replace 'api_url' with your API endpoint)
+        const recipients = result; // Assuming the API returns an array of recipients
+    
+        // Loop through recipients and send emails
+     
+    
+            // console.log('recipients',recipients)
+            try {
+              const mailOptions = {
+                from: 'support@wordcreation.in',
+                to: result,
+                subject: subject,
+                html: `
+                <html>
+                  <head>
+                    <style>
+                      body {
+                        style="font-family: Georgia;
+                        color: black;
+                      }
+                      strong {
+                        font-weight: bold;
+                      }
+                    </style>
+                  </head>
+                  <body style="font-family: Georgia;color:'black'">
+                    ${message}
+                  </body>
+                </html>
+              `,
+            
+              };
+    
+              // Send the email
+              const info = await transporter.sendMail(mailOptions);
+              console.log('information',info)
+              console.log(`Email sent to ${result}: ${info.response}`);
+            } catch (emailError) {
+              console.error(`Error sending email to ${result}:`, emailError);
+            }
+          
+        
+      } catch (fetchError) {
+        console.error('Error fetching recipients or sending emails:', fetchError);
+      }
+    }
+  
+
+    async function profile(id) {
+        try {
+             let result = await queryAsync(`SELECT * FROM users WHERE id = '${id}'`);
+            return result;
+        } catch (error) {
+            console.error('Error while fetching user:', error);
+            throw new Error('Internal server error');
+        }
+      }
+
+
+      async function getOrderDetails(value) {
+        try {
+            let result = await queryAsync(`SELECT o.*, u.name as username, u.number as usernumber, u.unique_id as uniqueid 
+                                           FROM orders o 
+                                           JOIN users u ON u.id = o.userid 
+                                           WHERE o.orderid = ? 
+                                           ORDER BY o.id DESC 
+                                           LIMIT 1000`, [value]);
+            
+            return result;
+        } catch (error) {
+            console.error('Error while fetching user:', error);
+            throw new Error('Internal server error');
+        }
+      }
+      
+
   
 
   module.exports = {
@@ -320,7 +514,12 @@ async function getDatas(tableName, columnName) {
     getLastFinancialYearDates,
     generateOrderNumber,
     generateUniqueId,
-    getDatas
+    getDatas,
+    sendInviduallyMail,
+    sendPromotionalMail,
+    sendUserMail,
+    profile,
+    getOrderDetails
   }
 
 

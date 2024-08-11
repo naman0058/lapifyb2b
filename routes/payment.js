@@ -18,6 +18,8 @@ const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
 
 const crypto = require('crypto');
+const emailTemplates = require('./emailTemplates');
+
 
  function hmac_sha256(data, secret) {
   return crypto.createHmac('sha256', secret).update(data).digest('hex');
@@ -244,6 +246,13 @@ router.get('/razorpay-success', async (req, res) => {
   
         pool.query(`select * from payment_response where razorpay_signature = '${body.razorpay_signature}' and razorpay_payment_id = '${body.razorpay_payment_id}' and razorpay_order_id = '${body.razorpay_order_id}'`,(err,result)=>{
 
+            if(err) throw err;
+            else if(result.length>0){
+           res.json({msg:'success',description:'alreadydone'})
+            }
+            else{
+
+          
         pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
           if (err) throw err;
           else {
@@ -313,6 +322,7 @@ router.get('/razorpay-success', async (req, res) => {
 
           }
         });
+    }
     })
       } else {
         res.json({ msg: 'Unauthorized Payment' });
@@ -353,11 +363,31 @@ router.get('/razorpay-success', async (req, res) => {
                 pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
                     if (err) throw err;
                     else {
+
+                     pool.query(`insert into transaction(userid,amount,status,orderid,color,created_at,txnid) values('${body.userid}' , '${body.amount}') , 'credit' , '${body.orderid}' , 'green' , '${body.created_at}' , '${body.razorpay_payment_id}'`,async(err,result)=>{
+                        if(err) throw err;
+                        else {
+                            pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,async(err,result)=>{
+                                if(err) throw err;
+                               
+                                else{
+                                    let userDetails = await verify.profile(body.userid)
+
+                                    const userMessage = emailTemplates.paymentConfirmation.userMessage(userDetails[0].name, body.amount, body.razorpay_payment_id,body.orderid);
+                                    const adminMessage = emailTemplates.paymentConfirmation.adminMessage(userDetails[0].name, body.amount, body.razorpay_payment_id,body.orderid);
+
+
+                                    await verify.sendUserMail(userDetails[0].email,emailTemplates.paymentConfirmation.userSubject,userMessage)
+                                    await verify.sendUserMail('jnaman345@gmail.com',emailTemplates.paymentConfirmation.adminSubject,adminMessage)
+                                   
+                                    res.json({msg:'success'})
+                                }
+                                    
+                              })
+                        }
+                     })   
           
-                    pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,(err,result)=>{
-                      if(err) throw err;
-                      else res.json({msg:'success'})
-                    })
+                  
           
           
                     }
