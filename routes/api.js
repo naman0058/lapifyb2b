@@ -846,7 +846,9 @@ router.get('/product_description', (req, res) => {
         f5.name AS processor_name,
         f6.name AS ram_name,
         f7.name AS graphics_card_name,
-        f8.name AS screen_size_name
+        f8.name AS screen_size_name,
+        f9.name AS physical_condition_name
+
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN users u ON u.id = '${req.query.userid}'
@@ -859,6 +861,8 @@ router.get('/product_description', (req, res) => {
         LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
         LEFT JOIN ${filtertable} f7 ON lqr.graphics_card = f7.id
         LEFT JOIN ${filtertable} f8 ON lqr.screen_size = f8.id
+        LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
+
 
         WHERE  d.id = '${req.query.id}' and d.status = true
         GROUP BY 

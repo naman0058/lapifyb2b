@@ -22,6 +22,8 @@
 
                                 <input type="hidden" id="pagename" value="<%=response%>">
                                 <input type="hidden" id="subcategoryvalue" value="<%=result[0].subcategory%>">
+                                <input type="hidden" id="physical_condition_value" value="<%=result[0].physical_condition%>">
+
                                 <input type="hidden" id="brandvalue" value="<%=result[0].brand%>">
                                 <input type="hidden" id="typevalue" value="<%=result[0].type%>">
                                 <input type="hidden" id="generationvalue" value="<%=result[0].generation%>">
@@ -45,7 +47,7 @@
 
 
 <div class="row">
-    <div class="col-xl-6">
+    <div class="col-xl-4">
         <label  class="form-label">Select  <%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
 
             Condition </label>
@@ -53,8 +55,16 @@
     </div>
 
 
+    <div class="col-xl-4">
+      <label  class="form-label">Select  <%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
 
-    <div class="col-xl-6">
+          Physical Condition </label>
+         <select id="physical_condition" name="physical_condition" required class="form-control"></select>
+  </div>
+
+
+
+    <div class="col-xl-4">
       <label  class="form-label">Product (Hide / Show )</label>
          <select name="in_app" class="form-control">
           <option value="hide" <%=result[0].in_app === 'hide' ? 'selected' : '' %>>Hide</option>
@@ -531,6 +541,8 @@ $('.uploadImage').submit(function (e) {
 
 let pagename = $('#pagename').val()
 let subcategoryvalue = $('#subcategoryvalue').val()
+let physical_condition_value = $('#physical_condition_value').val()
+
 let typevalue = $('#typevalue').val()
 let brandvalue = $('#brandvalue').val()
 let generationvalue =$('#generationvalue').val()
@@ -543,6 +555,14 @@ $.getJSON(`/admin/dashboard/laptop/getData/condition`, data => {
     addgroup = data
     console.log('leagues',data)
     fillDropDown('subcategory', data, 'Choose Laptop Condition', subcategoryvalue)
+  
+})
+
+
+$.getJSON(`/admin/dashboard/laptop/getData/physical_condition`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('physical_condition', data, 'Choose Laptop Physical Condition', physical_condition_value)
   
 })
 
@@ -723,7 +743,9 @@ function submitForm() {
         touchpad:$('#touchpad').val(),
         body:$('#body').val(),
         adapter:$('#adapter').val(),
-        storage:$('#storage').val()
+        storage:$('#storage').val(),
+        physical_condition:$('#physical_condition').val(),
+
 
 
 
@@ -732,6 +754,9 @@ function submitForm() {
 
     if(values.subcategory == null || values.subcategory == 'null'){
     alert('Select Laptop Condition')
+    }
+    else if(QcReports.physical_condition == null || QcReports.physical_condition == 'null'){
+    alert('Select Laptop Physical Condition')
     }
     else if(QcReports.type == null || QcReports.type == 'null'){
     alert('Select Laptop Type')
