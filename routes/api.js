@@ -80,9 +80,9 @@ router.post('/user/signup', async (req, res) => {
             const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
 
             await verify.sendUserMail(body.email,emailTemplates.welcomeMessage.userSubject,userMessage)
-            await sendWhatsAppMessage(
-                body.number,
-                'welcometofilemakr', // Template name
+            await verify.sendWhatsAppMessage(
+                +91 + body.number,
+                'hello_world', // Template name
                 'en_US', // Language code
                 [body.name] // Body parameters
             );
@@ -1508,6 +1508,18 @@ router.post('/remove-cart',(req,res)=>{
         if(err) throw err;
         else res.json({msg:'success'})
     })
+})
+
+
+
+router.get('/send-message',async(req,res)=>{
+    await verify.sendWhatsAppMessage(
+        +917503747377 ,
+        'hello_world', // Template name
+        'en_US', // Language code
+         // Body parameters
+    );
+    res.json({msg:'success'})
 })
 
   

@@ -315,12 +315,15 @@ const nodemailer = require('nodemailer');
 
 // Create a transporter for sending emails
 const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-      user: 'filemakr@gmail.com',
-      pass: 'mlgv tdpy tlnx sorq',
-    },
-  });
+  host: 'smtpout.secureserver.net', // GoDaddy's SMTP server
+  port: 465, // Secure port for SSL
+  secure: true, // Use SSL
+  auth: {
+    user: 'support@egadgetworld.in', // Your GoDaddy email address
+    pass: 'Mahipal#@9451', // Your GoDaddy email password
+  },
+});
+;
 
 
 
@@ -542,11 +545,11 @@ const sendWhatsAppMessage = async (phoneNumber, templateName, languageCode, body
 
     try {
         const response = await axios.post(
-            'https://graph.facebook.com/v20.0/389545867577984/messages',
+            'https://graph.facebook.com/v20.0/361494850388648/messages',
             messageData,
             {
                 headers: {
-                    'Authorization': 'Bearer YOUR_ACCESS_TOKEN', // Replace with your actual token
+                    'Authorization': 'Bearer EABws9wYxk3ABO4dszNo4lOA6E81RXZBJbIdlAj5LHmq7CLy2IVdTqF0DxZAIUJoUsCupY7ZBdHrNWKpawYf0AeTWYZAZB8cX3rMypu14SE8qBcYboiNdSiBCA5AUZCxZAYFwYZCWkIfDX8tKHcV2LbnxBi2rwIzjY9xPTnaNCJ9m7YQZC5fFUjFI1TuMZAjOvkf1UkWLEZBbVBm217VyZCZA0kV4ZD',
                     'Content-Type': 'application/json'
                 }
             }

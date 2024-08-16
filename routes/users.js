@@ -158,8 +158,6 @@ router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{
   if(req.body.status == 'ongoing'){
   const userMessage = emailTemplates.orderShippingNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.delivery_link );
   await verify.sendUserMail(userDetails[0].email,emailTemplates.orderShippingNotification.userSubject,userMessage)
-
-
   }
 
   else {
