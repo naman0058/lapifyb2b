@@ -49,6 +49,7 @@
                                           <th>Subcategory</th>
                                           <th>Brand</th>
                                           <th>Price</th>
+                                          <th>Margin Price</th>
                                           <th>Quantity</th>
                                           <th>Warranty</th>
                                           <th>Battery Count Cycle</th>
@@ -96,6 +97,11 @@
                                                 <td><span>
                                                     Rs. <%=result[i].price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })%>
                                                 </span></td>
+
+
+                                                <td><span>
+                                                  Rs. <%=result[i].margin_price%>
+                                              </span></td>
 
 
                                                 <td><span>

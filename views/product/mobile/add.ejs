@@ -90,13 +90,20 @@
 
 
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
       <label  class="form-label">Price </label>
        <input type="number" class="form-control" id="price" placeholder="Enter Price">
       </div>
 
 
-      <div class="col-xl-6">
+
+      <div class="col-xl-4">
+        <label  class="form-label">Margin Price </label>
+         <input type="number" class="form-control" id="margin_price" placeholder="Enter Margin Price">
+        </div>
+  
+
+      <div class="col-xl-4">
           <label  class="form-label">Quantity</label>
           <input type="text" class="form-control" id="quantity" placeholder="Enter Quantity" >
 
@@ -669,15 +676,51 @@ var vm = new Vue({
 // });
 
 
+
+
+
+async function update_name(name) {
+  if (pagename === 'mobile') {
+    const newdata = {
+      modelno: $('#modelno').val(),
+      ram: $('#ram').val(),
+      storage: $('#storage').val(),
+      category: pagename
+    };
+
+    // Return a promise to handle the asynchronous AJAX request
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: '/admin/dashboard/product/fetch-name',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ newdata: newdata }),
+        success: function (data) {
+          console.log('data', data);
+          resolve(data); // Resolve the promise with the received data
+        },
+        error: function (err) {
+          console.error('Error fetching name:', err);
+          reject(err); // Reject the promise in case of an error
+        }
+      });
+    });
+  } 
+  else {
+    return Promise.resolve(name); // If not 'laptop', just return the original name
+  }
+}
+
  
 
-function submitForm() {
+async function submitForm() {
 
     const files = document.querySelector("[type=file]").files;
 
     const values = {
         description: CKEDITOR.instances['description'].getData(),
         price: $('#price').val(),
+        margin_price: $('#margin_price').val(),
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
@@ -728,6 +771,9 @@ function submitForm() {
     else if(!values.price){
         alert('Enter Price')
     }
+    else if(!values.margin_price){
+        alert('Enter Margin Price')
+    }
     else if(QcReports.ram == null || QcReports.ram == 'null'){
     alert('Select RAM')
     }
@@ -744,6 +790,10 @@ function submitForm() {
         alert('Select Imgaes')
     }
     else{
+
+      let updated_name = await update_name(values.name)
+      values.name = updated_name
+
     $.post(`/admin/dashboard/product/${pagename}/insert`, values)
 .done(function(response) {
     if (response.msg === 'success') {

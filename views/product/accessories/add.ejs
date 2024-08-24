@@ -437,8 +437,34 @@ var vm = new Vue({
 
 
  
+async function update_name(name) {
+    const newdata = {
+      modelno: $('#modelno').val(),
+      category: pagename
+    };
 
-function submitForm() {
+    // Return a promise to handle the asynchronous AJAX request
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: '/admin/dashboard/product/fetch-name',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ newdata: newdata }),
+        success: function (data) {
+          console.log('data', data);
+          resolve(data); // Resolve the promise with the received data
+        },
+        error: function (err) {
+          console.error('Error fetching name:', err);
+          reject(err); // Reject the promise in case of an error
+        }
+      });
+    });
+ 
+}
+
+
+async function submitForm() {
 
     const files = document.querySelector("[type=file]").files;
 

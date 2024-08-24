@@ -330,6 +330,15 @@ router.get('/:name/update', verify.adminAuthenticationToken, async (req, res) =>
 
 
 
+router.post('/fetch-name',async(req,res)=>{
+    let body = req.body.newdata;
+    console.log(body)
+    let result = await verify.fetch_name(body)
+    res.json(result)
+})
+
+
+
 router.post('/:name/update', verify.adminAuthenticationToken, async (req, res) => {
     const { body, params, file } = req;
     const { name } = params;

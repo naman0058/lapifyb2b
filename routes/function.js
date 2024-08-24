@@ -210,6 +210,53 @@ async function getFilter(filtertable,filters){
 
 
 
+async function fetch_name(data) {
+
+  try {
+    if(data.category == 'mobile'){
+      let ramname = await getDatas('mobile_filters',data.ram)
+      return  data.modelno + ' | ' + ramname + ' | ' +  data.storage 
+  }
+  
+  if(data.category == 'laptop'){
+      let processorname = await getDatas('laptop_filters',data.processor)
+      let generationname = await getDatas('laptop_filters',data.generation)
+      let ramname = await getDatas('laptop_filters',data.ram)
+  
+  
+  
+      return  data.modelno + ' | ' + processorname + ' | ' + generationname + ' | ' + ramname + ' | ' + data.storage 
+  }
+  
+  
+  if(data.category == 'apple'){
+      let processorname = await getDatas('apple_filters',data.processor)
+      let subcategoryrname = await getDatas('apple_filters',data.subcategory)
+  
+    
+  
+  
+  
+      return  data.modelno + ' | ' + subcategoryrname + ' | ' + processorname  
+  }
+  
+  
+  
+  if(data.category == 'accessories' || data.category == 'new_parts' || data.category == 'refurbished_parts'){
+      let brandname = await getDatas('parts_and_accessories_filters',data.brand)
+     
+      return  data.modelno + ' | ' + brandname + ' | ' + data.category.toUpperCase() 
+  }
+  
+  
+  } catch (error) {
+    console.error('Error while fetching')
+    throw new Error('Internal Server Error')
+  }
+  
+}
+
+
 // userlist()
 
 module.exports= {
@@ -221,5 +268,6 @@ module.exports= {
   getTransactionDetails,
   getLogs,
   updateOrders,
-  getFilter
+  getFilter,
+  fetch_name
 }

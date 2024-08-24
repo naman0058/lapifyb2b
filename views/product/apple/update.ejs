@@ -136,13 +136,19 @@
 
 
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
       <label  class="form-label">Price </label>
        <input type="number" class="form-control" id="price" name="price" value="<%=result[0].price%>" placeholder="Enter Price">
       </div>
 
 
-      <div class="col-xl-6">
+      <div class="col-xl-4">
+        <label  class="form-label">Margin Price </label>
+         <input type="number" class="form-control" id="margin_price" name="margin_price" value="<%=result[0].margin_price%>" placeholder="Enter Margin Price">
+        </div>
+
+
+      <div class="col-xl-4">
           <label  class="form-label">Quantity</label>
           <input type="text" class="form-control" id="quantity" name="quantity" value="<%=result[0].quantity%>" placeholder="Enter Quantity" >
 
@@ -600,6 +606,7 @@ function submitForm() {
     const values = {
         description: CKEDITOR.instances['description'].getData(),
         price: $('#price').val(),
+        margin_price: $('#margin_price').val(),
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
@@ -647,6 +654,9 @@ function submitForm() {
     }
     else if(!values.price){
         alert('Enter Price')
+    }
+    else if(!values.margin_price){
+        alert('Enter Margin Price')
     }
     else if(!values.quantity){
         alert('Enter Quantity')

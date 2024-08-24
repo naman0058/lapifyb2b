@@ -760,14 +760,69 @@ router.get('/dashboard/master/category/list',(req,res)=>{
 })
 
 
-router.post('/dashboard/master/category/update-status',(req,res)=>{
+// router.post('/dashboard/master/category/update-status',(req,res)=>{
+//   let body = req.body;
+//   console.log(body)
+//   pool.query(`update master_category set status = '${req.body.status}' , delivery_charges = '${req.body.delivery_charges}' where id = '${req.body.id}'`,(err,result)=>{
+//     if(err) throw err;
+//     else res.json({msg:'succcess'})
+//   })
+// })
+
+
+router.post('/dashboard/master/category/update-status', (req, res) => {
   let body = req.body;
-  console.log(body)
-  pool.query(`update master_category set status = '${req.body.status}' where id = '${req.body.id}'`,(err,result)=>{
-    if(err) throw err;
-    else res.json({msg:'succcess'})
-  })
-})
+  console.log(body);
+
+  // Initialize an array to store the update parts of the query
+  let updateFields = [];
+  
+  // Iterate over the body object to construct dynamic query
+  for (const key in body) {
+    if (body.hasOwnProperty(key) && key !== 'id') {
+      let value = body[key];
+
+      // Ensure the status is saved as a string 'true' or 'false'
+      if (key === 'status') {
+        value = value === true ? 'true' : 'false';
+      }
+
+      // Use parameterized query format to prevent SQL injection
+      updateFields.push(`${key} = ?`);
+      
+      // Update the value in the body to match the desired format
+      body[key] = value;
+    }
+  }
+
+  // If there are no fields to update, return an error response
+  if (updateFields.length === 0) {
+    return res.status(400).json({ msg: 'No fields to update' });
+  }
+
+  // Construct the SQL query
+  const sqlQuery = `UPDATE master_category SET ${updateFields.join(', ')} WHERE id = ?`;
+
+  // Construct an array of values to be passed to the query, excluding 'id'
+  const values = Object.keys(body)
+    .filter(key => key !== 'id')
+    .map(key => body[key]);
+
+  // Add the 'id' value as the last parameter
+  values.push(body.id);
+
+  // Execute the query with dynamic fields and values
+  pool.query(sqlQuery, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ msg: 'Database error', error: err.message });
+    } else {
+      res.json({ msg: 'success' });
+    }
+  });
+});
+
+
 
 
 module.exports = router;

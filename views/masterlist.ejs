@@ -84,7 +84,9 @@
                                 <thead>
                                     <tr>
                                         <th>Category</th>
+                                        <th>Delivery Charges</th>
                                         <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -92,11 +94,18 @@
                                         <tr>
                                             <td><span><%= result[i].title %></span></td>
                                             <td>
+                                                <!-- Editable input field for Delivery Charges -->
+                                                <input type="number" class="delivery-charges-input" data-id="<%= result[i].id %>" value="<%= result[i].delivery_charges %>" />
+                                            </td>
+                                            <td>
                                                 <label class="switch">
                                                     <input type="checkbox" class="status-toggle" data-id="<%= result[i].id %>" <%= (result[i].status=='true') ? 'checked' : '' %>>
                                                     <span class="slider round"></span>
                                                 </label>
-                                                
+                                            </td>
+                                            <td>
+                                                <!-- Update button for saving changes -->
+                                                <button class="update-btn" data-id="<%= result[i].id %>">Update</button>
                                             </td>
                                         </tr>
                                     <% } %>
@@ -116,6 +125,7 @@
 <%- include ('./footer.ejs') %>
 
 <script>
+    // Event listener for the status toggle switch
     document.querySelectorAll('.status-toggle').forEach(toggle => {
         toggle.addEventListener('change', function() {
             const status = this.checked;
@@ -130,10 +140,39 @@
             })
             .then(response => response.json())
             .then(data => {
-                if(data.msg=='succcess') {
+                if(data.msg === 'success') {
                     console.log('Status updated successfully');
                 } else {
                     console.error('Failed to update status');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Event listener for the update button
+    document.querySelectorAll('.update-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const deliveryChargesInput = document.querySelector(`.delivery-charges-input[data-id="${id}"]`);
+            const deliveryCharges = deliveryChargesInput.value;
+            const statusToggle = document.querySelector(`.status-toggle[data-id="${id}"]`);
+            const status = statusToggle.checked;
+            
+            // Fetch API call to update both status and delivery charges
+            fetch('/admin/dashboard/master/category/update-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, status, delivery_charges: deliveryCharges })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.msg === 'success') {
+                    alert('Delivery charges updated successfully');
+                } else {
+                    console.error('Failed to update delivery charges');
                 }
             })
             .catch(error => console.error('Error:', error));
