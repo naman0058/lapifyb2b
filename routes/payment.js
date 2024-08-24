@@ -27,8 +27,8 @@ const emailTemplates = require('./emailTemplates');
 
 const Razorpay = require("razorpay");
 var instance = new Razorpay({
-    key_id: 'rzp_test_c9ZSQoNdAZavNr',
-    key_secret: 'M3PlBQetVxVHN6SX3PkqtooV',
+    key_id: 'rzp_test_htmhBsjoS9btm0',
+    key_secret: 'uYtSO5ly2TfqM8Cxx0lCgY9t',
   });
 
 

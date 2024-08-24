@@ -37,6 +37,9 @@ router.post('/:name/insert', async (req, res) => {
             return;
         }
 
+
+        
+
         const insertedProduct = await queryAsync(`INSERT INTO ${databasetable} SET ?`, body);
         console.log(insertedProduct)
         const { insertId } = insertedProduct;
@@ -424,7 +427,7 @@ router.get('/:name/images',(req,res)=>{
 
 
 router.get('/:name/delete/images',(req,res)=>{
-    pool.query(`delete screenshots where id = '${req.query.id}'`,(err,result)=>{
+    pool.query(`DELETE FROM screenshots WHERE id = '${req.query.id}'`,(err,result)=>{
         if(err) throw err;
         else {
            res.redirect(`/admin/dashboard/product/${req.params.name}/images?id=${req.query.productid}`)
