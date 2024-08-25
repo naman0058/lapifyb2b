@@ -1415,7 +1415,8 @@ WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
 
   router.get('/bulkDeal_description',(req,res)=>{
     pool.query(`select b.* ,
-            (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
+            (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow,
+            (select c.name from laptop_filters c where c.id = b.category) as categoryname
         
         from bulkdeal b where b.id = '${req.query.id}'`,(err,result)=>{
       if(err) throw err;
