@@ -908,7 +908,8 @@ router.get('/product_description', (req, res) => {
         f2.name AS brandname,
         u.isproduct AS isproductshow,
         lqr.*,   -- Select all columns from laptop_qcreport
-        f3.name AS pocessor_name
+        f3.name AS pocessor_name,
+        f9.name AS physical_condition_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN users u ON u.id = '${req.query.userid}'
@@ -916,6 +917,7 @@ router.get('/product_description', (req, res) => {
         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
         LEFT JOIN ${filtertable} f3 ON lqr.processor = f3.id
+        LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
         WHERE  d.id = '${req.query.id}' and d.status = true
         GROUP BY 
     d.id, f1.name, f2.name, f3.name, lqr._id

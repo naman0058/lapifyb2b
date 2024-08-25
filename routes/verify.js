@@ -591,7 +591,7 @@ async function fetch_name(data) {
   
   
   
-      return  data.modelno + ' | ' + subcategoryrname + ' | ' + processorname  
+      return  data.modelno + ' | ' + subcategoryrname + ' | ' + processorname +  ' | ' + data.storage
   }
   
   
