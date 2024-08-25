@@ -86,6 +86,30 @@
 </div>
 
 
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">IMEI No. </label>
+    <input type="text" class="form-control" id="imei" placeholder="Enter IMEI No." >
+
+    </div>
+
+
+    <div class="col-xl-6">
+      <label  class="form-label">Select  <%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+
+          Physical Condition </label>
+         <select id="physical_condition" class="form-control"></select>
+  </div>
+</div>
+
+
+</div>
+
+
 <div class="row" style="margin-top: 20px;">
 
 
@@ -198,9 +222,9 @@
     <div class="col-xl-4">
       <label  class="form-label">Display </label>
      <select id="display" class="form-control">
-      <option value="original">ORIGNAL</option>
-      <option value="local">LOCAL</option>
-      <option value="damage">DAMAGE</option>
+      <option value="working">Working</option>
+      <option value="not_working">Not Working</option>
+      <option value="damage">Damage</option>
 
      </select>
       </div>
@@ -398,6 +422,37 @@
 
 
 
+
+  <div class="row" style="margin-top: 20px;">
+
+
+    <div class="col-xl-6">
+      <label class="form-label">Charging Jack
+      </label>
+      <select id="charging_jack" class="form-control">
+        <option value="working">Working</option>
+        <option value="not_working">Not Working</option>
+    
+      </select>
+    </div>
+  
+  
+    <div class="col-xl-6">
+      <label class="form-label">Folder Type
+      </label>
+      <select id="folder_type" class="form-control">
+        <option value="original">Original</option>
+              <option value="local">Local</option>
+            
+  
+      </select>
+    </div>
+  
+  
+    </div>
+
+
+
 										<div class="text-end" style="margin-top: 20px;">
 											<button type="button" onclick="submitForm()" value="Upload Files" name="submit" class="btn btn-primary save">Save</button>
 										</div>
@@ -578,6 +633,13 @@ $.getJSON(`/admin/dashboard/mobile/getData/ram`, data => {
 })
 
 
+$.getJSON(`/admin/dashboard/mobile/getData/physical_condition`, data => {
+    physical_condition = data
+    console.log('leagues',data)
+    fillDropDown('physical_condition', data, 'Choose Physical Condition', 0)
+  
+})
+
 
 
 
@@ -751,7 +813,12 @@ async function submitForm() {
         power_key:$('#power_key').val(),
         volume_key:$('#volume_key').val(),
         home_button:$('#home_button').val(),
-        body:$('#body').val()
+        charging_jack:$('#charging_jack').val(),
+        folder_type:$('#folder_type').val(),
+        imei : $('#imei').val(),
+        body:$('#body').val(),
+        physical_condition:$('#physical_condition').val(),
+
     }
 
     if(values.subcategory == null || values.subcategory == 'null'){
@@ -760,8 +827,12 @@ async function submitForm() {
     else if(values.brand == null || values.brand == 'null'){
     alert('Select Brand')
     }
-  
-    
+    else if(!QcReports.imei){
+        alert('Enter IMEI No.')
+    }
+    else if(QcReports.physical_condition == null || QcReports.physical_condition == 'null'){
+    alert('Select Physical Condition')
+    }
     else if(!values.skuno){
         alert('Enter SKU No.')
     }

@@ -25,6 +25,8 @@
                                 <input type="hidden" id="subcategoryvalue" value="<%=result[0].subcategory%>">
                                 <input type="hidden" id="brandvalue" value="<%=result[0].brand%>">
                                 <input type="hidden" id="ramvalue" value="<%=result[0].ram%>">
+                                <input type="hidden" id="physical_condition_value" value="<%=result[0].physical_condition%>">
+
 
 
 
@@ -102,6 +104,7 @@
 
 
 
+
 <div class="row" style="margin-top: 20px;">
 
 
@@ -120,6 +123,29 @@
             </div>
 
    
+</div>
+
+
+
+<div class="row" style="margin-top: 20px;">
+
+
+
+  <div class="col-xl-6">
+    <label  class="form-label">IMEI No. </label>
+    <input type="text" class="form-control" id="imei" name="imei" value="<%=result[0].imei%>" placeholder="Enter IMEI No." >
+ </div>
+
+
+ <div class="col-xl-6">
+  <label  class="form-label">Select  <%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+
+      Physical Condition </label>
+     <select id="physical_condition" name="physical_condition" required class="form-control"></select>
+</div>
+
+
+
 </div>
 
 
@@ -210,9 +236,10 @@
     <div class="col-xl-4">
       <label  class="form-label">Display </label>
      <select id="display" name="display" class="form-control">
-      <option value="original" <%=result[0].display === 'original' ? 'selected' : '' %>>ORIGNAL</option>
-      <option value="local" <%=result[0].display === 'local' ? 'selected' : '' %>>LOCAL</option>
-      <option value="damage" <%=result[0].display === 'damage' ? 'selected' : '' %>>DAMAGE</option>
+      <option value="working" <%=result[0].display === 'working' ? 'selected' : '' %>>Working</option>
+                  <option value="not_working" <%=result[0].display === 'not_working' ? 'selected' : '' %>>Not Working</option>
+                  <option value="damage" <%=result[0].display === 'damage' ? 'selected' : '' %>>Damage</option>
+
 
      </select>
       </div>
@@ -416,6 +443,38 @@
 
 
 
+  
+<div class="row" style="margin-top: 20px;">
+
+
+  <div class="col-xl-6">
+    <label class="form-label">Charging Jack
+    </label>
+    <select id="charging_jack" name="charging_jack" class="form-control">
+      <option value="working" <%=result[0].charging_jack === 'working' ? 'selected' : '' %>>Working</option>
+    <option value="not_working" <%=result[0].charging_jack === 'not_working' ? 'selected' : '' %>>Not Working</option>
+  
+  
+    </select>
+  </div>
+
+
+  <div class="col-xl-6">
+    <label class="form-label">Folder Type
+    </label>
+    <select id="folder_type" name="folder_type" class="form-control">
+      <option value="original" <%=result[0].folder_type === 'original' ? 'selected' : '' %>>Original</option>
+            <option value="local" <%=result[0].folder_type === 'local' ? 'selected' : '' %>>Local</option>
+           
+
+    </select>
+  </div>
+
+
+  </div>
+
+
+
 										<div class="text-end" style="margin-top: 20px;">
 											<button type="submit" class="btn btn-primary">Save</button>
 										
@@ -586,6 +645,8 @@ let pagename = $('#pagename').val()
 let subcategoryvalue = $('#subcategoryvalue').val()
 let brandvalue = $('#brandvalue').val()
 let ramvalue = $('#ramvalue').val()
+let physical_condition_value = $('#physical_condition_value').val()
+
 
 $.getJSON(`/admin/dashboard/mobile/getData/condition`, data => {
     addgroup = data
@@ -602,6 +663,12 @@ $.getJSON(`/admin/dashboard/mobile/getData/ram`, data => {
 })
 
 
+$.getJSON(`/admin/dashboard/mobile/getData/physical_condition`, data => {
+    addgroup = data
+    console.log('leagues',data)
+    fillDropDown('physical_condition', data, 'Choose Physical Condition', physical_condition_value)
+  
+})
 
 
 $.getJSON(`/admin/dashboard/mobile/getData/brand`, data => {
@@ -736,7 +803,13 @@ function submitForm() {
         volume_key:$('#volume_key').val(),
         home_button:$('#home_button').val(),
         body:$('#body').val(),
-        storage:$('#storage').val()
+        storage:$('#storage').val(),
+        charging_jack:$('#charging_jack').val(),
+        folder_type:$('#folder_type').val(),
+        imei : $('#imei').val(),
+        physical_condition:$('#physical_condition').val(),
+
+
 
     }
 
@@ -753,7 +826,12 @@ function submitForm() {
     else if(!QcReports.storage){
     alert('Enter Storage')
     }
-    
+    else if(!QcReports.imei){
+        alert('Enter IMEI No.')
+    }
+    else if(QcReports.physical_condition == null || QcReports.physical_condition == 'null'){
+    alert('Select Physical Condition')
+    }
     else if(!values.skuno){
         alert('Enter SKU No.')
     }
