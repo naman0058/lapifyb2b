@@ -106,6 +106,40 @@ router.post('/upload/screenshots', async (req, res) => {
 
 
 
+router.get('/recycle',(req,res)=>{
+    pool.query(`select p.*
+        from product p where p.status = false`,(err,result)=>{
+        if(err) throw err;
+        else res.render(`${folder}/recycle`,{result})
+    })
+})
+
+
+router.get('/permanent-delete',verify.adminAuthenticationToken, async (req, res) => {
+    const { id } = req.query;
+    
+    try {
+        await queryAsync(`delete from ${databasetable} WHERE id = ?`, [id]);
+        res.redirect(`/admin/dashboard/product/recycle`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+  });
+
+
+  router.get('/restore',verify.adminAuthenticationToken, async (req, res) => {
+    const { id , status , value } = req.query;
+    
+    try {
+        await queryAsync(`UPDATE ${databasetable} SET status = true WHERE id = ?`, [id]);
+        res.redirect(`/admin/dashboard/product/recycle`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+  });
+
 
 
    router.get('/:name/list', (req, res) => {
