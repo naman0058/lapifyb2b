@@ -131,7 +131,7 @@ var instance = new Razorpay({
   
 //     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
 //       const data = req.query.orderid + '|' + body.razorpay_payment_id;
-//       let generated_signature = hmac_sha256(data, 'M3PlBQetVxVHN6SX3PkqtooV');
+//       let generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
   
 //       console.log('razorpayresponse',body)
 //       console.log('generated_signature',generated_signature)
@@ -229,7 +229,7 @@ router.get('/razorpay-success', async (req, res) => {
   
     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
       const data = req.query.orderid + '|' + body.razorpay_payment_id;
-      let generated_signature = hmac_sha256(data, 'M3PlBQetVxVHN6SX3PkqtooV');
+      let generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
   
       console.log('razorpayresponse',body)
       console.log('generated_signature',generated_signature)
@@ -350,10 +350,10 @@ router.get('/razorpay-success', async (req, res) => {
 
   router.get('/wallet-razorpay-success', async (req, res) => {
     let body = req.query;
-  
+  console.log(req.query);
     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
       const data = req.query.orderid + '|' + body.razorpay_payment_id;
-      let generated_signature = hmac_sha256(data, 'M3PlBQetVxVHN6SX3PkqtooV');
+      let generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
   
       console.log('razorpayresponse',body)
       console.log('generated_signature',generated_signature)
