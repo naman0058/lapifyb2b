@@ -47,6 +47,19 @@ router.post('/update',verify.adminAuthenticationToken,async(req,res)=>{
 })
 
 
+
+router.get('/update/status',verify.adminAuthenticationToken,async(req,res)=>{
+  try {
+    const result = await user.update(req.query.id,req.query);
+    res.redirect(`/admin/dashboard/users/list/unverified`);
+
+  } catch (error) {
+      console.error('Error in route:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+})
+
+
 router.get('/delete',verify.adminAuthenticationToken, async (req, res) => {
   const { id , status , value } = req.query;
   

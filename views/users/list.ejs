@@ -51,6 +51,13 @@
                                             <th>Wallet</th>
                                             <th>Image</th>
                                             <th>Created At</th>
+                                            
+                                            <% if(status == 'unverified'){ %>
+                                            <th>Veified</th>
+                                            <th>Reject</th>
+
+                                            <% } else { %>
+
                                             <th>Orders</th>
                                             <th>Transaction</th>
                                             <th>Logs</th>
@@ -64,7 +71,7 @@
                                                 <th>Restore Data</th>
                                                 <th>Permanently Delete</th>
                                                 
-                                                <% } %>
+                                                <% } } %>
 
                                            
 
@@ -117,6 +124,22 @@
                                                     <%=result[i].created_at%>
                                                 </span></td>
 
+
+                                                <% if(status == 'unverified') { %>
+
+                                                <td><span>
+                                                    <a href="/admin/dashboard/users/update/status?id=<%=result[i].id%>&status=verified"
+                                                        ><span
+                                                            class="badge badge-success light border-0">Verified </span></a>
+                                                </span></td>
+
+                                                <td><span>
+                                                    <a href="/admin/dashboard/users/update/status?id=<%=result[i].id%>&status=delete"
+                                                        ><span
+                                                            class="badge badge-danger light border-0">Reject</span></a>
+                                                </span></td>
+
+                                                <% } else { %>
 
 
                                                 <td>
@@ -192,7 +215,7 @@
 
 
 
-                                                    <% } %>
+                                                    <% } } %>
 
 
 
