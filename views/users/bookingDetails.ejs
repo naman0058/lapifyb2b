@@ -150,6 +150,12 @@
                                     </tbody>
 
                                 </table>
+
+
+                                <div id="loader-overlay">
+                                    <div id="loader"></div>
+                            </div>
+
                             </div>
                         </div>
                     </div>
@@ -198,11 +204,19 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
 
 <script>
     function completed() {
+           
+  const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+
+loaderOverlay.style.display = "flex"; 
   let orderid = $('#orderid').val()
   let text;
   if (confirm("Are you sure this order has been delivered successfully?")) {
     $.post('/admin/dashboard/users/update/orders',{orderid,status:'completed'},data=>{
         if(data.msg=='success'){
+            loaderOverlay.style.display = "none"; // Hide overlay after response
+
             window.location.reload()
         }
         else{
@@ -218,14 +232,24 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
 
 
 function ongoing() {
+
+    
+ 
   let orderid = $('#orderid').val()
   let text;
   let person = prompt("Please enter tracking ling:", "");
   if (person == null || person == "") {
     text = "User cancelled the prompt.";
   } else {
+    const loaderOverlay = document.getElementById("loader-overlay");
+
+const loader = document.getElementById("loader");
+
+loaderOverlay.style.display = "flex"; // Show overlay
+
     $.post('/admin/dashboard/users/update/orders',{orderid,delivery_link:person,status:'ongoing'},data=>{
         if(data.msg=='success'){
+            loaderOverlay.style.display = "none"; // Hide overlay after response
             window.location.reload()
         }
         else{

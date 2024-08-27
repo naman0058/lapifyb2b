@@ -189,7 +189,7 @@ async function updateOrders(id, data) {
         console.log('orderid',id)
         console.log('data',data)
       let result = await queryAsync(`UPDATE orders SET ? WHERE orderid = '${id}'`, data);
-      let result1 = await queryAsync(`UPDATE booking SET status = '${data.status}' WHERE orderid = '${id}'`);
+      let result1 = await queryAsync(`UPDATE booking SET ? WHERE orderid = '${id}'`,data);
       return result;
     } catch (error) {
       console.error('Error while updating user:', error);
