@@ -718,4 +718,29 @@ async function getUserData(customer_id) {
 // 
 
 
+router.get('/invoice/:orderid', (req, res) => {
+  pool.query(`SELECT o.* , 
+    (select u.name from users u where u.id = o.userid) as username,
+    (select u.number from users u where u.id = o.userid) as usernumber,
+    (select u.firm_name from users u where u.id = o.userid) as firmname,
+    (select u.gst from users u where u.id = o.userid) as gstnumber,
+    (select p.name from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as productname,
+    (select p.price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as unitprice,
+    (select p.skuno from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as skuno,
+    (select b.quantity from booking b where b.orderid = o.orderid) as quantity,
+    (select b.amount from booking b where b.orderid = o.orderid) as total_amount
+
+  
+
+
+
+     FROM orders o WHERE o.orderid = '${req.params.orderid}'`, (err, result) => {
+    if (err) throw err;
+    // else res.json(result);
+     else res.render(`invoice`,{result})
+  });
+});
+
+
+
 module.exports = router;
