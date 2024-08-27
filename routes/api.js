@@ -1277,28 +1277,43 @@ router.post('/submit-order', async (req, res) => {
 
 router.get('/myorder', (req, res) => {
     const userId = req.query.userid; // Assuming userid is passed as a query parameter
-
-    pool.query(`
-SELECT booking.*,
-       product.name as name,
-       product.skuno as skuno,
-       product.modelno as modelno,
-       product.description as description,
-       product.id as product_id,
-       (SELECT s.url FROM screenshots s WHERE s.productid = product.id ORDER BY id LIMIT 1) AS image
-FROM booking
-JOIN product ON booking.productid = product.id
-WHERE booking.userid = ?
-  AND booking.status = '${req.query.status}';
-`, [userId], (err, result) => {
-        if (err) {
-            console.error("Error executing query:", err);
-            res.status(500).json({ error: 'Database error' }); // Handle error response
-        } else {
-            res.json(result); // Send JSON response with query result
-        }
+    const status = req.query.status; // Get status from query parameter
+  
+    // Set the base query and parameters
+    let query = `
+      SELECT booking.*,
+             product.name as name,
+             product.skuno as skuno,
+             product.modelno as modelno,
+             product.description as description,
+             product.id as product_id,
+             (SELECT s.url FROM screenshots s WHERE s.productid = product.id ORDER BY id LIMIT 1) AS image
+      FROM booking
+      JOIN product ON booking.productid = product.id
+      WHERE booking.userid = ?
+    `;
+    let params = [userId];
+  
+    // Modify query based on status
+    if (status == 'completed') {
+      query += ` AND booking.status = ? ORDER BY booking.id DESC;`;
+      params.push(status); // Add status to parameters
+    } else {
+      query += ` AND booking.status != ? ORDER BY booking.id DESC;`;
+      params.push('completed'); // Add 'completed' to exclude it from results
+    }
+  
+    // Execute the query
+    pool.query(query, params, (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err);
+        return res.status(500).json({ error: 'Database error' });
+      }
+  
+      res.json(result); // Send JSON response with query result
     });
-});
+  });
+  
 
 
 
