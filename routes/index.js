@@ -719,6 +719,9 @@ async function getUserData(customer_id) {
 
 
 router.get('/invoice/:orderid', (req, res) => {
+
+ 
+
   pool.query(`SELECT o.* , 
     (select u.name from users u where u.id = o.userid) as username,
     (select u.number from users u where u.id = o.userid) as usernumber,
@@ -726,6 +729,8 @@ router.get('/invoice/:orderid', (req, res) => {
     (select u.gst from users u where u.id = o.userid) as gstnumber,
     (select p.name from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as productname,
     (select p.price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as unitprice,
+    (select p.category from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as product_category,
+    (select p.margin_price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as product_margin_price,
     (select p.skuno from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as skuno,
     (select b.quantity from booking b where b.orderid = o.orderid) as quantity,
     (select b.amount from booking b where b.orderid = o.orderid) as total_amount

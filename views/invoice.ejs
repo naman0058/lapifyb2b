@@ -232,11 +232,19 @@
             </th>
 
             <th style="width: 120px">
+                <h4>
+                  Liquidation <br />
+                  Value
+                </h4>
+              </th>
+
+            <th style="width: 120px">
               <h4>
                 Taxable <br />
                 Amount
               </h4>
             </th>
+           
             <th style="width: 120px">
               <h4>
                 Tax <br />
@@ -251,34 +259,70 @@
             </th>
             <th style="width: 120px">
               <h4>
-                SGST/<br />
-                
-              
+                SGST<br />
                 Amount
               </h4>
             </th>
+
+            <th style="width: 120px">
+                <h4>
+                  IGST<br />
+                  Amount
+                </h4>
+              </th>
             <th style="width: 120px"><h4>TOTAL Value</h4></th>
           </tr>
         </thead>
         <tbody>
 
-            <% let grand_total = 0; %>
+            <% let grand_total = 0;
+            let amount = 0;
+            let gstPercentage;
+            let priceWithoutGst;
+            let net_amount;
+            let payable_amount;
+            let gstAmount;
+            let cgstAmount;
+            let sgstAmount;
+            let liquidation_value;
+            %>
 
             <% for(i=0;i<result.length;i++){ %>
 
 
                 <% 
                 // Calculate GST, CGST, and SGST amounts
-                const amount = parseFloat(result[i].unitprice);
-                const gstPercentage = 18;
-                const priceWithoutGst = amount / (1 + (gstPercentage / 100));
-                const net_amount = priceWithoutGst * result[i].quantity
-                const payable_amount = amount * result[i].quantity
-                const gstAmount = (payable_amount * gstPercentage) / (100 + gstPercentage);
-                const cgstAmount = gstAmount / 2;
-                const sgstAmount = gstAmount / 2;
-                 grand_total = grand_total + payable_amount;
-    
+                
+                if(result[i].product_margin_price > 0){
+                     amount = parseFloat(result[i].amount);
+                     liquidation_value = parseFloat(result[i].product_margin_price);
+                     gstPercentage = 18;
+                     
+                     payable_amount = amount * result[i].quantity
+                     gstAmount = (liquidation_value * gstPercentage) / (100);
+                     priceWithoutGst = amount - liquidation_value - gstAmount;
+                     net_amount = priceWithoutGst * result[i].quantity
+                     cgstAmount = gstAmount / 2;
+                     sgstAmount = gstAmount / 2;
+                     grand_total = grand_total + payable_amount;
+                }
+                
+else {
+     amount = parseFloat(result[i].unitprice);
+     liquidation_value = 0
+     gstPercentage = 18;
+     priceWithoutGst = amount / (1 + (gstPercentage / 100));
+     net_amount = priceWithoutGst * result[i].quantity
+     payable_amount = amount * result[i].quantity
+     gstAmount = (payable_amount * gstPercentage) / (100 + gstPercentage);
+     cgstAmount = gstAmount / 2;
+     sgstAmount = gstAmount / 2;
+     grand_total = grand_total + payable_amount;
+}
+
+
+
+
             %>
 
           <tr>
@@ -286,15 +330,48 @@
             <td><%=result[i].productname%></td>
             <td><%=result[i].skuno%></td>
             <td><%=result[i].quantity%></td>
+            
             <td><%= priceWithoutGst.toFixed(2) %></td>
 
 
 
+
             <td><%= net_amount.toFixed(2) %></td>
+            <td><%= liquidation_value.toFixed(2) %></td>
+
             <td><%= gstAmount.toFixed(2) %></td>
             <td>18%</td>
-            <td><%= cgstAmount.toFixed(2) %></td>
-            <td><%= sgstAmount.toFixed(2) %></td>
+
+
+            <% 
+  // Define the address string
+  let address = result[0].address;
+
+  // Check if 'New Delhi' is present in the address string
+  let containsNewDelhi = address.toLowerCase().includes('new delhi');
+
+
+
+  %>
+
+
+  <% if(containsNewDelhi){ %>
+    <td><%= cgstAmount.toFixed(2) %></td>
+    <td><%= sgstAmount.toFixed(2) %></td>
+
+<td>0.00</td>
+  <% } else { %>
+    <td>0.00</td>
+    <td>0.00</td>
+
+<td><%= gstAmount.toFixed(2) %></td>
+
+    <% } %>
+
+  
+
+           
+
             <td><%=result[i].total_amount%></td>
           </tr>
           <% } %>
