@@ -7,6 +7,7 @@
     <style>
       * {
         box-sizing: border-box;
+        font-family: 'Times New Roman', Times, serif;
       }
 
       .table-bordered td,
@@ -113,7 +114,7 @@
                 "
               >
                
-                 <img src="/images/logo.jpg" style="width: 150px;">
+                 <img src="/images/logo.jpg" style="width: 200px;">
 
                 <p style="font-weight: bold; margin-top: 15px">
                   GST : O7BCDPM7179L1Z0
@@ -215,62 +216,62 @@
 
           <tr>
             <th style="width: 50px">#</th>
-            <th style="width: 150px"><h4>Item Name</h4></th>
-            <th style="width: 150px">
+            <th style="width: 200px"><h4>Item Name</h4></th>
+            <th style="width: 200px">
               <h4>
                 SKU<br />
                 No.
               </h4>
             </th>
             <th style="width: 150px"><h4>QTY</h4></th>
-            <th style="width: 150px"><h4>MRP</h4></th>
-            <th style="width: 150px">
+            <th style="width: 200px"><h4>MRP</h4></th>
+            <th style="width: 200px">
               <h4>
                 Unit<br />
                 Price
               </h4>
             </th>
 
-            <th style="width: 150px">
+            <th style="width: 200px">
                 <h4>
                   Liquidation <br />
                   Value
                 </h4>
               </th>
 
-            <th style="width: 150px">
+            <th style="width: 200px">
               <h4>
                 Taxable <br />
                 Amount
               </h4>
             </th>
            
-            <th style="width: 150px">
+            <th style="width: 200px">
               <h4>
                 Tax <br />
                 Rate %
               </h4>
             </th>
-            <th style="width: 150px">
+            <th style="width: 200px">
               <h4>
                 CGST<br/>
                 Amount
               </h4>
             </th>
-            <th style="width: 150px">
+            <th style="width: 200px">
               <h4>
                 SGST<br />
                 Amount
               </h4>
             </th>
 
-            <th style="width: 150px">
+            <th style="width: 200px">
                 <h4>
                   IGST<br />
                   Amount
                 </h4>
               </th>
-            <th style="width: 150px"><h4>Total <br/> Value</h4></th>
+            <th style="width: 200px"><h4>Total <br/> Value</h4></th>
           </tr>
         </thead>
         <tbody>
@@ -391,7 +392,7 @@ else {
         </tr>
         <tr style="background: #fcbd02">
           <th>Total Order Value</th>
-          <td style="width: 150px; text-align: right; border-right: none">
+          <td style="width: 200px; text-align: right; border-right: none">
             <b><%=grand_total.toFixed(2)%></b>
           </td>
           <td colspan="5" style="border-left: none"></td>
@@ -399,18 +400,30 @@ else {
       </table>
 
       <table style="width: 100%" cellspacing="0" cellspadding="0" border="0">
-        <tr>
-          <td>
-           
-            <p>
-              This is computer generated invoice and hence signature is not
-              required
-            </p>
-          </td>
-          
-        </tr>
+       
       </table>
 
+
+      <div style="margin-top: 20px;">
+        <p>TERMS & CONDITIONS:</p>
+        <ul>
+            <li>Value of supply is determined in accordance to section 15(5) of the Central Goods & Services Tax Act read with Rule 32(5) of
+                "Determination of Value of Supply" rules. Preowned / Used items bought through this Invoice falls under Margin Scheme in GST as per rule
+                32(5) of the CGST Rules, 2017 & NO GST Input shall be availed.</li>
+            <li>Goods once sold cannot be returned & the buyer assumes all responsibility of goods once taken out of seller's premises physically by
+                buyer or representative(s) of buyer.</li>
+            <li>Buyer agrees to save & hold seller harmless from any claims, demands, liabilities, costs, expenses or judgement arising in whole or in
+                part, directly or indirectly involving the goods supplied by seller.</li>
+
+        </ul>
+
+      </div>
+
+
+      <p>
+        This is computer generated invoice and hence signature is not
+        required
+      </p>
 
       <div style="text-align: center; margin-top: 20px;">
         <button id="downloadInvoice">Download Invoice as PDF</button>
