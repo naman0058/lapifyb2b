@@ -1096,6 +1096,7 @@ SELECT cart.*,
        product.description as description,
        product.price as price,
        product.id as product_id,
+       product.category as product_category,
        (SELECT s.url FROM screenshots s WHERE s.productid = product.id ORDER BY id LIMIT 1) AS image,
         (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow,
        cart.quantity * product.price AS total_amount
