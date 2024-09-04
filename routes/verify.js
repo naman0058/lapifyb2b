@@ -342,7 +342,7 @@ const transporter = nodemailer.createTransport({
             // console.log('recipients',recipients)
             try {
               const mailOptions = {
-                from: 'support@wordcreation.in',
+                from: 'support@egadgetworld.in',
                 to: result.email,
                 subject: subject,
                 html: `
@@ -388,7 +388,7 @@ const transporter = nodemailer.createTransport({
         console.log('Data Received', result);
         
         const mailOptions = {
-          from: 'support@wordcreation.in',
+          from: 'support@egadgetworld.in',
           to: result.email,
           subject: subject,
           html: `
@@ -436,7 +436,7 @@ const transporter = nodemailer.createTransport({
             // console.log('recipients',recipients)
             try {
               const mailOptions = {
-                from: 'support@wordcreation.in',
+                from: 'support@egadgetworld.in',
                 to: result,
                 subject: subject,
                 html: `
