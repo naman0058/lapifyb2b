@@ -718,31 +718,58 @@ async function getUserData(customer_id) {
 // 
 
 
-router.get('/invoice/:orderid', (req, res) => {
+// router.get('/invoice/:orderid', (req, res) => {
 
  
 
-  pool.query(`SELECT o.* , 
-    (select u.name from users u where u.id = o.userid) as username,
-    (select u.number from users u where u.id = o.userid) as usernumber,
-    (select u.firm_name from users u where u.id = o.userid) as firmname,
-    (select u.gst from users u where u.id = o.userid) as gstnumber,
-    (select p.name from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as productname,
-    (select p.price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as unitprice,
-    (select p.category from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as product_category,
-    (select p.margin_price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as product_margin_price,
-    (select p.skuno from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as skuno,
-    (select b.quantity from booking b where b.orderid = o.orderid) as quantity,
-    (select b.amount from booking b where b.orderid = o.orderid) as total_amount
+//   pool.query(`SELECT o.* , 
+//     (select u.name from users u where u.id = o.userid) as username,
+//     (select u.number from users u where u.id = o.userid) as usernumber,
+//     (select u.firm_name from users u where u.id = o.userid) as firmname,
+//     (select u.gst from users u where u.id = o.userid) as gstnumber,
+//     (select p.name from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as productname,
+//     (select p.price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as unitprice,
+//     (select p.category from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as product_category,
+//     (select p.margin_price from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as product_margin_price,
+//     (select p.skuno from product p where p.id = (select b.productid from booking b where b.orderid = o.orderid)) as skuno,
+//     (select b.quantity from booking b where b.orderid = o.orderid) as quantity,
+//     (select b.amount from booking b where b.orderid = o.orderid) as total_amount
 
   
 
 
 
-     FROM orders o WHERE o.orderid = '${req.params.orderid}'`, (err, result) => {
+//      FROM orders o WHERE o.orderid = '${req.params.orderid}'`, (err, result) => {
+//     if (err) throw err;
+//     // else res.json(result);
+//      else res.render(`invoice`,{result})
+//   });
+// });
+
+
+
+router.get('/invoice/:orderid', (req, res) => {
+
+  pool.query(`
+    SELECT o.*, 
+           u.name as username,
+           u.number as usernumber,
+           u.firm_name as firmname,
+           u.gst as gstnumber,
+           p.name as productname,
+           p.price as unitprice,
+           p.category as product_category,
+           p.margin_price as product_margin_price,
+           p.skuno as skuno,
+           b.quantity as quantity,
+           b.amount as total_amount
+    FROM orders o 
+    LEFT JOIN users u ON u.id = o.userid
+    LEFT JOIN booking b ON b.orderid = o.orderid
+    LEFT JOIN product p ON p.id = b.productid
+    WHERE o.orderid = ?`, [req.params.orderid], (err, result) => {
     if (err) throw err;
-    // else res.json(result);
-     else res.render(`invoice`,{result})
+    else res.render(`invoice`, {result})
   });
 });
 
