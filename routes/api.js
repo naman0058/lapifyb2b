@@ -713,42 +713,101 @@ router.get('/get-filter',async(req,res)=>{
 
 
 
+// router.get('/get-product', (req, res) => {
+//     let { category, model, brand, status = true, generation, userid } = req.query;
+//     category = category.toLowerCase().replace(/ /g, "_");
+//     console.log(category);
+
+//     let query = `
+//         SELECT p.*, 
+//             (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+//             l.generation,
+//             (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = '${userid}') AS cart_count,
+//             (select u.isproduct from users u where u.id = '${userid}') as isproductshow
+//         FROM product p
+//         LEFT JOIN laptop_qcreport l ON l.productid = p.id
+//         WHERE 1=1
+//     `;
+
+//     if (brand) query += ` AND p.brand = '${brand}'`;
+//     if (model) query += ` AND p.modelno = '${model}'`;
+//     if (category) {
+//         // Handling multiple categories for 'Parts & Accessories'
+//         if (category === 'parts_') {
+//             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
+//         } else {
+//             query += ` AND p.category = '${category}'`;
+//         }
+//     }
+//     if (status) query += ` AND p.status = ${status}`;
+//     if (generation) query += ` AND l.generation = '${generation}'`;
+
+//     pool.query(query, (err, results) => {
+//         if (err) {
+//             console.error('Error executing query:', err);
+//             res.status(500).send('Internal Server Error');
+//             return;
+//         }
+//         res.json({ result: results, value: req.query });
+//     });
+// });
+
+
+
+
 router.get('/get-product', (req, res) => {
-    let { category, model, brand, status = true, generation, userid } = req.query;
+    let { category, model, brand, status = true, generation, userid, page = 1, limit = 10 } = req.query;
+    
+    // Convert category to lowercase and replace spaces with underscores
     category = category.toLowerCase().replace(/ /g, "_");
+
     console.log(category);
+
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
 
     let query = `
         SELECT p.*, 
             (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
             l.generation,
-            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = '${userid}') AS cart_count,
-            (select u.isproduct from users u where u.id = '${userid}') as isproductshow
+            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+            (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
         FROM product p
         LEFT JOIN laptop_qcreport l ON l.productid = p.id
         WHERE 1=1
     `;
 
-    if (brand) query += ` AND p.brand = '${brand}'`;
-    if (model) query += ` AND p.modelno = '${model}'`;
+    if (brand) query += ` AND p.brand = ?`;
+    if (model) query += ` AND p.modelno = ?`;
     if (category) {
         // Handling multiple categories for 'Parts & Accessories'
         if (category === 'parts_') {
             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
         } else {
-            query += ` AND p.category = '${category}'`;
+            query += ` AND p.category = ?`;
         }
     }
-    if (status) query += ` AND p.status = ${status}`;
-    if (generation) query += ` AND l.generation = '${generation}'`;
+    if (status) query += ` AND p.status = ?`;
+    if (generation) query += ` AND l.generation = ?`;
 
-    pool.query(query, (err, results) => {
+    // Add pagination to the query
+    query += ` LIMIT ? OFFSET ?`;
+
+    // Prepare query parameters array
+    const queryParams = [userid, userid];
+    if (brand) queryParams.push(brand);
+    if (model) queryParams.push(model);
+    if (category && category !== 'parts_') queryParams.push(category);
+    if (status) queryParams.push(status);
+    if (generation) queryParams.push(generation);
+    queryParams.push(parseInt(limit), parseInt(offset));
+
+    pool.query(query, queryParams, (err, results) => {
         if (err) {
             console.error('Error executing query:', err);
-            res.status(500).send('Internal Server Error');
-            return;
+            return res.status(500).send('Internal Server Error');
         }
-        res.json({ result: results, value: req.query });
+        res.json({ result: results, value: req.query, page, limit });
     });
 });
 
