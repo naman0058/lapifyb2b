@@ -1723,4 +1723,47 @@ router.get('/send-message',async(req,res)=>{
 })
 
   
+
+
+
+router.post('/user/forgot-password', async (req, res) => {
+    pool.query(`SELECT * FROM users WHERE email = ?`, [req.body.email], async (err, result) => {
+      if (err) throw err;
+      else if (result.length > 0) {
+        let newPassword = verify.generatePassword(12);
+        pool.query(`UPDATE users SET password = ? WHERE email = ?`, [newPassword, req.body.email], async (err, result) => {
+          if (err) throw err;
+          else {
+            const subject = 'Your Temporary Password';
+            const message = `
+              <p>Dear User,</p>
+              
+              <p>We have received your request to reset your password. A temporary password has been generated for you to access your account.</p>
+              
+              <p><strong>Your temporary password is: ${newPassword}</strong></p>
+              
+              <p>Please use this password to log in to your account. Once you have successfully logged in, you will be prompted to update your password to one of your choosing.</p>
+              
+              <p>For security reasons, we recommend that you choose a strong, unique password that you do not use for any other accounts.</p>
+              
+              <p>If you encounter any issues or have any questions, please do not hesitate to contact our support team.</p>
+              
+              <p>Thank you for using our services.</p>
+              
+              <p>Best regards,</p>
+              <p>E-Gagdet Worlds Support Team</p>
+              <p>support@egadgetworld.in</p>
+              <p>https://egadgetworld.in</p>
+  
+            `;
+            await verify.sendUserMail(req.body.email, subject, message);
+            res.json({msg:'send'})
+          }
+        });
+      } else {
+        res.json({msg:'not_exists'})
+
+      }
+    });
+  });
 module.exports = router
