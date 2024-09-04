@@ -1485,35 +1485,91 @@ router.get('/check-review',(req,res)=>{
 
 
 
-  router.get('/search', (req, res) => {
+//   router.get('/search', (req, res) => {
+//     const searchTerm = req.query.q;
+//   const userId = req.query.userid;
+//     if (!searchTerm) {
+//       return res.status(400).json({ error: 'Search term is required' });
+//     }
+  
+//     const query = `
+//      SELECT p.*, 
+//        (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+//        (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+//         (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
+
+// FROM product p 
+// WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
+//    OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
+
+//     `;
+  
+//     const searchValue = `%${searchTerm}%`;
+//   const values = [userId, searchValue, searchValue, searchValue, searchValue, searchValue, searchValue, searchValue];
+
+//     pool.query(query, values, (err, results) => {
+//       if (err) {
+//         return res.status(500).json({ error: 'Database query failed' });
+//       }
+//       res.json(results);
+//     });
+//   });
+
+
+
+router.get('/search', (req, res) => {
     const searchTerm = req.query.q;
-  const userId = req.query.userid;
+    const userId = req.query.userid;
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
+  
     if (!searchTerm) {
       return res.status(400).json({ error: 'Search term is required' });
     }
   
+    const offset = (page - 1) * limit; // Calculate the offset for pagination
+  
     const query = `
-     SELECT p.*, 
-       (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-       (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
-        (select u.isproduct from users u where u.id = '${req.query.userid}') as isproductshow
-
-FROM product p 
-WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
-   OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
-
+      SELECT p.*, 
+        (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+        (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+        (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
+      FROM product p 
+      WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
+        OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
+      LIMIT ? OFFSET ?
     `;
   
     const searchValue = `%${searchTerm}%`;
-  const values = [userId, searchValue, searchValue, searchValue, searchValue, searchValue, searchValue, searchValue];
-
+    const values = [
+      userId, 
+      userId, 
+      searchValue, 
+      searchValue, 
+      searchValue, 
+      searchValue, 
+      searchValue, 
+      searchValue, 
+      searchValue, 
+      limit, 
+      offset
+    ];
+  
     pool.query(query, values, (err, results) => {
       if (err) {
+        console.error('Error executing query:', err);
         return res.status(500).json({ error: 'Database query failed' });
       }
-      res.json(results);
+      res.json({
+        result: results,
+        page,
+        limit,
+        total: results.length,
+        searchTerm,
+      });
     });
   });
+  
 
 
 
