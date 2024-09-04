@@ -769,8 +769,8 @@ router.get('/invoice/:orderid', (req, res) => {
     LEFT JOIN product p ON p.id = b.productid
     WHERE o.orderid = ?`, [req.params.orderid], (err, result) => {
     if (err) throw err;
-    // else res.render(`invoice`, {result})
-    else res.json(result)
+    else res.render(`invoice`, {result})
+    // else res.json(result)
   });
 });
 
