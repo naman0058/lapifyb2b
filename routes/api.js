@@ -1024,6 +1024,66 @@ router.get('/get-subcategory',(req,res)=>{
 // });
 
 
+// router.post('/update-cart', (req, res) => {
+//     const { productid, userid, quantity /* add other required fields */ } = req.body;
+//     const cartData = {
+//         productid,
+//         userid,
+//         quantity,
+//         /* add other fields from req.body */
+//     };
+
+//     console.log(req.body);
+
+//     // Step 1: Check available quantity in the product table
+//     pool.query('SELECT quantity FROM product WHERE id = ?', [productid], (err, productResult) => {
+//         if (err) {
+//             console.error('Error selecting from product table:', err);
+//             return res.status(500).json({ error: 'Internal Server Error' });
+//         }
+
+//         if (productResult.length === 0) {
+//             return res.status(404).json({ error: 'Product not found' });
+//         }
+
+//         const availableQuantity = productResult[0].quantity;
+
+//         if (quantity > availableQuantity) {
+//             return res.status(400).json({ error: 'Requested quantity exceeds available stock' });
+//         }
+
+//         // Step 2: Check if the cart record already exists
+//         pool.query('SELECT * FROM cart WHERE productid = ? AND userid = ?', [productid, userid], (err, cartResult) => {
+//             if (err) {
+//                 console.error('Error selecting from cart:', err);
+//                 return res.status(500).json({ error: 'Internal Server Error' });
+//             }
+
+//             if (cartResult.length > 0) {
+//                 // If record exists, update it
+//                 pool.query('UPDATE cart SET ? WHERE productid = ? AND userid = ?', [cartData, productid, userid], (err, updateResult) => {
+//                     if (err) {
+//                         console.error('Error updating cart:', err);
+//                         return res.status(500).json({ error: 'Internal Server Error' });
+//                     }
+//                     res.json({ msg: 'success' });
+//                 });
+//             } else {
+//                 // If record does not exist, insert it
+//                 pool.query('INSERT INTO cart SET ?', cartData, (err, insertResult) => {
+//                     if (err) {
+//                         console.error('Error inserting into cart:', err);
+//                         return res.status(500).json({ error: 'Internal Server Error' });
+//                     }
+//                     res.json({ msg: 'success' });
+//                 });
+//             }
+//         });
+//     });
+// });
+
+
+
 router.post('/update-cart', (req, res) => {
     const { productid, userid, quantity /* add other required fields */ } = req.body;
     const cartData = {
@@ -1035,50 +1095,48 @@ router.post('/update-cart', (req, res) => {
 
     console.log(req.body);
 
-    // Step 1: Check available quantity in the product table
-    pool.query('SELECT quantity FROM product WHERE id = ?', [productid], (err, productResult) => {
+    // Step 1 & 2: Check available quantity and if the cart record already exists in a single query using JOIN
+    pool.query(`
+        SELECT p.quantity AS availableQuantity, c.quantity AS cartQuantity 
+        FROM product p
+        LEFT JOIN cart c ON c.productid = p.id AND c.userid = ?
+        WHERE p.id = ?
+    `, [userid, productid], (err, results) => {
         if (err) {
-            console.error('Error selecting from product table:', err);
+            console.error('Error querying database:', err);
             return res.status(500).json({ error: 'Internal Server Error' });
         }
 
-        if (productResult.length === 0) {
+        if (results.length === 0 || results[0].availableQuantity === null) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        const availableQuantity = productResult[0].quantity;
+        const { availableQuantity, cartQuantity } = results[0];
 
         if (quantity > availableQuantity) {
             return res.status(400).json({ error: 'Requested quantity exceeds available stock' });
         }
 
-        // Step 2: Check if the cart record already exists
-        pool.query('SELECT * FROM cart WHERE productid = ? AND userid = ?', [productid, userid], (err, cartResult) => {
-            if (err) {
-                console.error('Error selecting from cart:', err);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            }
-
-            if (cartResult.length > 0) {
-                // If record exists, update it
-                pool.query('UPDATE cart SET ? WHERE productid = ? AND userid = ?', [cartData, productid, userid], (err, updateResult) => {
-                    if (err) {
-                        console.error('Error updating cart:', err);
-                        return res.status(500).json({ error: 'Internal Server Error' });
-                    }
-                    res.json({ msg: 'success' });
-                });
-            } else {
-                // If record does not exist, insert it
-                pool.query('INSERT INTO cart SET ?', cartData, (err, insertResult) => {
-                    if (err) {
-                        console.error('Error inserting into cart:', err);
-                        return res.status(500).json({ error: 'Internal Server Error' });
-                    }
-                    res.json({ msg: 'success' });
-                });
-            }
-        });
+        // Step 3: Update or Insert based on the existence of the cart record
+        if (cartQuantity !== null) {
+            // If cart record exists, update it
+            pool.query('UPDATE cart SET ? WHERE productid = ? AND userid = ?', [cartData, productid, userid], (err, updateResult) => {
+                if (err) {
+                    console.error('Error updating cart:', err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+                res.json({ msg: 'success' });
+            });
+        } else {
+            // If cart record does not exist, insert it
+            pool.query('INSERT INTO cart SET ?', cartData, (err, insertResult) => {
+                if (err) {
+                    console.error('Error inserting into cart:', err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+                res.json({ msg: 'success' });
+            });
+        }
     });
 });
 
