@@ -80,12 +80,12 @@ router.post('/user/signup', async (req, res) => {
             const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
 
             await verify.sendUserMail(body.email,emailTemplates.welcomeMessage.userSubject,userMessage)
-            await verify.sendWhatsAppMessage(
-                +91 + body.number,
-                'hello_world', // Template name
-                'en_US', // Language code
-                [body.name] // Body parameters
-            );
+            // await verify.sendWhatsAppMessage(
+            //     +91 + body.number,
+            //     'hello_world', // Template name
+            //     'en_US', // Language code
+            //     [body.name] // Body parameters
+            // );
             res.json({
                 msg: 'success',
                 result: insertResult
