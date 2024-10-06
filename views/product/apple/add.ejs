@@ -68,20 +68,23 @@
 
 
 
-  <div class="col-xl-6">
+  <div class="col-xl-4">
     <label  class="form-label">Enter HDD / SSD
     </label>
      <input type="text" id="storage" class="form-control" placeholder="Enter Storage">
     </div>
 
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
       <label  class="form-label">Battery Count Cycle
       </label>
        <input type="text" id="battery_count_cycle" class="form-control" placeholder="Enter Battery Count Cycle">
       </div>
   
-
+      <div class="col-xl-4">
+        <label  class="form-label">Select RAM </label>
+        <select id="ram" class="form-control"></select>
+        </div>
 
 </div>
 
@@ -488,6 +491,12 @@ $.getJSON(`/admin/dashboard/apple/getData/year`, data => {
   
 })
 
+$.getJSON(`/admin/dashboard/laptop/getData/ram`, data => {
+    ram = data
+    console.log('leagues',data)
+    fillDropDown('ram', data, 'Choose RAM', 0)
+  
+})
 
 
 
@@ -653,6 +662,7 @@ async function submitForm() {
 
     const QcReports = {
         processor:$('#processor').val(),
+        ram:$('#ram').val(),
         power_on:$('#power_on').val(),
         keyboard:$('#keyboard').val(),
         battery:$('#battery').val(),
@@ -673,6 +683,9 @@ async function submitForm() {
 
     if(values.subcategory == null || values.subcategory == 'null'){
     alert('Select apple Condition')
+    }
+    else if(QcReports.ram == null || QcReports.ram == 'null'){
+    alert('Select Laptop RAM')
     }
     else if(QcReports.processor == null || QcReports.processor == 'null'){
     alert('Select apple Processor')

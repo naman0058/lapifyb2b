@@ -24,6 +24,8 @@
                                 <input type="hidden" id="subcategoryvalue" value="<%=result[0].subcategory%>">
                                 <input type="hidden" id="processorvalue" value="<%=result[0].processor%>">
                                 <input type="hidden" id="physical_condition_value" value="<%=result[0].physical_condition%>">
+                                <input type="hidden" id="ramvalue" value="<%=result[0].ram%>">
+
 
 
 								<div class="tools">
@@ -89,20 +91,24 @@
 
 <div class="row" style="margin-top: 20px;">
 
-  <div class="col-xl-6">
+  <div class="col-xl-4">
     <label  class="form-label">Enter HDD / SSD
     </label>
      <input type="text" id="storage" class="form-control" name="storage" value="<%=result[0].storage%>" placeholder="Enter Storage">
     </div>
 
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
       <label  class="form-label">Enter Battery Count Cycle
       </label>
        <input type="text" id="battery_count_cycle" class="form-control" name="battery_count_cycle" value="<%=result[0].battery_count_cycle%>" placeholder="Enter Battery Count Cycle">
       </div>
 
 
+      <div class="col-xl-4">
+        <label  class="form-label">Select RAM </label>
+        <select id="ram" name="ram" required class="form-control"></select>
+        </div>
 
 
 
@@ -501,11 +507,21 @@ let pagename = $('#pagename').val()
 let subcategoryvalue = $('#subcategoryvalue').val()
 let processorvalue = $('#processorvalue').val()
 let physical_condition_value = $('#physical_condition_value').val()
+let ramvalue = $('#ramvalue').val()
+
 
 $.getJSON(`/admin/dashboard/apple/getData/year`, data => {
     addgroup = data
     console.log('leagues',data)
     fillDropDown('subcategory', data, 'Choose apple Year', subcategoryvalue)
+  
+})
+
+
+$.getJSON(`/admin/dashboard/laptop/getData/ram`, data => {
+    ram = data
+    console.log('leagues',data)
+    fillDropDown('ram', data, 'Choose RAM',ramvalue)
   
 })
 
@@ -646,7 +662,9 @@ function submitForm() {
         body:$('#body').val(),
         adapter:$('#adapter').val(),
         storage:$('#storage').val(),
-        physical_condition:$('#physical_condition').val()
+        physical_condition:$('#physical_condition').val(),
+        ram:$('#ram').val(),
+
 
 
 
@@ -655,6 +673,9 @@ function submitForm() {
 
     if(values.subcategory == null || values.subcategory == 'null'){
     alert('Select apple Condition')
+    }
+    else if(QcReports.ram == null || QcReports.ram == 'null'){
+    alert('Select Laptop RAM')
     }
     else if(QcReports.processor == null || QcReports.processor == 'null'){
     alert('Select apple Processor')
