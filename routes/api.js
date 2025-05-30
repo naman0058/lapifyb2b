@@ -50,7 +50,8 @@ router.post('/user/login', async (req, res) => {
 
 
 router.post('/user/signup', async (req, res) => {
-    const { number, password, email, name , gst , firm_name } = req.body;
+    const { number, password, email, name, gst, firm_name } = req.body;
+
     const body = {
         number,
         password,
@@ -61,36 +62,52 @@ router.post('/user/signup', async (req, res) => {
         status: 'unverified',
         gst,
         firm_name,
-        isproduct:'no',
-        unique_id: verify.generateUniqueId() // Generate unique ID with prefix 'lpy'
+        isproduct: 'no',
+        unique_id: verify.generateUniqueId()
     };
 
+    console.log(req.body);
+
     try {
-        // Use parameterized queries to prevent SQL injection
         const query = 'SELECT * FROM users WHERE number = ? OR email = ?';
         const result = await queryAsync(query, [number, email]);
 
         if (result.length > 0) {
-            res.json({
-                msg: 'account_exists'
-            });
-        } else {
-            const insertQuery = 'INSERT INTO users SET ?';
-            const insertResult = await queryAsync(insertQuery, body);
-            const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
-
-            await verify.sendUserMail(body.email,emailTemplates.welcomeMessage.userSubject,userMessage)
-            // await verify.sendWhatsAppMessage(
-            //     +91 + body.number,
-            //     'hello_world', // Template name
-            //     'en_US', // Language code
-            //     [body.name] // Body parameters
-            // );
-            res.json({
-                msg: 'success',
-                result: insertResult
-            });
+            return res.json({ msg: 'account_exists' });
         }
+
+        const insertQuery = 'INSERT INTO users SET ?';
+        const insertResult = await queryAsync(insertQuery, body);
+
+        // ✅ Respond to user immediately
+        res.json({
+            msg: 'success',
+            result: insertResult
+        });
+
+        // ✅ Send email/WhatsApp in background
+        setImmediate(async () => {
+            try {
+                const userMessage = emailTemplates.welcomeMessage.userMessage(body.name);
+                await verify.sendUserMail(
+                    body.email,
+                    emailTemplates.welcomeMessage.userSubject,
+                    userMessage
+                );
+
+                // Optionally send WhatsApp (if required)
+                // await verify.sendWhatsAppMessage(
+                //     '+91' + body.number,
+                //     'hello_world',
+                //     'en_US',
+                //     [body.name]
+                // );
+            } catch (backgroundErr) {
+                console.error('Background task error (email/WhatsApp):', backgroundErr);
+                // You can also log this to a file or external logger
+            }
+        });
+
     } catch (err) {
         console.error('Error while signing up:', err);
         res.status(500).json({ msg: 'Internal server error' });

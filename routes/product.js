@@ -501,4 +501,14 @@ router.get('/:name/add/images',(req,res)=>{
 
 
 
+router.get('/getPerPageCharge?deliveryFormat',(req,res)=>{
+    pool.query(`select * from masterCategory where deliveryFormat = '${req.query.deliveryFormat}' and name = '${req.query.projectType}'`,(err,result)=>{
+      if(err) throw err;
+      else {
+        res.json(result)
+      }
+    })
+  })
+
+
 module.exports = router;
