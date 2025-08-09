@@ -506,8 +506,57 @@ const transporter = nodemailer.createTransport({
 
 
       const axios = require('axios');
+const path = require('path');
 
-const sendWhatsAppMessage = async (phoneNumber, templateName, languageCode, bodyParameters = [], buttonParameters = []) => {
+
+// Store the token in a local JSON file or DB
+const TOKEN_FILE = path.join(__dirname, 'wa_token.json');
+
+// Load token from file
+function loadToken() {
+    if (fs.existsSync(TOKEN_FILE)) {
+        const data = fs.readFileSync(TOKEN_FILE);
+        return JSON.parse(data);
+    }
+    return {};
+}
+
+// Save token to file
+function saveToken(tokenData) {
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify(tokenData, null, 2));
+}
+
+// Refresh long-lived token (before it expires)
+async function refreshLongLivedToken(currentToken) {
+    try {
+        const { data } = await axios.get(
+            'https://graph.facebook.com/v20.0/oauth/access_token',
+            {
+                params: {
+                    grant_type: 'fb_exchange_token',
+                    client_id: '1465563064083920',
+                    client_secret: '987953b503d9360a83b2d8d911b5b5aa',
+                    fb_exchange_token: currentToken
+                }
+            }
+        );
+
+        // Save new token
+        saveToken({ access_token: data.access_token, refreshed_at: new Date().toISOString() });
+        console.log('✅ Token refreshed:', data);
+        return data.access_token;
+
+    } catch (err) {
+        console.error('❌ Error refreshing token:', err.response?.data || err.message);
+        throw err;
+    }
+}
+
+
+async function sendWhatsAppMessage(phoneNumber, templateName, languageCode, bodyParameters = [], buttonParameters = []) {
+    let tokenData = loadToken();
+    let accessToken = tokenData.access_token;
+    console.log('bodyParameters',bodyParameters)
     const messageData = {
         messaging_product: 'whatsapp',
         to: phoneNumber,
@@ -526,7 +575,7 @@ const sendWhatsAppMessage = async (phoneNumber, templateName, languageCode, body
             type: 'body',
             parameters: bodyParameters.map(param => ({
                 type: 'text',
-                text: param
+                text: param,
             }))
         });
     }
@@ -534,33 +583,56 @@ const sendWhatsAppMessage = async (phoneNumber, templateName, languageCode, body
     if (buttonParameters.length > 0) {
         messageData.template.components.push({
             type: 'button',
-            sub_type: 'url', // or 'flow' depending on your need
+            sub_type: 'url',
             index: 0,
             parameters: buttonParameters.map(param => ({
                 type: 'text',
-                text: param
+                text: param,
             }))
         });
     }
 
     try {
         const response = await axios.post(
-            'https://graph.facebook.com/v20.0/361494850388648/messages',
+            'https://graph.facebook.com/v20.0/389545867577984/messages',
             messageData,
             {
                 headers: {
-                    'Authorization': 'Bearer EABws9wYxk3ABO4dszNo4lOA6E81RXZBJbIdlAj5LHmq7CLy2IVdTqF0DxZAIUJoUsCupY7ZBdHrNWKpawYf0AeTWYZAZB8cX3rMypu14SE8qBcYboiNdSiBCA5AUZCxZAYFwYZCWkIfDX8tKHcV2LbnxBi2rwIzjY9xPTnaNCJ9m7YQZC5fFUjFI1TuMZAjOvkf1UkWLEZBbVBm217VyZCZA0kV4ZD',
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
                 }
             }
         );
-        console.log('Message sent response:', response.data);
+
+        console.log('✅ Message sent response:', response.data);
         return response.data;
+
     } catch (error) {
-        console.error('Error sending message:', error.response ? error.response.data : error.message);
-        throw new Error('Error sending message');
+        // If token expired
+        if (error.response?.data?.error?.code === 190) {
+            console.warn('⚠️ Access token expired. Refreshing...');
+            accessToken = await refreshLongLivedToken(accessToken);
+
+            // Retry sending message with new token
+            const retryResponse = await axios.post(
+                'https://graph.facebook.com/v20.0/389545867577984/messages',
+                messageData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            console.log('✅ Message resent after token refresh:', retryResponse.data);
+            return retryResponse.data;
+        }
+
+        console.error('❌ Error sending WhatsApp message:', error.response?.data || error.message);
+        throw error;
     }
-};
+}
 
 
 

@@ -1,282 +1,305 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Tax Invoice</title>
-    <link rel="shortcut icon" type="image/png" href="./favicon.png" />
-    <style>
-      * {
-        box-sizing: border-box;
-        font-family: 'Times New Roman', Times, serif;
-      }
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Tax Invoice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="shortcut icon" type="image/png" href="./favicon.png" />
+  <style>
+    :root{
+      --ink:#1a1d1f;
+      --muted:#5c6670;
+      --line:#e6e8eb;
+      --soft:#f5f7f9;
+      --brand:#0e8df1;
+      --accent:#f7f0d9;               /* header band bg */
+      --accent-ink:#121212;
+      --success:#0a9150;
+      --danger:#b3261e;
+    }
 
-      .table-bordered td,
-      .table-bordered th {
-        border: 1px solid #ddd;
-        padding: 10px;
-        word-break: break-all;
-      }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;
+      color:var(--ink);
+      background:#fafafa;
+    }
 
-      body {
-        font-family: Arial, Helvetica, sans-serif;
-        margin: 0;
-        padding: 0;
-        font-size: 16px;
-      }
-      .h4-14 h4 {
-        font-size: 12px;
-        margin-top: 0;
-        margin-bottom: 5px;
-      }
-      .img {
-        margin-left: "auto";
-        margin-top: "auto";
-        height: 30px;
-      }
-      pre,
-      p {
-        /* width: 99%; */
-        /* overflow: auto; */
-        /* bpicklist: 1px solid #aaa; */
-        padding: 0;
-        margin: 0;
-      }
-      table {
-        font-family: arial, sans-serif;
-        width: 100%;
-        border-collapse: collapse;
-        padding: 1px;
-      }
-      .hm-p p {
-        text-align: left;
-        padding: 1px;
-        padding: 5px 4px;
-      }
-      td,
-      th {
-        text-align: left;
-        padding: 8px 6px;
-      }
-      .table-b td,
-      .table-b th {
-        border: 1px solid #ddd;
-      }
-      th {
-        /* background-color: #ddd; */
-      }
-      .hm-p td,
-      .hm-p th {
-        padding: 3px 0px;
-      }
-      .cropped {
-        float: right;
-        margin-bottom: 20px;
-        height: 100px; /* height of container */
-        overflow: hidden;
-      }
-      .cropped img {
-        width: 400px;
-        margin: 8px 0px 0px 80px;
-      }
-      .main-pd-wrapper {
-        box-shadow: 0 0 10px #ddd;
-        background-color: #fff;
-        border-radius: 10px;
-        padding: 15px;
-      }
-      .table-bordered td,
-      .table-bordered th {
-        border: 1px solid #ddd;
-        padding: 10px;
-        font-size: 14px;
-      }
-    </style>
-  </head>
-  <body>
-    <section class="main-pd-wrapper" id="invoice" style="width: 1000px; margin: auto">
-      <div style="display: table-header-group">
-        <h4 style="text-align: center; margin: 0">
-          <b>Tax Invoice</b>
-        </h4>
+    /* Page container */
+    .page{
+      max-width:1000px;
+      margin:24px auto;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      box-shadow:0 4px 24px rgba(0,0,0,.06);
+      overflow:hidden;
+    }
 
-        <table style="width: 100%; table-layout: fixed">
-          <tr>
-            <td
-              style="border-left: 1px solid #ddd; border-right: 1px solid #ddd"
-            >
-              <div
-                style="
-                  text-align: center;
-                  margin: auto;
-                  line-height: 1.5;
-                  font-size: 14px;
-                  color: #4a4a4a;
-                "
-              >
-               
-                 <img src="/images/logo.jpg" style="width: 200px;">
+    /* Header band */
+    .header{
+      display:flex;
+      gap:16px;
+      padding:20px 20px 16px;
+      align-items:center;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(0deg,#fff, #fff), var(--accent);
+      background-blend-mode:normal, multiply;
+    }
+    .brand{display:flex;align-items:center;gap:16px;flex:1}
+    .brand img{height:40px;width:auto;display:block}
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .badge{
+      display:inline-block;
+      padding:2px 8px;
+      font-size:11px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:var(--muted);
+    }
 
-                <p style="font-weight: bold; margin-top: 15px">
-                  GST : O7BCDPM7179L1Z0
-                </p>
-                <!-- <p style="font-weight: bold">
-                  Toll Free No. :
-                  <a href="tel:018001236477" style="color: #00bb07"
-                    >1800-123-6477</a
-                  >
-                </p> -->
-              </div>
-            </td>
-            <td
-              align="right"
-              style="
-                text-align: right;
-                padding-left: 50px;
-                line-height: 1.5;
-                color: #323232;
-              "
-            >
-              <div>
-                <h4 style="margin-top: 5px; margin-bottom: 5px">
-                  Bill to/ Ship to
-                </h4>
-                <!-- <p>NAME   :- {{ customer["name"]}}</p>
-                        <p>ADDRESS:- {{customer['address']}}</p>
-                        <p>MOBILE :- {{customer['mobile']}}</p>
-                        <p>OrderID   :- {{customer['order_id']}}</p>  -->
-                <p style="font-size: 14px">
-                  <%=result[0].firmname.toUpperCase()%>,<%=result[0].address%><br />
-                  Phone:
-                  <a href="tel:01241234568" style="color: #00bb07"
-                    >+91 <%=result[0].usernumber%></a
-                  >
-                </p>
-              </div>
-            </td>
-          </tr>
-        </table>
+    /* Meta rows */
+    .meta{
+      display:grid;
+      grid-template-columns:1.3fr .7fr 1fr;
+      gap:16px;
+      padding:16px 20px 8px;
+      border-bottom:1px solid var(--line);
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:12px 14px;
+      background:#fff;
+    }
+    .card h4{
+      margin:0 0 8px;
+      font-size:13px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    .card p{margin:0;font-size:13px}
+    .card p + p{margin-top:4px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+    .kv{display:flex;justify-content:space-between;gap:12px}
+    .kv span:last-child{font-weight:600}
+
+    /* Order header strip */
+    .strip{
+      background:#fff3cd;            /* soft yellow */
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      padding:10px 20px;
+      display:flex;
+      gap:20px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .strip strong{color:#111}
+    .strip .muted{color:var(--muted)}
+
+    /* Table */
+    table{width:100%;border-collapse:collapse}
+    .tbl{
+      margin:16px 20px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      overflow:hidden;
+    }
+    .tbl th, .tbl td{
+      padding:10px 8px;
+      border-bottom:1px solid var(--line);
+      vertical-align:top;
+      font-size:13px;
+      word-break:break-word;
+    }
+    .tbl thead th{
+      background:var(--soft);
+      text-align:left;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      color:#333;
+    }
+    .tbl tbody tr:nth-child(even){background:#fcfcfd}
+    .tbl tfoot td{
+      background:#fbfbfb;
+      font-weight:600;
+    }
+    .num{text-align:right}
+    .center{text-align:center}
+
+    /* Totals */
+    .totals{
+      margin:0 20px 16px;
+      display:grid;
+      grid-template-columns:1fr 360px;
+      gap:16px;
+      align-items:start;
+    }
+    .panel{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:12px 14px;
+      background:#fff;
+    }
+    .panel h4{margin:0 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+    .summary .row{display:flex;justify-content:space-between;padding:6px 0}
+    .summary .row + .row{border-top:1px dashed var(--line)}
+    .summary .grand{font-weight:700;font-size:15px}
+
+    /* Terms */
+    .terms{margin:0 20px 20px}
+    .terms h4{margin:0 0 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+    .terms ul{margin:6px 0 0 16px;padding:0}
+    .terms li{margin:6px 0;color:#2b2f33}
+
+    /* Footer actions */
+    .actions{
+      padding:12px 20px 20px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    .btn.primary{
+      background:var(--brand);
+      border-color:var(--brand);
+      color:#fff;
+    }
+
+    /* Print */
+    @media print{
+      body{background:#fff}
+      .page{box-shadow:none;border:none;margin:0;border-radius:0}
+      .actions{display:none}
+      .strip{page-break-inside:avoid}
+      .tbl{margin:12px 0}
+      .totals{margin:0 0 12px;grid-template-columns:1fr 300px}
+      .terms{margin:0}
+    }
+
+    /* Small screens */
+    @media (max-width: 1024px){
+      .page{margin:0;border-radius:0}
+      .meta{grid-template-columns:1fr;gap:12px}
+      .totals{grid-template-columns:1fr;gap:12px}
+    }
+
+/* Make table scrollable on small screens */
+.tbl-wrap{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Ensure a sensible min width so columns don’t collapse */
+.tbl table{ min-width: 980px; }
+
+/* Slightly reduce min width on medium screens */
+@media (max-width: 768px){
+  .tbl table{ min-width: 840px; }
+}
+
+/* On very small screens, let it scroll as-needed */
+@media (max-width: 480px){
+  .tbl table{ min-width: 760px; }
+}
+
+/* Print: always full width, no scrolling container */
+@media print{
+  .tbl-wrap{ overflow: visible; }
+  .tbl table{ min-width: 100%; }
+}
+
+
+  </style>
+</head>
+<body>
+  <section class="page" id="invoice">
+
+    <!-- Branded header -->
+    <header class="header">
+      <div class="brand">
+        <img src="/images/logo.jpg" alt="Company Logo" />
+        <div>
+          <h1>Tax Invoice</h1>
+          <span class="badge">GST: 07BCDPM7179L1Z0</span>
+        </div>
       </div>
-      <table
-        class="table table-bordered h4-14"
-        style="width: 100%; -fs-table-paginate: paginate; margin-top: 15px"
-      >
-        <thead style="display: table-header-group">
-          <tr
-            style="
-              margin: 0;
-              background: #fcbd021f;
-              padding: 15px;
-              padding-left: 20px;
-              -webkit-print-color-adjust: exact;
-            "
-          >
-            <td colspan="4">
-              <h3>
-                <span
-                  style="
-                    font-weight: 300;
-                    font-size: 85%;
-                    font-weight: bold;
-                    color: black;
-                    margin-left: 0px;
-                  "
-                  >Order ID: <%=result[0].orderid%></span
-                >
-                <p
-                  style="
-                    font-weight: 300;
-                    font-size: 85%;
-                    color: #626262;
-                    margin-top: 7px;
-                  "
-                >
+    </header>
 
+    <!-- Meta cards: Bill/Ship, Invoice meta, Sold By -->
+    <div class="meta">
+      <div class="card">
+        <h4>Bill to / Ship to</h4>
+        <p><strong><%=result[0].firmname.toUpperCase()%></strong></p>
+        <p><%=result[0].address%></p>
+        <p>Phone:
+          <a href="tel:+91<%=result[0].usernumber%>" class="mono">+91 <%=result[0].usernumber%></a>
+        </p>
+      </div>
 
-             
+      <div class="card">
+        <h4>Invoice details</h4>
+        <p class="kv"><span>Invoice No.</span> <span class="mono" id="invoiceNumber"></span></p>
+        <p class="kv"><span>Invoice Date</span> <span class="mono"><%=result[0].created_at%></span></p>
+        <p class="kv"><span>CIN</span> <span class="mono">U52100DL2016PTC292777</span></p>
+      </div>
 
-                  Delivery Estimate:
-                  <span style="color: #00bb07" id="dateIn15Days"></span
-                  ><br />
-                </p>
-              </h3>
-            </td>
-            <td colspan="5">
-                <p><strong>Invoice Number:</strong> <span id="invoiceNumber"></span></p>
-              <p style="margin: 5px 0">Invoice Generated:- <%=result[0].created_at%></p>
-              <p style="margin-bottom: 5px">CIN: U52100DL2016PTC292777</p>
-            </td>
-            <td colspan="4" style="width: 300px">
-              <h4 style="margin: 0">Sold By:</h4>
-              <p>
-                E GADGET WORLD  1st floor,<br />
-                J.k tower, Kaushik Enclave Main Rd, near by Burari Hospital, Kaushik Enclave, Shankarpura, Burari, Delhi, 110084 .
-              </p>
-            </td>
-          </tr>
+      <div class="card">
+        <h4>Sold by</h4>
+        <p><strong>E GADGET WORLD</strong></p>
+        <p>1st Floor, J.K Tower, Kaushik Enclave Main Rd,<br/>
+           Near Burari Hospital, Kaushik Enclave, Shankarpura,<br/>
+           Burari, Delhi, 110084</p>
+      </div>
+    </div>
 
+    <!-- Order strip -->
+    <div class="strip">
+      <div><strong>Order ID:</strong> <span class="mono"><%=result[0].orderid%></span></div>
+      <div class="muted">Delivery estimate: <strong id="dateIn15Days"></strong></div>
+      <div class="muted">Payment mode: <strong>Online</strong></div>
+    </div>
+
+    <!-- Items table -->
+   <div class="tbl">
+  <div class="tbl-wrap">
+    <table>
+        <thead>
           <tr>
-            <th style="width: 50px">#</th>
-            <th style="width: 200px"><h4>Item Name</h4></th>
-            <th style="width: 200px">
-              <h4>
-                SKU<br />
-                No.
-              </h4>
-            </th>
-            <th style="width: 150px"><h4>QTY</h4></th>
-            <th style="width: 200px"><h4>MRP</h4></th>
-            <th style="width: 200px">
-              <h4>
-                Unit<br />
-                Price
-              </h4>
-            </th>
-
-            <th style="width: 200px">
-                <h4>
-                  Liquidation <br />
-                  Value
-                </h4>
-              </th>
-
-            <th style="width: 200px">
-              <h4>
-                Tax<br />
-                Amount
-              </h4>
-            </th>
-           
-            <th style="width: 200px">
-              <h4>
-                Tax <br />
-                Rate %
-              </h4>
-            </th>
-            <th style="width: 200px">
-              <h4>
-                CGST<br/>
-                Amount
-              </h4>
-            </th>
-            <th style="width: 200px">
-              <h4>
-                SGST<br />
-                Amount
-              </h4>
-            </th>
-
-            <th style="width: 200px">
-                <h4>
-                  IGST<br />
-                  Amount
-                </h4>
-              </th>
-            <th style="width: 200px"><h4>Total <br/> Value</h4></th>
+            <th class="center" style="width:48px">#</th>
+            <th style="width:210px">Item name</th>
+            <th style="width:140px">SKU No.</th>
+            <th class="center" style="width:70px">Qty</th>
+            <th class="num" style="width:110px">MRP</th>
+            <th class="num" style="width:120px">Unit Price</th>
+            <th class="num" style="width:130px">Liquidation Value</th>
+            <th class="num" style="width:110px">Tax Amount</th>
+            <th class="center" style="width:80px">Tax %</th>
+            <th class="num" style="width:110px">CGST</th>
+            <th class="num" style="width:110px">SGST</th>
+            <th class="num" style="width:110px">IGST</th>
+            <th class="num" style="width:130px">Total Value</th>
           </tr>
         </thead>
         <tbody>
-
-            <% let grand_total = 0;
+          <% 
+            let grand_total = 0;
             let amount = 0;
             let gstPercentage;
             let priceWithoutGst;
@@ -286,193 +309,135 @@
             let cgstAmount;
             let sgstAmount;
             let liquidation_value;
-            %>
+          %>
 
-            <% for(i=0;i<result.length;i++){ %>
-
-
-                <% 
-                // Calculate GST, CGST, and SGST amounts
-                
-                if(result[i].product_margin_price > 0){
-                     amount = parseFloat(result[i].amount);
-                     liquidation_value = parseFloat(result[i].product_margin_price);
-                     gstPercentage = 18;
-                     
-                     payable_amount = amount * result[i].quantity
-                     gstAmount = (liquidation_value * gstPercentage) / (100);
-                     priceWithoutGst = amount - liquidation_value - gstAmount;
-                     net_amount = priceWithoutGst * result[i].quantity
-                     cgstAmount = gstAmount / 2;
-                     sgstAmount = gstAmount / 2;
-                     grand_total = grand_total + payable_amount;
-                }
-                
-else {
-     amount = parseFloat(result[i].unitprice);
-     liquidation_value = 0
-     gstPercentage = 18;
-     priceWithoutGst = amount / (1 + (gstPercentage / 100));
-     net_amount = priceWithoutGst * result[i].quantity
-     payable_amount = amount * result[i].quantity
-     gstAmount = (payable_amount * gstPercentage) / (100 + gstPercentage);
-     cgstAmount = gstAmount / 2;
-     sgstAmount = gstAmount / 2;
-     grand_total = grand_total + payable_amount;
-}
-
-
-
-
-            %>
-
-          <tr>
-            <td><%=i+1%></td>
-            <td><%=result[i].productname%></td>
-            <td><%=result[i].skuno%></td>
-            <td><%=result[i].quantity%></td>
-            
-            <td><%= priceWithoutGst.toFixed(2) %></td>
-
-
-
-
-            <td><%= net_amount.toFixed(2) %></td>
-            <td><%= liquidation_value.toFixed(2) %></td>
-
-            <td><%= gstAmount.toFixed(2) %></td>
-            <td>18%</td>
-
-
+          <% for (let i = 0; i < result.length; i++) { %>
             <% 
-  // Define the address string
-  let address = result[0].address;
+              if(result[i].product_margin_price > 0){
+                amount = parseFloat(result[i].amount);
+                liquidation_value = parseFloat(result[i].product_margin_price);
+                gstPercentage = 18;
+                
+                payable_amount = amount * result[i].quantity
+                gstAmount = (liquidation_value * gstPercentage) / (100);
+                priceWithoutGst = amount - liquidation_value - gstAmount;
+                net_amount = priceWithoutGst * result[i].quantity
+                cgstAmount = gstAmount / 2;
+                sgstAmount = gstAmount / 2;
+                grand_total += payable_amount;
+              } else {
+                amount = parseFloat(result[i].unitprice);
+                liquidation_value = 0;
+                gstPercentage = 18;
+                priceWithoutGst = amount / (1 + (gstPercentage / 100));
+                net_amount = priceWithoutGst * result[i].quantity;
+                payable_amount = amount * result[i].quantity;
+                gstAmount = (payable_amount * gstPercentage) / (100 + gstPercentage);
+                cgstAmount = gstAmount / 2;
+                sgstAmount = gstAmount / 2;
+                grand_total += payable_amount;
+              }
 
-  // Check if 'New Delhi' is present in the address string
-  let containsNewDelhi = address.toLowerCase().includes('new delhi');
+              let address = result[0].address || '';
+              let containsNewDelhi = address.toLowerCase().includes('new delhi');
+            %>
 
+            <tr>
+              <td class="center"><%= i+1 %></td>
+              <td><%= result[i].productname %></td>
+              <td class="mono"><%= result[i].skuno %></td>
+              <td class="center"><%= result[i].quantity %></td>
+              <td class="num"><%= priceWithoutGst.toFixed(2) %></td>
+              <td class="num"><%= net_amount.toFixed(2) %></td>
+              <td class="num"><%= liquidation_value.toFixed(2) %></td>
+              <td class="num"><%= gstAmount.toFixed(2) %></td>
+              <td class="center">18%</td>
 
+              <% if (containsNewDelhi) { %>
+                <td class="num"><%= cgstAmount.toFixed(2) %></td>
+                <td class="num"><%= sgstAmount.toFixed(2) %></td>
+                <td class="num">0.00</td>
+              <% } else { %>
+                <td class="num">0.00</td>
+                <td class="num">0.00</td>
+                <td class="num"><%= gstAmount.toFixed(2) %></td>
+              <% } %>
 
-  %>
-
-
-  <% if(containsNewDelhi){ %>
-    <td><%= cgstAmount.toFixed(2) %></td>
-    <td><%= sgstAmount.toFixed(2) %></td>
-
-<td>0.00</td>
-  <% } else { %>
-    <td>0.00</td>
-    <td>0.00</td>
-
-<td><%= gstAmount.toFixed(2) %></td>
-
-    <% } %>
-
-  
-
-           
-
-            <td><%=result[i].total_amount%></td>
-          </tr>
+              <td class="num"><%= result[i].total_amount %></td>
+            </tr>
           <% } %>
         </tbody>
-        <tfoot></tfoot>
-      </table>
-
-     
-
-      <table class="hm-p table-bordered" style="width: 100%; margin-top: 30px">
-        <tr>
-          <th style="width: 400px">
-            <p>Payment Mode: Online </p>
-          </th>
-         
-          <td colspan="5" style="border-left: none"></td>
-        </tr>
-        <tr style="background: #fcbd02">
-          <th>Total Order Value</th>
-          <td style="width: 200px; text-align: right; border-right: none">
-            <b><%=grand_total.toFixed(2)%></b>
-          </td>
-          <td colspan="5" style="border-left: none"></td>
-        </tr>
-      </table>
-
-      <table style="width: 100%" cellspacing="0" cellspadding="0" border="0">
-       
-      </table>
+</table>
+  </div>
+</div>
 
 
-      <div style="margin-top: 20px;">
-        <p>TERMS & CONDITIONS:</p>
-        <ul>
-            <li>Value of supply is determined in accordance to section 15(5) of the Central Goods & Services Tax Act read with Rule 32(5) of
-                "Determination of Value of Supply" rules. Preowned / Used items bought through this Invoice falls under Margin Scheme in GST as per rule
-                32(5) of the CGST Rules, 2017 & NO GST Input shall be availed.</li>
-            <li>Goods once sold cannot be returned & the buyer assumes all responsibility of goods once taken out of seller's premises physically by
-                buyer or representative(s) of buyer.</li>
-            <li>Buyer agrees to save & hold seller harmless from any claims, demands, liabilities, costs, expenses or judgement arising in whole or in
-                part, directly or indirectly involving the goods supplied by seller.</li>
-
-        </ul>
-
+    <!-- Totals & Notes -->
+    <div class="totals">
+      <div class="panel">
+        <h4>Notes</h4>
+        <p class="muted">This is a computer generated invoice and does not require a signature.</p>
       </div>
 
-
-      <p>
-        This is computer generated invoice and hence signature is not
-        required
-      </p>
-
-      <div style="text-align: center; margin-top: 20px;">
-        <button id="downloadInvoice">Download Invoice as PDF</button>
+      <div class="panel summary">
+        <h4>Order summary</h4>
+        <div class="row">
+          <span>Total Order Value</span>
+          <span class="mono">₹ <%= grand_total.toFixed(2) %></span>
+        </div>
       </div>
+    </div>
 
-    </section>
-  </body>
+    <!-- Terms -->
+    <div class="terms panel">
+      <h4>Terms & Conditions</h4>
+      <ul>
+        <li>Value of supply is determined in accordance with Section 15(5) of the CGST Act read with Rule 32(5). Pre-owned/Used items bought through this invoice fall under the Margin Scheme in GST as per Rule 32(5) of the CGST Rules, 2017 and <strong>no GST input</strong> shall be availed.</li>
+        <li>Goods once sold cannot be returned. The buyer assumes all responsibility once goods are taken out of the seller’s premises by the buyer or their representative.</li>
+        <li>Buyer agrees to save and hold the seller harmless from any claims, demands, liabilities, costs, expenses or judgment arising directly or indirectly involving the goods supplied by the seller.</li>
+      </ul>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn" id="downloadInvoice">Print / Save as PDF</button>
+      <button class="btn primary" onclick="window.print()">Quick Print</button>
+    </div>
+  </section>
+
+  <!-- libs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 
-<script>
-    document.getElementById('downloadInvoice').addEventListener('click', () => {
-        window.print()
-    //     alert('hi')
-    //   const invoiceElement = document.getElementById('invoice');
-    //   const options = {
-    //     margin: 1,
-    //     filename: 'invoice.pdf',
-    //     image: { type: 'jpeg', quality: 0.98 },
-    //     html2canvas: { scale: 2 },
-    //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    //   };
-    //   html2pdf().from(invoiceElement).set(options).save();
-    });
-</script>
-
   <script>
-    // JavaScript to calculate date 15 days from today
-    const today = new Date();
-    const dateIn15Days = new Date(today.setDate(today.getDate() + 15));
+    // Print button (fallback to window.print for consistency)
+    document.getElementById('downloadInvoice').addEventListener('click', () => {
+      window.print();
+      // If you want strict PDF via html2pdf, uncomment below:
+      // const node = document.getElementById('invoice');
+      // html2pdf().set({
+      //   margin: 0.5,
+      //   filename: 'invoice.pdf',
+      //   image: { type: 'jpeg', quality: 0.98 },
+      //   html2canvas: { scale: 2, useCORS: true },
+      //   jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      // }).from(node).save();
+    });
 
-    // Format the date to a readable format (e.g., YYYY-MM-DD)
-    const formattedDate = dateIn15Days.toISOString().split('T')[0];
+    // Delivery estimate (+15 days)
+    (function(){
+      const today = new Date();
+      const d = new Date(today);
+      d.setDate(d.getDate() + 15);
+      const formatted = d.toISOString().split('T')[0];
+      document.getElementById('dateIn15Days').textContent = formatted;
+    })();
 
-    // Insert the date into the paragraph with id "dateIn15Days"
-    document.getElementById('dateIn15Days').innerText = `${formattedDate}`;
-</script>
-
-<script>
-    // Generate a unique invoice number with prefix 'INV'
-    function generateInvoiceNumber() {
-        // Get the current timestamp to create a unique 7-digit number
-        const uniquePart = Date.now().toString().slice(-7); // last 7 digits of the timestamp
-        const invoicePrefix = 'INV'; // Prefix for invoice
-        
-        // Concatenate prefix with the unique 7-digit number
-        return invoicePrefix + uniquePart;
-    }
-
-    // Display the generated invoice number in the HTML
-    document.getElementById('invoiceNumber').innerText = generateInvoiceNumber();
-</script>
+    // Invoice number generator (prefix + last 7 of timestamp)
+    (function(){
+      const uniquePart = Date.now().toString().slice(-7);
+      const number = 'INV' + uniquePart;
+      document.getElementById('invoiceNumber').textContent = number;
+    })();
+  </script>
+</body>
 </html>

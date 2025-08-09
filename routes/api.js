@@ -21,6 +21,126 @@ const emailTemplates = require('./emailTemplates');
 
 
 
+const {
+  OTP_TTL_MIN,
+  RESEND_COOLDOWN_SEC,
+  MAX_ATTEMPTS,
+  normalize10Digit,
+  hashOtp,
+  nowStr
+} = require('./otp');
+
+// POST /api/v1/auth/request-otp
+router.post('/auth/request-otp', async (req, res) => {
+  try {
+    const rawNumber = req.body.number;
+    const number10 = normalize10Digit(rawNumber);
+    if (number10.length !== 10) {
+      return res.status(400).json({ msg: 'invalid_number' });
+    }
+
+    // cooldown
+    const recent = await queryAsync(
+      `SELECT created_at FROM otp_codes
+       WHERE number = ? AND status = 'pending'
+       ORDER BY id DESC LIMIT 1`,
+      [number10]
+    );
+    if (recent.length) {
+      const last = new Date(recent[0].created_at);
+      const diffSec = (Date.now() - last.getTime()) / 1000;
+      if (diffSec < RESEND_COOLDOWN_SEC) {
+        return res.status(429).json({ msg: 'cooldown', retry_after: Math.ceil(RESEND_COOLDOWN_SEC - diffSec) });
+      }
+    }
+
+    // generate + hash
+    const code = Math.floor(100000 + Math.random() * 900000);
+    const codeHash = hashOtp(number10, String(code));
+    const createdAt = nowStr();
+    const expiresAt = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000).toISOString().slice(0,19).replace('T',' ');
+
+    // ✅ delete pending (instead of UPDATE → expired)
+    await queryAsync(
+      `DELETE FROM otp_codes WHERE number = ? AND status = 'pending'`,
+      [number10]
+    );
+
+    // insert new pending
+    const result = await queryAsync(
+  `INSERT INTO otp_codes (number, code_hash, status, attempts, expires_at, created_at)
+   VALUES (?, ?, 'pending', 0, ?, ?)`,
+  [number10, codeHash, expiresAt, createdAt]
+);
+
+    // WhatsApp — body only, locale en_US
+    await verify.sendWhatsAppMessage(
+      '+91' + number10,
+      'user_login_otp',  // template has {{1}} only
+      'en',
+      [String(code)],
+      [String(code)]
+
+      // no button parameters unless your template defines a button param
+    );
+
+    return res.json({ msg: 'sent', otp_id: result.insertId });
+   
+  } catch (err) {
+    console.error('request-otp error:', err?.response?.data || err);
+    return res.status(500).json({ msg: 'error' });
+  }
+});
+
+// POST /api/v1/auth/verify-otp
+router.post('/auth/verify-otp', async (req, res) => {
+  try {
+    const rawNumber = req.body.number;
+    const otp = String(req.body.otp || '').trim();
+    const otp_id = Number(req.body.otp_id);   // <-- REQUIRED
+
+    const number10 = normalize10Digit(rawNumber);
+    if (number10.length !== 10 || otp.length !== 6 || !otp_id) {
+      return res.status(400).json({ msg: 'invalid_payload' });
+    }
+
+    // Fetch the exact pending row and ensure it's not expired (DB time)
+    const rows = await queryAsync(
+      `SELECT * FROM otp_codes
+       WHERE id = ? AND number = ? AND status = 'pending' AND expires_at > NOW()
+       LIMIT 1`,
+      [otp_id, number10]
+    );
+    if (!rows.length) {
+      // Distinguish expired vs not_found if you want; for simplicity:
+      return res.status(400).json({ msg: 'not_found_or_expired' });
+    }
+
+    const rec = rows[0];
+
+    // Attempts check
+    if (rec.attempts >= MAX_ATTEMPTS) {
+      await queryAsync(`DELETE FROM otp_codes WHERE id = ?`, [rec.id]);
+      return res.status(429).json({ msg: 'too_many_attempts' });
+    }
+
+    const providedHash = hashOtp(number10, otp);
+    if (providedHash !== rec.code_hash) {
+      await queryAsync(`UPDATE otp_codes SET attempts = attempts + 1 WHERE id = ?`, [rec.id]);
+      return res.status(400).json({ msg: 'invalid_code' });
+    }
+
+    // ✅ Success: delete pending row to avoid unique-key conflicts
+    await queryAsync(`DELETE FROM otp_codes WHERE id = ?`, [rec.id]);
+
+    return res.json({ msg: 'verified' });
+  } catch (err) {
+    console.error('verify-otp error:', err);
+    return res.status(500).json({ msg: 'error' });
+  }
+});
+
+
 router.post('/user/login', async (req, res) => {
     const { number, password } = req.body;
 
@@ -66,6 +186,8 @@ router.post('/user/signup', async (req, res) => {
         unique_id: verify.generateUniqueId()
     };
 
+   
+
     console.log(req.body);
 
     try {
@@ -95,13 +217,7 @@ router.post('/user/signup', async (req, res) => {
                     userMessage
                 );
 
-                // Optionally send WhatsApp (if required)
-                // await verify.sendWhatsAppMessage(
-                //     '+91' + body.number,
-                //     'hello_world',
-                //     'en_US',
-                //     [body.name]
-                // );
+                
             } catch (backgroundErr) {
                 console.error('Background task error (email/WhatsApp):', backgroundErr);
                 // You can also log this to a file or external logger
@@ -1399,6 +1515,14 @@ router.post('/submit-order', async (req, res) => {
         await queryAsync(`INSERT INTO orders SET ?`, orderData);
         await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [userid]);
 
+         await verify.sendWhatsAppMessage(
+                    '+91' + body.number,
+                    'order_processing',
+                    'en_US',
+                    [body.name,orderid],
+                    
+                );
+
         res.json({ msg: 'success' });
     } catch (err) {
         console.error(err);
@@ -1536,74 +1660,205 @@ router.get('/check-review',(req,res)=>{
 
 
 
-router.get('/search', (req, res) => {
-    const searchTerm = req.query.q;
+// router.get('/search', (req, res) => {
+//     const searchTerm = req.query.q;
+//     const userId = req.query.userid;
+//     const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+//     const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
+  
+//     if (!searchTerm) {
+//       return res.status(400).json({ error: 'Search term is required' });
+//     }
+  
+//     const offset = (page - 1) * limit; // Calculate the offset for pagination
+  
+//     const query = `
+//       SELECT p.*, 
+//         (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+//         (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+//         (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
+//       FROM product p 
+//       WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
+//         OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
+//       LIMIT ? OFFSET ?
+//     `;
+  
+//     const searchValue = `%${searchTerm}%`;
+//     const values = [
+//       userId, 
+//       userId, 
+//       searchValue, 
+//       searchValue, 
+//       searchValue, 
+//       searchValue, 
+//       searchValue, 
+//       searchValue, 
+//       searchValue, 
+//       limit, 
+//       offset
+//     ];
+  
+//     pool.query(query, values, (err, results) => {
+//       if (err) {
+//         console.error('Error executing query:', err);
+//         return res.status(500).json({ error: 'Database query failed' });
+//       }
+//       res.json({
+//         result: results,
+//         page,
+//         limit,
+//         total: results.length,
+//         searchTerm,
+//       });
+//     });
+//   });
+  
+
+
+// Assumes MySQL 8+ and InnoDB FULLTEXT on (name, modelno, skuno, description, brand, category, subcategory)
+
+router.get('/search', async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
     const userId = req.query.userid;
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
-  
-    if (!searchTerm) {
-      return res.status(400).json({ error: 'Search term is required' });
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 100);
+    const offset = (page - 1) * limit;
+
+    if (!q) return res.status(400).json({ error: 'Search term is required' });
+
+    // Build FULLTEXT boolean query with prefix matching, e.g., "sony tv" -> "+sony* +tv*"
+    const buildBoolean = (str) => {
+      return str
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(t => {
+          // keep very short tokens literal (FULLTEXT may ignore < ft_min_token)
+          if (t.length < 3) return `+${t}`;
+          return `+${t}*`;
+        })
+        .join(' ');
+    };
+
+    const booleanQuery = buildBoolean(q);
+
+    // Decide strategy: FULLTEXT preferred; if the query is mostly tiny tokens, fall back to LIKE
+    const useFulltext = /\w{3,}/.test(q);
+
+    // Columns you actually need (avoid SELECT p.* if table is wide)
+    const productCols = [
+      'p.id','p.name','p.category','p.subcategory','p.brand','p.skuno','p.modelno','p.price','p.description'
+    ].join(',');
+
+    let sql, params;
+
+    if (useFulltext) {
+      // FULLTEXT path with relevance ranking
+      sql = `
+        WITH matched AS (
+          SELECT p.id,
+                 MATCH(p.name, p.modelno, p.skuno, p.description, p.brand, p.category, p.subcategory)
+                 AGAINST (? IN BOOLEAN MODE) AS score
+          FROM product p
+          WHERE MATCH(p.name, p.modelno, p.skuno, p.description, p.brand, p.category, p.subcategory)
+                AGAINST (? IN BOOLEAN MODE)
+        ),
+        img AS (
+          SELECT s.productid, s.url,
+                 ROW_NUMBER() OVER (PARTITION BY s.productid ORDER BY s.id) AS rn
+          FROM screenshots s
+        )
+        SELECT ${productCols},
+               m.score,
+               i.url AS image,
+               c.quantity AS cart_count,
+               u.isproduct AS isproductshow,
+               COUNT(*) OVER() AS total_matches
+        FROM matched m
+        JOIN product p ON p.id = m.id
+        LEFT JOIN img i ON i.productid = p.id AND i.rn = 1
+        LEFT JOIN cart c ON c.productid = p.id AND c.userid = ?
+        LEFT JOIN users u ON u.id = ?
+        ORDER BY m.score DESC, p.id DESC
+        LIMIT ? OFFSET ?;
+      `;
+      params = [booleanQuery, booleanQuery, userId, userId, limit, offset];
+    } else {
+      // LIKE fallback for very short queries (or when FT would ignore tokens)
+      const like = `%${q}%`;
+      sql = `
+        WITH filtered AS (
+          SELECT p.id
+          FROM product p
+          WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
+             OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
+        ),
+        img AS (
+          SELECT s.productid, s.url,
+                 ROW_NUMBER() OVER (PARTITION BY s.productid ORDER BY s.id) AS rn
+          FROM screenshots s
+        )
+        SELECT ${productCols},
+               NULL AS score,
+               i.url AS image,
+               c.quantity AS cart_count,
+               u.isproduct AS isproductshow,
+               COUNT(*) OVER() AS total_matches
+        FROM filtered f
+        JOIN product p ON p.id = f.id
+        LEFT JOIN img i ON i.productid = p.id AND i.rn = 1
+        LEFT JOIN cart c ON c.productid = p.id AND c.userid = ?
+        LEFT JOIN users u ON u.id = ?
+        ORDER BY p.id DESC
+        LIMIT ? OFFSET ?;
+      `;
+      params = [like, like, like, like, like, like, like, userId, userId, limit, offset];
     }
-  
-    const offset = (page - 1) * limit; // Calculate the offset for pagination
-  
-    const query = `
-      SELECT p.*, 
-        (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-        (SELECT c.quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
-        (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
-      FROM product p 
-      WHERE p.name LIKE ? OR p.category LIKE ? OR p.skuno LIKE ? OR p.modelno LIKE ?
-        OR p.subcategory LIKE ? OR p.brand LIKE ? OR p.description LIKE ?
-      LIMIT ? OFFSET ?
-    `;
-  
-    const searchValue = `%${searchTerm}%`;
-    const values = [
-      userId, 
-      userId, 
-      searchValue, 
-      searchValue, 
-      searchValue, 
-      searchValue, 
-      searchValue, 
-      searchValue, 
-      searchValue, 
-      limit, 
-      offset
-    ];
-  
-    pool.query(query, values, (err, results) => {
+
+    pool.query(sql, params, (err, rows) => {
       if (err) {
         console.error('Error executing query:', err);
         return res.status(500).json({ error: 'Database query failed' });
       }
+      const total = rows.length ? rows[0].total_matches : 0;
+      // Strip window-count from each row before returning
+      const clean = rows.map(({ total_matches, ...r }) => r);
       res.json({
-        result: results,
+        result: clean,
         page,
         limit,
-        total: results.length,
-        searchTerm,
+        total,
+        searchTerm: q,
+        usedFulltext: useFulltext
       });
     });
-  });
-  
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Unexpected error' });
+  }
+});
 
 
 
-  router.post('/update-profile',upload.single('image'),(req,res)=>{
-    let body = req.body;
-    body.image = req.file.filename;
+router.post('/update-profile', upload.single('image'), (req, res) => {
+  try {
+    const body = { ...req.body };
+    if (req.file) body.image = req.file.filename;
 
-
-    console.log(body)
-    pool.query(`update users set ? where id = '${req.body.id}'`,body,(err,result)=>{
-        if(err) throw err;
-        else res.json({msg:'success',image:body.image})
-    })
-  })
-
+    pool.query(`UPDATE users SET ? WHERE id = ?`, [body, req.body.id], (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ msg: 'error', error: 'DB_UPDATE_FAILED' });
+      }
+      // Ensure JSON and content-type
+      res.set('Content-Type', 'application/json');
+      return res.json({ msg: 'success', image: body.image || null });
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ msg: 'error', error: 'UNEXPECTED' });
+  }
+});
 
 
   router.get('/master/category/list',(req,res)=>{
@@ -1744,45 +1999,61 @@ router.get('/send-message',async(req,res)=>{
   
 
 
-
 router.post('/user/forgot-password', async (req, res) => {
-    pool.query(`SELECT * FROM users WHERE email = ?`, [req.body.email], async (err, result) => {
-      if (err) throw err;
-      else if (result.length > 0) {
-        let newPassword = verify.generatePassword(12);
-        pool.query(`UPDATE users SET password = ? WHERE email = ?`, [newPassword, req.body.email], async (err, result) => {
-          if (err) throw err;
-          else {
-            const subject = 'Your Temporary Password';
-            const message = `
-              <p>Dear User,</p>
-              
-              <p>We have received your request to reset your password. A temporary password has been generated for you to access your account.</p>
-              
-              <p><strong>Your temporary password is: ${newPassword}</strong></p>
-              
-              <p>Please use this password to log in to your account. Once you have successfully logged in, you will be prompted to update your password to one of your choosing.</p>
-              
-              <p>For security reasons, we recommend that you choose a strong, unique password that you do not use for any other accounts.</p>
-              
-              <p>If you encounter any issues or have any questions, please do not hesitate to contact our support team.</p>
-              
-              <p>Thank you for using our services.</p>
-              
-              <p>Best regards,</p>
-              <p>E-Gagdet Worlds Support Team</p>
-              <p>support@egadgetworld.in</p>
-              <p>https://egadgetworld.in</p>
-  
-            `;
-            await verify.sendUserMail(req.body.email, subject, message);
-            res.json({msg:'send'})
-          }
-        });
-      } else {
-        res.json({msg:'not_exists'})
+  try {
+    const { email } = req.body || {};
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      return res.json({ msg: 'not_exists' }); // keep your current contract
+    }
 
+    // 1) Fetch user (minimal columns)
+    const rows = await pool.promise().query(
+      'SELECT id, name, email FROM users WHERE email = ? LIMIT 1',
+      [email]
+    );
+    if (!rows.length) {
+      return res.json({ msg: 'not_exists' });
+    }
+
+    const user = rows[0];
+
+    // 2) Generate temp password (no hashing per your request)
+    const newPassword = verify.generatePassword(12);
+
+    // 3) Update password + optional flags (force change on next login, optional timestamps)
+    await pool.promise().query(
+      `UPDATE users 
+       SET password = ?
+       WHERE id = ?`,
+      [newPassword, user.id]
+    );
+
+    // 4) Return to client immediately (do not block on email)
+    res.json({ msg: 'send' });
+
+    // 5) Send email in background
+    setImmediate(async () => {
+      try {
+        const subject = 'Your Temporary Password';
+        const message = `
+          <p>Dear ${user.name || 'User'},</p>
+          <p>We have received your request to reset your password. A temporary password has been generated for you to access your account.</p>
+          <p><strong>Your temporary password is: ${newPassword}</strong></p>
+          <p>Please use this password to log in to your account. Once you have successfully logged in, you will be prompted to update your password to one of your choosing.</p>
+          <p>For security reasons, we recommend that you choose a strong, unique password that you do not use for any other accounts.</p>
+          <p>If you encounter any issues or have any questions, please contact our support team.</p>
+          <p>Best regards,<br/>E-Gadget Worlds Support Team<br/>support@egadgetworld.in<br/>https://egadgetworld.in</p>
+        `;
+        await verify.sendUserMail(user.email, subject, message);
+      } catch (mailErr) {
+        console.error('Forgot-password email error:', mailErr);
       }
     });
-  });
+  } catch (err) {
+    console.error('Forgot-password route error:', err);
+    // Keep your response contract; avoid leaking server errors to clients
+    res.json({ msg: 'not_exists' });
+  }
+});
+
 module.exports = router
