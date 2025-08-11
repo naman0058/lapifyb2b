@@ -746,36 +746,36 @@ async function getUserData(customer_id) {
 //   });
 // });
 
-
-
 router.get('/invoice/:orderid', (req, res) => {
-
   pool.query(`
-    SELECT o.*, 
-           u.name as username,
-           u.number as usernumber,
-           u.firm_name as firmname,
-           u.gst as gstnumber,
-           p.name as productname,
-           p.price as unitprice,
-           p.category as product_category,
-           p.margin_price as product_margin_price,
-           p.skuno as skuno,
-           b.quantity as quantity,
-           b.amount as total_amount
-    FROM orders o 
-    LEFT JOIN users u ON u.id = o.userid
+    SELECT o.*,
+           u.name AS username,
+           u.number AS usernumber,
+           u.firm_name AS firmname,
+           u.gst AS gstnumber,
+           p.name AS productname,
+           p.price AS unitprice,                  -- selling price per unit (tax-inclusive)
+           p.category AS product_category,
+           p.margin_price AS product_margin_price, -- per-unit margin amount (tax-inclusive)
+           p.skuno AS skuno,
+           b.quantity AS quantity,
+           b.amount AS total_amount,
+           CASE 
+               WHEN p.margin_price = 0 THEN 'gsttax'
+               ELSE 'margintax'
+           END AS tax_type
+    FROM orders o
+    LEFT JOIN users u   ON u.id = o.userid
     LEFT JOIN booking b ON b.orderid = o.orderid
     LEFT JOIN product p ON p.id = b.productid
-    WHERE o.orderid = ?`, [req.params.orderid], (err, result) => {
-    if (err) throw err;
-    else res.render(`invoice`, {result})
-    // else res.json(result)
-  });
+    WHERE o.orderid = ?`,
+    [req.params.orderid],
+    (err, result) => {
+      if (err) throw err;
+      else res.render('invoice', { result });
+    }
+  );
 });
-
-
-
 
 
 

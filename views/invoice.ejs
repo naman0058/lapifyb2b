@@ -298,75 +298,96 @@
           </tr>
         </thead>
         <tbody>
-          <% 
-            let grand_total = 0;
-            let amount = 0;
-            let gstPercentage;
-            let priceWithoutGst;
-            let net_amount;
-            let payable_amount;
-            let gstAmount;
-            let cgstAmount;
-            let sgstAmount;
-            let liquidation_value;
-          %>
+  <%
+    const GST_PERC = 18;
+    const sellerGSTIN = '07BCDPM7179L1Z0';                 // from header badge
+    const sellerState = sellerGSTIN ? sellerGSTIN.slice(0,2) : '07';
+    const buyerGSTIN  = (result[0].gstnumber || '').trim();
+    const buyerState  = buyerGSTIN ? buyerGSTIN.slice(0,2) : null;
+    const intraState  = buyerState && buyerState === sellerState;
 
-          <% for (let i = 0; i < result.length; i++) { %>
-            <% 
-              if(result[i].product_margin_price > 0){
-                amount = parseFloat(result[i].amount);
-                liquidation_value = parseFloat(result[i].product_margin_price);
-                gstPercentage = 18;
-                
-                payable_amount = amount * result[i].quantity
-                gstAmount = (liquidation_value * gstPercentage) / (100);
-                priceWithoutGst = amount - liquidation_value - gstAmount;
-                net_amount = priceWithoutGst * result[i].quantity
-                cgstAmount = gstAmount / 2;
-                sgstAmount = gstAmount / 2;
-                grand_total += payable_amount;
-              } else {
-                amount = parseFloat(result[i].unitprice);
-                liquidation_value = 0;
-                gstPercentage = 18;
-                priceWithoutGst = amount / (1 + (gstPercentage / 100));
-                net_amount = priceWithoutGst * result[i].quantity;
-                payable_amount = amount * result[i].quantity;
-                gstAmount = (payable_amount * gstPercentage) / (100 + gstPercentage);
-                cgstAmount = gstAmount / 2;
-                sgstAmount = gstAmount / 2;
-                grand_total += payable_amount;
-              }
+    let grand_total = 0;
+  %>
 
-              let address = result[0].address || '';
-              let containsNewDelhi = address.toLowerCase().includes('new delhi');
-            %>
+  <% for (let i = 0; i < result.length; i++) { 
+       const qty = Number(result[i].quantity || 0);
+       const unitPriceInc = Number(result[i].unitprice || 0);           // tax-inclusive per unit selling price
+       const marginPerUnitInc = Number(result[i].product_margin_price || 0); // tax-inclusive per unit margin (only for margintax)
+       const taxType = (result[i].tax_type || '').toLowerCase();        // 'gsttax' | 'margintax'
 
-            <tr>
-              <td class="center"><%= i+1 %></td>
-              <td><%= result[i].productname %></td>
-              <td class="mono"><%= result[i].skuno %></td>
-              <td class="center"><%= result[i].quantity %></td>
-              <td class="num"><%= priceWithoutGst.toFixed(2) %></td>
-              <td class="num"><%= net_amount.toFixed(2) %></td>
-              <td class="num"><%= liquidation_value.toFixed(2) %></td>
-              <td class="num"><%= gstAmount.toFixed(2) %></td>
-              <td class="center">18%</td>
+       // Totals for the line (quantity applied)
+       let base_total = 0;      // taxable base (exclusive) for the line
+       let gst_total = 0;       // total GST for the line
+       let cgst_total = 0;
+       let sgst_total = 0;
+       let igst_total = 0;
 
-              <% if (containsNewDelhi) { %>
-                <td class="num"><%= cgstAmount.toFixed(2) %></td>
-                <td class="num"><%= sgstAmount.toFixed(2) %></td>
-                <td class="num">0.00</td>
-              <% } else { %>
-                <td class="num">0.00</td>
-                <td class="num">0.00</td>
-                <td class="num"><%= gstAmount.toFixed(2) %></td>
-              <% } %>
+       const total_inc = unitPriceInc * qty;  // line total inclusive (always)
 
-              <td class="num"><%= result[i].total_amount %></td>
-            </tr>
-          <% } %>
-        </tbody>
+       if (taxType === 'margintax') {
+         // GST applies ONLY on the margin amount, which is already inclusive
+         const margin_total_inc = marginPerUnitInc * qty;
+         const margin_base_total = margin_total_inc / (1 + GST_PERC/100);
+         gst_total = margin_total_inc - margin_base_total;
+
+         // Base (exclusive) we show is the line total excl. GST portion on margin
+         base_total = total_inc - gst_total;
+
+       } else {
+         // Default: gsttax (18% on full price, which is inclusive)
+         base_total = total_inc / (1 + GST_PERC/100);
+         gst_total  = total_inc - base_total;
+       }
+
+       if (intraState) {
+         cgst_total = gst_total / 2;
+         sgst_total = gst_total / 2;
+         igst_total = 0;
+       } else {
+         cgst_total = 0;
+         sgst_total = 0;
+         igst_total = gst_total;
+       }
+
+       // For the table columns that look per-unit in your design:
+       // - "MRP": show exclusive per-unit (best reference for price before tax seen by buyer)
+       // - "Unit Price": show exclusive line amount (exclusive × qty) for clarity
+       // - "Liquidation Value": show margin TOTAL (incl.) if margin scheme; otherwise 0
+       const perUnit_excl = base_total / Math.max(qty,1); // avoid /0
+       const liquidation_total_inc = (taxType === 'margintax') ? (marginPerUnitInc * qty) : 0;
+
+       grand_total += total_inc;
+  %>
+    <tr>
+      <td class="center"><%= i+1 %></td>
+      <td><%= result[i].productname %></td>
+      <td class="mono"><%= result[i].skuno %></td>
+      <td class="center"><%= qty %></td>
+
+      <!-- MRP (exclusive, per unit) -->
+      <td class="num"><%= perUnit_excl.toFixed(2) %></td>
+
+      <!-- Unit Price (exclusive × qty) -->
+      <td class="num"><%= base_total.toFixed(2) %></td>
+
+      <!-- Liquidation Value (margin, inclusive, line total) -->
+      <td class="num"><%= liquidation_total_inc.toFixed(2) %></td>
+
+      <!-- Tax Amount (line total GST) -->
+      <td class="num"><%= gst_total.toFixed(2) %></td>
+
+      <td class="center">18%</td>
+
+      <td class="num"><%= cgst_total.toFixed(2) %></td>
+      <td class="num"><%= sgst_total.toFixed(2) %></td>
+      <td class="num"><%= igst_total.toFixed(2) %></td>
+
+      <!-- Total Value (inclusive, line total) -->
+      <td class="num"><%= total_inc.toFixed(2) %></td>
+    </tr>
+  <% } %>
+</tbody>
+
 </table>
   </div>
 </div>
