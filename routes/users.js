@@ -159,7 +159,7 @@ router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{
   try {
     let body = req.body
     body.updated_at = verify.getCurrentDate();
-    console.log(req.body)
+    console.log('body',req.body)
 
   let orderDetails = await verify.getOrderDetails(req.body.orderid);
   let userDetails = await verify.profile(orderDetails[0].userid)
@@ -177,12 +177,14 @@ setImmediate(async () => {
   // const userMessage = emailTemplates.orderShippingNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.delivery_link );
   // await verify.sendUserMail(userDetails[0].email,emailTemplates.orderShippingNotification.userSubject,userMessage)
 
-   await verify.sendSms({
-      mobile: userDetails[0].number,
-      message: `Your order from E-GADGET WORLD is dispatched through {#var#} AWP NO {#var#} will be delivered by {#var#}.Track us on ${req.body.delivery_link} E-GADGET WORLD`,
+  let smsresult = await verify.sendSms({
+      mobile:userDetails[0].number,
+      message: `Your order from E-GADGET WORLD is dispatched through DTDC AWP NO 1234 will be delivered by 25th.Track us on ${req.body.delivery_link} E-GADGET WORLD`,
       templateId: '1707175886634728109',  // DLT template ID
       
     });
+
+    console.log('smsresult',smsresult)
         
             } catch (backgroundErr) {
                 console.error('Background task error (email/WhatsApp):', backgroundErr);

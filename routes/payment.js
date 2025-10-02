@@ -568,8 +568,8 @@ router.get('/razorpay-success', async (req, res) => {
         );
 
    await verify.sendSms({
-    mobile: body.number,
-    message: `Dear ${body.name} Your order is - order no ${orderid} placed on ${created_at} is confirmed. You will receive shipping confirmation soon. For assistance, give us a call at 9971980853 Or drop a line at 9971980853 Thanks, E-GADGET WORLD`,
+    mobile: user[0].number,
+    message: `Dear ${user[0].name} Your order is - order no ${intent.receipt} placed on ${now} is confirmed. You will receive shipping confirmation soon. For assistance, give us a call at 9971980853 Or drop a line at 9971980853 Thanks, E-GADGET WORLD`,
     templateId: '1707175888256769085',  // DLT template ID
     
   });
