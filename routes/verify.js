@@ -13,6 +13,8 @@ const queryAsync = util.promisify(pool.query).bind(pool);
 
 
 
+
+
 // function userAuthenticationToken(req,res,next){
 //     // const token = req.headers['authrorization'];
 //     const token = undefined
@@ -692,7 +694,74 @@ function generatePassword(length) {
   }
   return password;
 };
-  
+
+
+
+const SMS_BASE_URL = process.env.SMS_BASE_URL || 'http://123.108.46.13/sms-panel/api/http/index.php';
+const SMS_USERNAME = 'EGADGET'; // e.g. EGADGET
+const SMS_API_KEY  = 'F92A9-89F1F';  // e.g. F92A9-89F1F
+const SMS_DEFAULT_SENDER = 'GADGTW';
+const SMS_DEFAULT_ROUTE  = 'TRANS';
+
+/**
+ * Send an SMS via the HTTP API.
+ *
+ * @param {Object} opts
+ * @param {string|string[]} opts.mobile - Single number or comma-separated / array of numbers.
+ * @param {string} opts.message - The SMS message text.
+ * @param {string} opts.templateId - DLT Template ID (e.g. "DLT-Template-ID").
+ * @param {string} [opts.sender] - Sender ID (defaults to env SMS_DEFAULT_SENDER).
+ * @param {string} [opts.route] - Route name (defaults to env SMS_DEFAULT_ROUTE).
+ * @param {Object} [opts.extraParams] - Any extra query params supported by the provider.
+ *
+ * @returns {Promise<Object>} Provider JSON response.
+ */
+async function sendSms({
+  mobile,
+  message,
+  templateId,
+  sender = SMS_DEFAULT_SENDER,
+  route = SMS_DEFAULT_ROUTE,
+  extraParams = {}
+}) {
+  if (!SMS_USERNAME || !SMS_API_KEY) {
+    throw new Error('SMS_USERNAME and SMS_API_KEY must be set in environment variables.');
+  }
+  if (!mobile) throw new Error('`mobile` is required.');
+  if (!message) throw new Error('`message` is required.');
+  if (!templateId) throw new Error('`templateId` is required.');
+
+  // Accept array or string for mobile
+  const mobileStr = Array.isArray(mobile) ? mobile.join(',') : String(mobile).trim();
+
+  const params = {
+    username: SMS_USERNAME,
+    apikey: SMS_API_KEY,
+    apirequest: 'Text',
+    sender,
+    mobile: mobileStr,
+    message,                 // axios will URL-encode
+    route,
+    TemplateID: templateId,  // exact key per provider spec
+    format: 'JSON',
+    ...extraParams
+  };
+
+  try {
+    const res = await axios.get(SMS_BASE_URL, {
+      params,
+      timeout: 15000, // 15s
+      // If the host uses self-signed certs and you must allow it (not recommended):
+      // httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false })
+    });
+    return res.data;
+  } catch (err) {
+    const status = err.response?.status;
+    const data = err.response?.data;
+    console.error('❌ SMS send failed', { status, data, message: err.message });
+    throw err;
+  }
+}
 
   module.exports = {
     adminAuthenticationToken,
@@ -714,7 +783,8 @@ function generatePassword(length) {
     getOrderDetails,
     sendWhatsAppMessage,
     fetch_name,
-    generatePassword
+    generatePassword,
+    sendSms
   }
 
 

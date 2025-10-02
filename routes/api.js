@@ -74,15 +74,22 @@ router.post('/auth/request-otp', async (req, res) => {
 );
 
     // WhatsApp — body only, locale en_US
-    await verify.sendWhatsAppMessage(
-      '+91' + number10,
-      'user_login_otp',  // template has {{1}} only
-      'en',
-      [String(code)],
-      [String(code)]
+    // await verify.sendWhatsAppMessage(
+    //   '+91' + number10,
+    //   'user_login_otp',  // template has {{1}} only
+    //   'en',
+    //   [String(code)],
+    //   [String(code)]
 
-      // no button parameters unless your template defines a button param
-    );
+    //   // no button parameters unless your template defines a button param
+    // );
+
+    await verify.sendSms({
+    mobile: number10,
+    message: `Your login verification code is ${String(code)} E-GADGET WORLD`,
+    templateId: '1707175897449420792',  // DLT template ID
+    
+  });
 
     return res.json({ msg: 'sent', otp_id: result.insertId });
    
@@ -1665,13 +1672,20 @@ router.post('/submit-order', async (req, res) => {
         await queryAsync(`INSERT INTO orders SET ?`, orderData);
         await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [userid]);
 
-         await verify.sendWhatsAppMessage(
-                    '+91' + body.number,
-                    'order_processing',
-                    'en_US',
-                    [body.name,orderid],
+        //  await verify.sendWhatsAppMessage(
+        //             '+91' + body.number,
+        //             'order_processing',
+        //             'en_US',
+        //             [body.name,orderid],
                     
-                );
+        //         );
+
+                await verify.sendSms({
+    mobile: body.number,
+    message: `Dear ${body.name} Your order is - order no ${orderid} placed on ${created_at} is confirmed. You will receive shipping confirmation soon. For assistance, give us a call at 9971980853 Or drop a line at 9971980853 Thanks, E-GADGET WORLD`,
+    templateId: '1707175888256769085',  // DLT template ID
+    
+  });
 
         res.json({ msg: 'success' });
     } catch (err) {
@@ -2136,15 +2150,6 @@ router.post('/remove-cart',(req,res)=>{
 
 
 
-router.get('/send-message',async(req,res)=>{
-    await verify.sendWhatsAppMessage(
-        +917503747377 ,
-        'hello_world', // Template name
-        'en_US', // Language code
-         // Body parameters
-    );
-    res.json({msg:'success'})
-})
 
   
 

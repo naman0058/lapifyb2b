@@ -169,14 +169,56 @@ router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{
 
 
   if(req.body.status == 'ongoing'){
-  const userMessage = emailTemplates.orderShippingNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.delivery_link );
-  await verify.sendUserMail(userDetails[0].email,emailTemplates.orderShippingNotification.userSubject,userMessage)
-  }
+
+
+setImmediate(async () => {
+            try {
+                
+  // const userMessage = emailTemplates.orderShippingNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.delivery_link );
+  // await verify.sendUserMail(userDetails[0].email,emailTemplates.orderShippingNotification.userSubject,userMessage)
+
+   await verify.sendSms({
+      mobile: userDetails[0].number,
+      message: `Your order from E-GADGET WORLD is dispatched through {#var#} AWP NO {#var#} will be delivered by {#var#}.Track us on ${req.body.delivery_link} E-GADGET WORLD`,
+      templateId: '1707175886634728109',  // DLT template ID
+      
+    });
+        
+            } catch (backgroundErr) {
+                console.error('Background task error (email/WhatsApp):', backgroundErr);
+                // You can also log this to a file or external logger
+            }
+        });
+
+
+
+
+}
 
   else {
-    const userMessage = emailTemplates.orderCompletionNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.updated_at);
-    await verify.sendUserMail(userDetails[0].email,emailTemplates.orderCompletionNotification.userSubject,userMessage)
+
+
+setImmediate(async () => {
+            try {
+                
+  // const userMessage = emailTemplates.orderCompletionNotification.userMessage(orderDetails[0].username, req.body.orderid, req.body.updated_at);
+  //   await verify.sendUserMail(userDetails[0].email,emailTemplates.orderCompletionNotification.userSubject,userMessage)
+         
+
+ await verify.sendSms({
+    mobile: userDetails[0].number,
+    message: `Hi We Have delivered your order is - order no ${req.body.orderid} from E-GADGET WORLD`,
+    templateId: '1707175887175705426',  // DLT template ID
     
+  });
+
+            } catch (backgroundErr) {
+                console.error('Background task error (email/WhatsApp):', backgroundErr);
+                // You can also log this to a file or external logger
+            }
+        });
+
+
   }
 
 
