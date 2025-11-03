@@ -225,38 +225,67 @@ loaderOverlay.style.display = "flex";
     })
 
   } else {
+    loaderOverlay.style.display = "none";
     text = "You canceled!";
   }
   document.getElementById("demo").innerHTML = text;
 }
 
 
+
 function ongoing() {
-
-    
- 
-  let orderid = $('#orderid').val()
+  let orderid = $('#orderid').val();
   let text;
-  let person = prompt("Please enter tracking ling:", "");
-  if (person == null || person == "") {
+
+  // Prompt for delivery link
+  let delivery_link = prompt("Please enter tracking link:", "");
+  if (delivery_link == null || delivery_link.trim() === "") {
     text = "User cancelled the prompt.";
-  } else {
-    const loaderOverlay = document.getElementById("loader-overlay");
-
-const loader = document.getElementById("loader");
-
-loaderOverlay.style.display = "flex"; // Show overlay
-
-    $.post('/admin/dashboard/users/update/orders',{orderid,delivery_link:person,status:'ongoing'},data=>{
-        if(data.msg=='success'){
-            loaderOverlay.style.display = "none"; // Hide overlay after response
-            window.location.reload()
-        }
-        else{
-            alert('An Error Occured Please Try Again Later.')
-        }
-    })
+    document.getElementById("demo").innerHTML = text;
+    return;
   }
-  document.getElementById("demo").innerHTML = text;
+
+  // Prompt for delivery partner name
+  let delivery_partner = prompt("Please enter delivery partner name:", "");
+  if (delivery_partner == null || delivery_partner.trim() === "") {
+    text = "User cancelled the prompt.";
+    document.getElementById("demo").innerHTML = text;
+    return;
+  }
+
+  // Prompt for AWB number
+  let awb_no = prompt("Please enter AWB number:", "");
+  if (awb_no == null || awb_no.trim() === "") {
+    text = "User cancelled the prompt.";
+    document.getElementById("demo").innerHTML = text;
+    return;
+  }
+
+  const loaderOverlay = document.getElementById("loader-overlay");
+  const loader = document.getElementById("loader");
+
+  loaderOverlay.style.display = "flex"; // Show overlay
+
+  // Send all details to backend
+  $.post(
+    '/admin/dashboard/users/update/orders',
+    {
+      orderid,
+      delivery_link,
+      delivery_partner,
+      awp_no: awb_no,   // Pass AWB number as `awp_no`
+      status: 'ongoing'
+    },
+    data => {
+      loaderOverlay.style.display = "none"; // Hide overlay after response
+      if (data.msg === 'success') {
+        window.location.reload();
+      } else {
+        alert('An Error Occured. Please Try Again Later.');
+      }
+    }
+  );
+
+  document.getElementById("demo").innerHTML = "Updating order details...";
 }
-    </script>
+</script>

@@ -153,8 +153,8 @@ router.post('/user/login', async (req, res) => {
 
     try {
         // Use parameterized queries to prevent SQL injection
-        const query = 'SELECT * FROM users WHERE number = ? AND password = ?';
-        const result = await queryAsync(query, [number, password]);
+        const query = 'SELECT * FROM users WHERE number = ? ';
+        const result = await queryAsync(query, [number]);
 
         if (result.length > 0) {
             pool.query(`update users set token = '${req.body.token}' where unique_id = '${result[0].unique_id}'`,(err,data)=>{

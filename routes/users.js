@@ -161,6 +161,19 @@ router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{
     body.updated_at = verify.getCurrentDate();
     console.log('body',req.body)
 
+
+    const today = new Date(verify.getCurrentDate());
+
+// Add 7 days
+today.setDate(today.getDate() + 7);
+
+// Format back to YYYY-MM-DD
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+
+delivery_at = `${yyyy}-${mm}-${dd}`;
+
   let orderDetails = await verify.getOrderDetails(req.body.orderid);
   let userDetails = await verify.profile(orderDetails[0].userid)
   
@@ -179,7 +192,7 @@ setImmediate(async () => {
 
   let smsresult = await verify.sendSms({
       mobile:userDetails[0].number,
-      message: `Your order from E-GADGET WORLD is dispatched through DTDC AWP NO 1234 will be delivered by 25th.Track us on ${req.body.delivery_link} E-GADGET WORLD`,
+      message: `Your order from E-GADGET WORLD is dispatched through ${req.body.delivery_partner} AWP NO ${req.body.awp_no} will be delivered by ${delivery_at}.Track us on ${req.body.delivery_link} E-GADGET WORLD`,
       templateId: '1707175886634728109',  // DLT template ID
       
     });
