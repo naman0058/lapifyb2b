@@ -27,8 +27,8 @@ const emailTemplates = require('./emailTemplates');
 
 const Razorpay = require("razorpay");
 var instance = new Razorpay({
-    key_id: 'rzp_test_htmhBsjoS9btm0',
-    key_secret: 'uYtSO5ly2TfqM8Cxx0lCgY9t',
+    key_id: 'rzp_live_RbMjz9ROv54Xno',
+    key_secret: 'umx93OoXZj8KgtzOfTZLus99',
   });
 
 
@@ -135,7 +135,7 @@ var instance = new Razorpay({
   
 //     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
 //       const data = req.query.orderid + '|' + body.razorpay_payment_id;
-//       let generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
+//       let generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
   
 //       console.log('razorpayresponse',body)
 //       console.log('generated_signature',generated_signature)
@@ -271,7 +271,7 @@ router.get('/razorpay-success', async (req, res) => {
 
   // Verify signature
   const data = req.query.orderid + '|' + body.razorpay_payment_id;
-  const generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
+  const generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
 
   console.log('razorpayresponse', body);
   console.log('generated_signature', generated_signature);
@@ -434,7 +434,7 @@ console.log('user detailes',user)
 //   console.log(req.query);
 //     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
 //       const data = req.query.orderid + '|' + body.razorpay_payment_id;
-//       let generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
+//       let generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
   
 //       console.log('razorpayresponse',body)
 //       console.log('generated_signature',generated_signature)
@@ -525,7 +525,7 @@ router.get('/wallet-razorpay-success', async (req, res) => {
     }
 
     const data = req.query.orderid + '|' + body.razorpay_payment_id;
-    let generated_signature = hmac_sha256(data, 'uYtSO5ly2TfqM8Cxx0lCgY9t');
+    let generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
 
     console.log('razorpayresponse', body);
     console.log('generated_signature', generated_signature);
