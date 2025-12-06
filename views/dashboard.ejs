@@ -1,293 +1,655 @@
-<%- include ('./header.ejs') %>
-		
-		<!--**********************************
-            Content body start
-        ***********************************-->
-        <div class="content-body" style="background-color: #f5f5f5;">
-            <!-- row -->	
-			
-			<div class="container-fluid">
-				<div class="row">
-					<div class="col-xl-12 wid-100">
-
-						<h3 class="text-black">Order Overview</h3>
-
-						<div class="row">
-							<div class="col-xl-3 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Pending Order</h6>
-												
-												<h3><%=result[0][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
+<%- include('./header.ejs') %>
 
 
-							<div class="col-xl-3 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Ongoing Order</h6>
-												
-												<h3><%=result[1][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
+<style>
+.shake-bell {
+    animation: bell-shake 0.7s ease-in-out;
+}
 
+@keyframes bell-shake {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(-15deg); }
+    40% { transform: rotate(15deg); }
+    60% { transform: rotate(-10deg); }
+    80% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
+}
+</style>
 
-							<div class="col-xl-3 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Weekly Order</h6>
-												
-												<h3><%=result[2][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
+<!--**********************************
+    Content body start
+***********************************-->
+<div class="content-body" style="background-color: #f5f5f5;">
+    <div class="container-fluid">
 
+        <!-- Top Bar: Title + Notification -->
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6">
+                <h2 class="text-black mb-0">Admin Dashboard</h2>
+                <p class="text-muted mb-0">
+                    Real-time overview of orders, products, payments, and users.
+                </p>
+            </div>
+            <div class="col-md-6 text-md-right text-left mt-3 mt-md-0">
+                <button id="refreshDashboardBtn" class="btn btn-primary btn-sm mr-2">
+                    <i class="fa fa-sync"></i> Refresh
+                </button>
 
-							<div class="col-xl-3 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Monthly Order</h6>
-												
-												<h3><%=result[3][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-
-
-
-                           
-						
-						
-						</div>
-
-
-							<h3 class="text-black">Product Overview</h3>
-
-
-
-						<div class="row">
-							<div class="col-xl-4 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Laptop</h6>
-												
-												<h3><%=result[8][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-							<div class="col-xl-4 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Mobile</h6>
-												
-												<h3><%=result[9][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-							<div class="col-xl-4 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Apple</h6>
-												<h3><%=result[10][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-
-
-								<div class="col-xl-4 col-sm-6">
-									<div class="card chart-grd same-card" style="padding: 8px;">
-										<div class="card-body depostit-card p-0">
-											<div class="depostit-card-media d-flex justify-content-between pb-0">
-												<div>
-													<h6>Accessories</h6>
-													
-													<h3><%=result[11][0].counter%></h3>
-												</div>
-												
-											</div>
-										</div>
-									</div>
-								</div>
-	
-	
-								<div class="col-xl-4 col-sm-6">
-									<div class="card chart-grd same-card" style="padding: 8px;">
-										<div class="card-body depostit-card p-0">
-											<div class="depostit-card-media d-flex justify-content-between pb-0">
-												<div>
-													<h6>New Parts</h6>
-													
-													<h3><%=result[12][0].counter%></h3>
-												</div>
-												
-											</div>
-										</div>
-									</div>
-								</div>
-	
-	
-								<div class="col-xl-4 col-sm-6">
-									<div class="card chart-grd same-card" style="padding: 8px;">
-										<div class="card-body depostit-card p-0">
-											<div class="depostit-card-media d-flex justify-content-between pb-0">
-												<div>
-													<h6>Refurbished Parts</h6>
-													<h3><%=result[13][0].counter%></h3>
-												</div>
-												
-											</div>
-										</div>
-									</div>
-								</div>
-	
-
-						
-						</div>
-
-
-						<h3 class="text-black">Payment Overview</h3>
-
-						<div class="row">
-							<div class="col-xl-6 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Weekly Payment</h6>
-												
-												<h3><%=result[4][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-							<div class="col-xl-6 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Monthly Payment</h6>
-												
-												<h3><%=result[5][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-						
-						</div>
-
-
-						<h3 class="text-black">User Overview</h3>
-
-
-						<div class="row">
-							<div class="col-xl-6 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Verified User</h6>
-												
-												<h3><%=result[6][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-
-							<div class="col-xl-6 col-sm-6">
-								<div class="card chart-grd same-card" style="padding: 8px;">
-									<div class="card-body depostit-card p-0">
-										<div class="depostit-card-media d-flex justify-content-between pb-0">
-											<div>
-												<h6>Unverified User</h6>
-												
-												<h3><%=result[7][0].counter%></h3>
-											</div>
-											
-										</div>
-									</div>
-								</div>
-							</div>
-
-						
-						</div>
-						
-
-					
-
-					
-			
-					
-					
-					
-				
-				
-				</div>
-			
-			</div>
+                <!-- Notification Bell -->
+                <button id="newOrderBell"
+                        class="btn btn-light position-relative"
+                        type="button"
+                        title="New Order Notifications">
+                    <i class="fa fa-bell"></i>
+                    <span id="newOrderBadge"
+                          class="badge badge-danger position-absolute"
+                          style="top: -5px; right: -5px; display:none;">
+                        0
+                    </span>
+                </button>
+            </div>
         </div>
-		
-        <!--**********************************
-            Content body end
-        ***********************************-->
-		
+
+        <!-- =======================
+             ORDER OVERVIEW
+        ======================== -->
+        <h4 class="text-black mb-3">Order Overview</h4>
+        <div class="row">
+
+            <!-- Total Orders -->
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Orders</h6>
+                            <h3 class="mb-0">
+                                <%= stats.totalOrders %>
+                            </h3>
+                        </div>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:#e3f2fd;">
+                            <i class="fa fa-shopping-cart text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Orders -->
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px; background:#fff3cd;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Pending Orders</h6>
+                            <h3 class="mb-0 text-dark">
+                                <%= stats.pendingOrder %>
+                            </h3>
+                        </div>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:#ffeeba;">
+                            <i class="fa fa-hourglass-half text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ongoing Orders -->
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px; background:#e8f5e9;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Ongoing Orders</h6>
+                            <h3 class="mb-0 text-dark">
+                                <%= stats.ongoingOrder %>
+                            </h3>
+                        </div>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:#c8e6c9;">
+                            <i class="fa fa-truck text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Orders (Optional, derived) -->
+            <div class="col-xl-3 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px; background:#e1f5fe;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Completed Orders</h6>
+                            <h3 class="mb-0 text-dark">
+                                <%= stats.completedOrder %>
+                            </h3>
+                        </div>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:#b3e5fc;">
+                            <i class="fa fa-check-circle text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Weekly / Monthly Orders -->
+      <!-- Today / Yesterday / Weekly / Monthly Orders -->
+<div class="row">
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Today Orders</h6>
+                    <h3 class="mb-0">
+                        <%= stats.todayOrder %>
+                    </h3>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:48px;height:48px;background:#e8f5e9;">
+                    <i class="fa fa-sun text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Yesterday Orders</h6>
+                    <h3 class="mb-0">
+                        <%= stats.yesterdayOrder %>
+                    </h3>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-between"
+                     style="width:48px;height:48px;background:#fff3e0;">
+                    <i class="fa fa-moon text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Weekly Orders</h6>
+                    <h3 class="mb-0">
+                        <%= stats.weeklyOrder %>
+                    </h3>
+                    <small class="text-muted">
+                        <%= currentWeek.startDate %> to <%= currentWeek.endDate %>
+                    </small>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:48px;height:48px;background:#ede7f6;">
+                    <i class="fa fa-calendar-week text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Monthly Orders</h6>
+                    <h3 class="mb-0">
+                        <%= stats.monthlyOrder %>
+                    </h3>
+                    <small class="text-muted">
+                        <%= currentMonth.startDate %> to <%= currentMonth.endDate %>
+                    </small>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:48px;height:48px;background:#fff3e0;">
+                    <i class="fa fa-calendar-alt text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- =======================
+             PRODUCT OVERVIEW
+        ======================== -->
+        <h4 class="text-black mb-3">Product Overview</h4>
+        <div class="row">
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card chart-grd same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Laptop</h6>
+                            <h3 class="mb-0"><%= stats.laptop %></h3>
+                            <small class="text-muted">Total active laptop products</small>
+                        </div>
+                        <span class="badge badge-primary align-self-start">Electronics</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card chart-grd same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Mobile</h6>
+                            <h3 class="mb-0"><%= stats.mobile %></h3>
+                            <small class="text-muted">Smartphones listed</small>
+                        </div>
+                        <span class="badge badge-success align-self-start">Hot</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card chart-grd same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Apple</h6>
+                            <h3 class="mb-0"><%= stats.apple %></h3>
+                            <small class="text-muted">Apple devices</small>
+                        </div>
+                        <span class="badge badge-dark align-self-start">Premium</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card chart-grd same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Accessories</h6>
+                            <h3 class="mb-0"><%= stats.accessories %></h3>
+                            <small class="text-muted">Accessories inventory</small>
+                        </div>
+                        <span class="badge badge-info align-self-start">Add-ons</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card chart-grd same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">New Parts</h6>
+                            <h3 class="mb-0"><%= stats.new_parts %></h3>
+                            <small class="text-muted">Brand new spare parts</small>
+                        </div>
+                        <span class="badge badge-success align-self-start">New</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card chart-grd same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Refurbished Parts</h6>
+                            <h3 class="mb-0"><%= stats.refurbished_parts %></h3>
+                            <small class="text-muted">Refurb inventory</small>
+                        </div>
+                        <span class="badge badge-warning align-self-start">Refurb</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =======================
+             PAYMENT OVERVIEW
+        ======================== -->
+        <h4 class="text-black mb-3">Payment Overview</h4>
+        <div class="row">
+
+            <div class="col-xl-6 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Weekly Payment Count</h6>
+                            <h3 class="mb-0">
+                                <%= stats.weeklyPayment %>
+                            </h3>
+                            <small class="text-muted">
+                                Successful payments this week
+                            </small>
+                        </div>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:#e8f5e9;">
+                            <i class="fa fa-rupee-sign text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Monthly Payment Count</h6>
+                            <h3 class="mb-0">
+                                <%= stats.monthlyPayment %>
+                            </h3>
+                            <small class="text-muted">
+                                Successful payments this month
+                            </small>
+                        </div>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;background:#fce4ec;">
+                            <i class="fa fa-wallet text-danger"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =======================
+             USER OVERVIEW
+        ======================== -->
+        <h4 class="text-black mb-3">User Overview</h4>
+        <div class="row">
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Verified Users</h6>
+                            <h3 class="mb-0">
+                                <%= stats.verifiedUser %>
+                            </h3>
+                            <small class="text-muted">KYC / verified customers</small>
+                        </div>
+                        <span class="badge badge-success align-self-start">Verified</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-6 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Unverified Users</h6>
+                            <h3 class="mb-0">
+                                <%= stats.unverifiedUser %>
+                            </h3>
+                            <small class="text-muted">Need verification</small>
+                        </div>
+                        <span class="badge badge-warning align-self-start">Pending</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-sm-12 mb-3">
+                <div class="card same-card shadow-sm border-0" style="border-radius: 12px;">
+                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Verification Rate</h6>
+                            <h3 class="mb-0">
+                                <%= stats.verificationRate %>%
+                            </h3>
+                            <small class="text-muted">
+                                Verified / Total users
+                            </small>
+                        </div>
+                        <span class="badge badge-info align-self-start">Insights</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- =======================
+             RECENT ORDERS + NEW ORDER HIGHLIGHT
+        ======================== -->
+        <div class="row mt-4">
+            <div class="col-xl-12">
+                <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Recent Orders</h5>
+    <div class="d-flex align-items-center">
+        <small class="text-muted mr-3">
+            Last <%= recentOrders.length %> orders
+        </small>
+        <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-secondary active" data-filter="all">All</button>
+            <button type="button" class="btn btn-outline-secondary" data-filter="today">Today</button>
+            <button type="button" class="btn btn-outline-secondary" data-filter="yesterday">Yesterday</button>
+        </div>
+    </div>
+</div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Created At</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrdersTableBody">
+                                <% if (recentOrders && recentOrders.length) { %>
+                                    <% recentOrders.forEach(function(order, index) { %>
+                                   <tr data-order-id="<%= order.id %>" data-created-date="<%= order.created_date %>">
+                                            <td><%= index + 1 %></td>
+                                            <td><%= order.order_number || order.id %></td>
+                                            <td><%= order.customer_name || 'N/A' %></td>
+                                            <td>₹ <%= order.total_amount || 0 %></td>
+                                            <td>
+                                                <% if (order.status === 'pending') { %>
+                                                    <span class="badge badge-warning">Pending</span>
+                                                <% } else if (order.status === 'ongoing') { %>
+                                                    <span class="badge badge-info">Ongoing</span>
+                                                <% } else if (order.status === 'completed') { %>
+                                                    <span class="badge badge-success">Completed</span>
+                                                <% } else { %>
+                                                    <span class="badge badge-secondary"><%= order.status %></span>
+                                                <% } %>
+                                            </td>
+                                            <td><%= order.created_atFormatted %></td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-3">
+                                            No recent orders found.
+                                        </td>
+                                    </tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simple toast for new orders -->
+        <div id="newOrderToast"
+             class="alert alert-success shadow-lg"
+             style="position: fixed; bottom: 20px; right: 20px; display:none; z-index:9999;">
+            <strong>New Order!</strong> A new order has been received. <a href="#recentOrdersTableBody">View</a>
+        </div>
+
+    </div>
+
+<audio id="newOrderAudio" preload="auto">
+    <source src="/images/new-order.mp3" type="audio/mpeg">
+    <!-- Fallback -->
+    Your browser does not support the audio element.
+</audio>
+
+</div>
+<!--**********************************
+    Content body end
+***********************************-->
+
+<%- include('./footer.ejs') %>
+
+<script>
+    // Initial values passed from backend
+    let lastOrderId = <%- JSON.stringify(lastOrderId || null) %>;
+	const todayDate = <%- JSON.stringify(todayDate) %>;           // "YYYY-MM-DD"
+const yesterdayDate = <%- JSON.stringify(yesterdayDate) %>;   // "YYYY-MM-DD"
+
+    const newOrderBadge = document.getElementById('newOrderBadge');
+	const newOrderAudio  = document.getElementById('newOrderAudio');
+    const newOrderToast  = document.getElementById('newOrderToast');
+    const newOrderBell   = document.getElementById('newOrderBell');
+    const refreshBtn     = document.getElementById('refreshDashboardBtn');
+    const recentOrdersTbody = document.getElementById('recentOrdersTableBody');
+
+    function showNewOrderToast(count) {
+        if (!newOrderToast) return;
+        newOrderToast.style.display = 'block';
+        newOrderToast.innerHTML = '<strong>New Order!</strong> ' + count + ' new order(s) received. <a href="#recentOrdersTableBody">View</a>';
+
+        setTimeout(function () {
+            newOrderToast.style.display = 'none';
+        }, 5000);
+    }
+
+    function updateNewOrderBadge(count) {
+        if (!newOrderBadge) return;
+        if (count > 0) {
+            newOrderBadge.style.display = 'inline-block';
+            newOrderBadge.textContent = count;
+        } else {
+            newOrderBadge.style.display = 'none';
+        }
+    }
+
+    function appendNewOrdersToTable(orders) {
+        if (!recentOrdersTbody) return;
+        orders.forEach(function(order) {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-order-id', order.id);
+			tr.setAttribute('data-created-date', order.created_date);
+            tr.classList.add('table-success'); // highlight new rows
+
+            tr.innerHTML = `
+                <td>NEW</td>
+                <td>${order.order_number || order.id}</td>
+                <td>${order.customer_name || 'N/A'}</td>
+                <td>₹ ${order.total_amount || 0}</td>
+                <td>
+                    ${order.status === 'pending'
+                        ? '<span class="badge badge-warning">Pending</span>'
+                        : order.status === 'ongoing'
+                            ? '<span class="badge badge-info">Ongoing</span>'
+                            : order.status === 'completed'
+                                ? '<span class="badge badge-success">Completed</span>'
+                                : '<span class="badge badge-secondary">' + order.status + '</span>'}
+                </td>
+                <td>${order.created_atFormatted}</td>
+            `;
+            // add at top
+            if (recentOrdersTbody.firstChild) {
+                recentOrdersTbody.insertBefore(tr, recentOrdersTbody.firstChild);
+            } else {
+                recentOrdersTbody.appendChild(tr);
+            }
+        });
+    }
+
+  function checkNewOrders() {
+    if (!lastOrderId) return;
+    fetch(`/admin/api/orders/new?lastOrderId=${lastOrderId}`)
+        .then(res => res.json())
+        .then(json => {
+            const { newCount, latestOrderId, orders } = json;
+            if (newCount > 0) {
+                lastOrderId = latestOrderId;
+                updateNewOrderBadge(newCount);
+                appendNewOrdersToTable(orders);
+                showNewOrderToast(newCount);
+                playNewOrderSound(); // 🔔 ring bell here
+				animateBell();
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching new orders:', err);
+        });
+}
+
+    // Poll every 15 seconds for new orders
+    setInterval(checkNewOrders, 15000);
+
+    // Click bell resets badge
+    if (newOrderBell) {
+        newOrderBell.addEventListener('click', function() {
+            updateNewOrderBadge(0);
+        });
+    }
+
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+            location.reload();
+        });
+    }
+
+
+ const filterButtons = document.querySelectorAll('[data-filter]');
+
+    function applyOrderFilter(filter) {
+        if (!recentOrdersTbody) return;
+        const rows = recentOrdersTbody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            const createdDate = row.getAttribute('data-created-date'); // "YYYY-MM-DD"
+            if (!createdDate) {
+                row.style.display = '';
+                return;
+            }
+
+            if (filter === 'all') {
+                row.style.display = '';
+            } else if (filter === 'today') {
+                row.style.display = (createdDate === todayDate) ? '' : 'none';
+            } else if (filter === 'yesterday') {
+                row.style.display = (createdDate === yesterdayDate) ? '' : 'none';
+            }
+        });
+    }
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.getAttribute('data-filter');
+            applyOrderFilter(filter);
+        });
+    });
+
+  function playNewOrderSound() {
+        if (!newOrderAudio) return;
+
+        try {
+            newOrderAudio.currentTime = 0; // restart from beginning
+            const playPromise = newOrderAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    // Some browsers block auto-play until the user interacts once
+                    console.warn('New order sound blocked by browser autoplay policy:', err);
+                });
+            }
+        } catch (e) {
+            console.error('Error playing new order sound:', e);
+        }
+    }
+
 	
-	
-		
-        <%- include ('./footer.ejs') %>
-     
+	function animateBell() {
+    if (!newOrderBell) return;
+
+    newOrderBell.classList.add('shake-bell');
+
+    setTimeout(() => {
+        newOrderBell.classList.remove('shake-bell');
+    }, 1000);
+}
+
+</script>

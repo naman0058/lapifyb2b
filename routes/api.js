@@ -2211,4 +2211,96 @@ router.post('/user/forgot-password', async (req, res) => {
   }
 });
 
+
+const { Expo } = require('expo-server-sdk');
+const expo = new Expo();
+
+router.post('/register-token', async (req, res) => {
+  const { token } = req.body;
+  console.log('body',req.body)
+
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ error: 'Token is required' });
+  }
+
+  // Validate Expo push token
+  if (!Expo.isExpoPushToken(token)) {
+    return res.status(400).json({ error: 'Invalid Expo push token' });
+  }
+
+  try {
+    // Insert token; ignore if already exists
+    const sql = 'INSERT IGNORE INTO admin_app (token) VALUES (?)';
+    await queryAsync(sql, [token]);
+
+    return res.json({ success: true, message: 'Token stored successfully' });
+  } catch (err) {
+    console.error('Error inserting token', err);
+    return res.status(500).json({ error: 'Database error' });
+  }
+});
+
+
+
+
+router.post('/send-notification', async (req, res) => {
+  const { title, body, data } = req.body; 
+
+  if (!title || !body) {
+    return res.status(400).json({ error: 'title and body are required' });
+  }
+
+  try {
+    // Get all tokens from DB
+    const rows = await queryAsync('SELECT token FROM admin_app');
+    const tokens = rows.map((row) => row.token);
+
+    if (!tokens.length) {
+      return res.status(200).json({ success: false, message: 'No tokens found' });
+    }
+
+    // Build messages
+    const messages = [];
+    for (let pushToken of tokens) {
+      if (!Expo.isExpoPushToken(pushToken)) {
+        console.log(`Skipping invalid token: ${pushToken}`);
+        continue;
+      }
+
+      messages.push({
+        to: pushToken,
+        sound: 'default',
+        title,
+        body,
+        data: data || {},
+      });
+    }
+
+    // Chunk and send
+    const chunks = expo.chunkPushNotifications(messages);
+    const tickets = [];
+
+    for (let chunk of chunks) {
+      try {
+        const ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        tickets.push(...ticketChunk);
+      } catch (error) {
+        console.error('Error sending push notifications', error);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'Notifications sent (or attempted) successfully',
+      tickets,
+    });
+  } catch (err) {
+    console.error('Error sending notification', err);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+
 module.exports = router

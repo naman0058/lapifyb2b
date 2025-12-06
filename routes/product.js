@@ -257,7 +257,8 @@ router.get('/permanent-delete',verify.adminAuthenticationToken, async (req, res)
         lqr.*,   -- Select all columns from laptop_qcreport
         f3.name AS pocessor_name,
         f6.name AS ram_name,
-        f9.name AS physical_condition_name
+        f9.name AS physical_condition_name,
+        f10.name AS screen_size_name
         FROM ${databasetable} d
         LEFT JOIN screenshots s ON d.id = s.productid
         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
@@ -266,6 +267,8 @@ router.get('/permanent-delete',verify.adminAuthenticationToken, async (req, res)
         LEFT JOIN ${filtertable} f3 ON lqr.processor = f3.id
         LEFT JOIN laptop_filters f6 ON lqr.ram = f6.id
         LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
+        LEFT JOIN ${filtertable} f10 ON lqr.screen_size = f10.id
+
         WHERE d.category = '${req.params.name}' and d.status = true
         GROUP BY 
     d.id, f1.name, f2.name, f3.name, lqr._id

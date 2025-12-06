@@ -96,32 +96,277 @@ pool.query(`select * from admin where email ='${body.email}' and password = '${b
 
 
 
-router.get('/dashboard', verify.adminAuthenticationToken, (req, res) => {
-  var getCurrentWeekDates = verify.getCurrentWeekDates();
-  var getCurrentMonthDates = verify.getCurrentMonthDates();
+// router.get('/dashboard', verify.adminAuthenticationToken, (req, res) => {
+//   var getCurrentWeekDates = verify.getCurrentWeekDates();
+//   var getCurrentMonthDates = verify.getCurrentMonthDates();
 
-  var pendingorder = `select count(id) as counter from orders where status = 'pending';`
-  var ongoingorder = `select count(id) as counter from orders where status = 'ongoing';`
-  var weeklyorder = `select count(id) as counter from orders where created_at between '${getCurrentWeekDates.startDate}' and '${getCurrentWeekDates.endDate}';`
-  var monthlyorder = `select count(id) as counter from orders where created_at between '${getCurrentMonthDates.startDate}' and '${getCurrentMonthDates.endDate}';`
-  var weeklypayment = `select count(id) as counter from payment_response where created_at between '${getCurrentWeekDates.startDate}' and '${getCurrentWeekDates.endDate}';`
-  var monthlypayment = `select count(id) as counter from payment_response where created_at between '${getCurrentMonthDates.startDate}' and '${getCurrentMonthDates.endDate}';`
-  var verifieduser = `select count(id) as counter from users where status = 'verified';`
-  var unverifieduser = `select count(id) as counter from users where status = 'unverified';`
-  var laptop = `select count(id) as counter from product where category = 'laptop';`
-  var mobile = `select count(id) as counter from product where category = 'mobile';`
-  var apple = `select count(id) as counter from product where category = 'apple';`
-  var accessories = `select count(id) as counter from product where category = 'accessories';`
-  var new_parts = `select count(id) as counter from product where category = 'new_parts';`
-  var refurbished_parts = `select count(id) as counter from product where category = 'refurbished_parts';`
+//   var pendingorder = `select count(id) as counter from orders where status = 'pending';`
+//   var ongoingorder = `select count(id) as counter from orders where status = 'ongoing';`
+//   var weeklyorder = `select count(id) as counter from orders where created_at between '${getCurrentWeekDates.startDate}' and '${getCurrentWeekDates.endDate}';`
+//   var monthlyorder = `select count(id) as counter from orders where created_at between '${getCurrentMonthDates.startDate}' and '${getCurrentMonthDates.endDate}';`
+//   var weeklypayment = `select count(id) as counter from payment_response where created_at between '${getCurrentWeekDates.startDate}' and '${getCurrentWeekDates.endDate}';`
+//   var monthlypayment = `select count(id) as counter from payment_response where created_at between '${getCurrentMonthDates.startDate}' and '${getCurrentMonthDates.endDate}';`
+//   var verifieduser = `select count(id) as counter from users where status = 'verified';`
+//   var unverifieduser = `select count(id) as counter from users where status = 'unverified';`
+//   var laptop = `select count(id) as counter from product where category = 'laptop';`
+//   var mobile = `select count(id) as counter from product where category = 'mobile';`
+//   var apple = `select count(id) as counter from product where category = 'apple';`
+//   var accessories = `select count(id) as counter from product where category = 'accessories';`
+//   var new_parts = `select count(id) as counter from product where category = 'new_parts';`
+//   var refurbished_parts = `select count(id) as counter from product where category = 'refurbished_parts';`
 
   
-  pool.query(pendingorder+ongoingorder+weeklyorder+monthlyorder+weeklypayment+monthlypayment+verifieduser+unverifieduser+laptop+mobile+apple+accessories+new_parts+refurbished_parts, (err, result) => {
-      if (err) throw err;
-      else res.render(`dashboard`,{result})
-      // else res.json(result);
-  });
+//   pool.query(pendingorder+ongoingorder+weeklyorder+monthlyorder+weeklypayment+monthlypayment+verifieduser+unverifieduser+laptop+mobile+apple+accessories+new_parts+refurbished_parts, (err, result) => {
+//       if (err) throw err;
+//       else res.render(`dashboard`,{result})
+//       // else res.json(result);
+//   });
+// });
+
+
+function query(sql, params = []) {
+    return new Promise((resolve, reject) => {
+        pool.query(sql, params, (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+}
+
+
+router.get('/dashboard', verify.adminAuthenticationToken, async (req, res, next) => {
+    try {
+        const getCurrentWeekDates = verify.getCurrentWeekDates();
+        const getCurrentMonthDates = verify.getCurrentMonthDates();
+
+        // for client-side filter buttons
+        const today = new Date();
+        const todayDate = today.toISOString().slice(0, 10); // YYYY-MM-DD
+        const yesterdayObj = new Date(today);
+        yesterdayObj.setDate(yesterdayObj.getDate() - 1);
+        const yesterdayDate = yesterdayObj.toISOString().slice(0, 10);
+
+        const [
+            pendingOrderRows,
+            ongoingOrderRows,
+            completedOrderRows,
+            totalOrdersRows,
+            todayOrderRows,
+            yesterdayOrderRows,
+            weeklyOrderRows,
+            monthlyOrderRows,
+            weeklyPaymentRows,
+            monthlyPaymentRows,
+            verifiedUserRows,
+            unverifiedUserRows,
+            laptopRows,
+            mobileRows,
+            appleRows,
+            accessoriesRows,
+            newPartsRows,
+            refurbishedPartsRows,
+            recentOrdersRows
+        ] = await Promise.all([
+            query(`SELECT COUNT(id) AS counter FROM orders WHERE status = 'pending';`),
+            query(`SELECT COUNT(id) AS counter FROM orders WHERE status = 'ongoing';`),
+            query(`SELECT COUNT(id) AS counter FROM orders WHERE status = 'completed';`),
+            query(`SELECT COUNT(id) AS counter FROM orders;`),
+
+            // TODAY orders
+            query(`SELECT COUNT(id) AS counter 
+                   FROM orders 
+                   WHERE DATE(created_at) = CURDATE();`),
+
+            // YESTERDAY orders
+            query(`SELECT COUNT(id) AS counter 
+                   FROM orders 
+                   WHERE DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY);`),
+
+            // Weekly
+            query(`SELECT COUNT(id) AS counter FROM orders 
+                   WHERE created_at BETWEEN ? AND ?;`,
+                   [getCurrentWeekDates.startDate, getCurrentWeekDates.endDate]),
+
+            // Monthly
+            query(`SELECT COUNT(id) AS counter FROM orders 
+                   WHERE created_at BETWEEN ? AND ?;`,
+                   [getCurrentMonthDates.startDate, getCurrentMonthDates.endDate]),
+
+            // Payments
+            query(`SELECT COUNT(id) AS counter FROM payment_response 
+                   WHERE created_at BETWEEN ? AND ?;`,
+                   [getCurrentWeekDates.startDate, getCurrentWeekDates.endDate]),
+
+            query(`SELECT COUNT(id) AS counter FROM payment_response 
+                   WHERE created_at BETWEEN ? AND ?;`,
+                   [getCurrentMonthDates.startDate, getCurrentMonthDates.endDate]),
+
+            // Users
+            query(`SELECT COUNT(id) AS counter FROM users WHERE status = 'verified';`),
+            query(`SELECT COUNT(id) AS counter FROM users WHERE status = 'unverified';`),
+
+            // Products
+            query(`SELECT COUNT(id) AS counter FROM product WHERE category = 'laptop';`),
+            query(`SELECT COUNT(id) AS counter FROM product WHERE category = 'mobile';`),
+            query(`SELECT COUNT(id) AS counter FROM product WHERE category = 'apple';`),
+            query(`SELECT COUNT(id) AS counter FROM product WHERE category = 'accessories';`),
+            query(`SELECT COUNT(id) AS counter FROM product WHERE category = 'new_parts';`),
+            query(`SELECT COUNT(id) AS counter FROM product WHERE category = 'refurbished_parts';`),
+
+            // Recent 10 orders with customer name from users
+            query(`
+                SELECT 
+                    o.id,
+                    o.orderid AS order_number,
+                    u.name AS customer_name,          -- change if your column is different
+                    o.amount AS total_amount,
+                    o.status,
+                    o.created_at,
+                    DATE(o.created_at) AS created_date
+                FROM orders o
+                LEFT JOIN users u ON u.id = o.userid
+                ORDER BY o.created_at DESC
+                LIMIT 10;
+            `)
+        ]);
+
+        const pendingOrder     = pendingOrderRows[0].counter || 0;
+        const ongoingOrder     = ongoingOrderRows[0].counter || 0;
+        const completedOrder   = completedOrderRows[0].counter || 0;
+        const totalOrders      = totalOrdersRows[0].counter || 0;
+        const todayOrder       = todayOrderRows[0].counter || 0;
+        const yesterdayOrder   = yesterdayOrderRows[0].counter || 0;
+        const weeklyOrder      = weeklyOrderRows[0].counter || 0;
+        const monthlyOrder     = monthlyOrderRows[0].counter || 0;
+        const weeklyPayment    = weeklyPaymentRows[0].counter || 0;
+        const monthlyPayment   = monthlyPaymentRows[0].counter || 0;
+        const verifiedUser     = verifiedUserRows[0].counter || 0;
+        const unverifiedUser   = unverifiedUserRows[0].counter || 0;
+        const laptop           = laptopRows[0].counter || 0;
+        const mobile           = mobileRows[0].counter || 0;
+        const apple            = appleRows[0].counter || 0;
+        const accessories      = accessoriesRows[0].counter || 0;
+        const new_parts        = newPartsRows[0].counter || 0;
+        const refurbishedParts = refurbishedPartsRows[0].counter || 0;
+
+        const totalUsers = verifiedUser + unverifiedUser;
+        const verificationRate = totalUsers > 0
+            ? ((verifiedUser / totalUsers) * 100).toFixed(1)
+            : 0;
+
+        const recentOrders = recentOrdersRows.map(row => ({
+            id: row.id,
+            order_number: row.order_number,
+            customer_name: row.customer_name,
+            total_amount: row.total_amount,
+            status: row.status,
+            created_at: row.created_at,
+            created_date: row.created_date, // YYYY-MM-DD
+            created_atFormatted: row.created_at
+                ? new Date(row.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+                : ''
+        }));
+
+        const lastOrderId = recentOrders.length ? recentOrders[0].id : null;
+
+        const stats = {
+            pendingOrder,
+            ongoingOrder,
+            completedOrder,
+            totalOrders,
+            todayOrder,
+            yesterdayOrder,
+            weeklyOrder,
+            monthlyOrder,
+            weeklyPayment,
+            monthlyPayment,
+            verifiedUser,
+            unverifiedUser,
+            verificationRate,
+            laptop,
+            mobile,
+            apple,
+            accessories,
+            new_parts,
+            refurbished_parts: refurbishedParts
+        };
+
+        res.render('dashboard', {
+            stats,
+            currentWeek: {
+                startDate: getCurrentWeekDates.startDate,
+                endDate: getCurrentWeekDates.endDate
+            },
+            currentMonth: {
+                startDate: getCurrentMonthDates.startDate,
+                endDate: getCurrentMonthDates.endDate
+            },
+            recentOrders,
+            lastOrderId,
+            todayDate,
+            yesterdayDate
+        });
+
+    } catch (err) {
+        console.error('Error loading dashboard:', err);
+        next(err);
+    }
 });
+
+// API for new orders (with customer name + created_date)
+router.get('/api/orders/new', verify.adminAuthenticationToken, async (req, res, next) => {
+    try {
+        const lastOrderId = parseInt(req.query.lastOrderId || 0, 10) || 0;
+
+        const newOrdersRows = await query(`
+            SELECT 
+                o.id,
+                o.orderid AS order_number,
+                u.name AS customer_name,
+                o.amount AS total_amount,
+                o.status,
+                o.created_at,
+                DATE(o.created_at) AS created_date
+            FROM orders o
+            LEFT JOIN users u ON u.id = o.userid
+            WHERE o.id > ?
+            ORDER BY o.created_at DESC;
+        `, [lastOrderId]);
+
+        const orders = newOrdersRows.map(row => ({
+            id: row.id,
+            order_number: row.order_number,
+            customer_name: row.customer_name,
+            total_amount: row.total_amount,
+            status: row.status,
+            created_at: row.created_at,
+            created_date: row.created_date,
+            created_atFormatted: row.created_at
+                ? new Date(row.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+                : ''
+        }));
+
+        const newCount = orders.length;
+        const latestOrderId = newCount ? orders[0].id : lastOrderId;
+
+        return res.json({
+            success: true,
+            newCount,
+            latestOrderId,
+            orders
+        });
+
+    } catch (err) {
+        console.error('Error checking new orders:', err);
+        return res.status(500).json({
+            success: false,
+            message: 'Error checking new orders'
+        });
+    }
+});
+
+
+
 
 
 
@@ -823,6 +1068,10 @@ router.post('/dashboard/master/category/update-status', (req, res) => {
 });
 
 
+
+router.get('/dashboard/send-notifications', (req, res) => {
+  res.render('send_notification.ejs')
+});
 
 
 module.exports = router;

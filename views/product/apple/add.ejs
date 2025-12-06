@@ -41,21 +41,26 @@
 
   
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
         <label  class="form-label">Select  <%=response.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
 
             Year </label>
            <select id="subcategory" class="form-control"></select>
     </div>
 
-    <div class="col-xl-6">
+    <div class="col-xl-4">
       <label  class="form-label">Select Processor </label>
       <select id="processor" class="form-control"></select>
       </div>
 
   
       
-     
+      <div class="col-xl-4">
+    <label  class="form-label">Screen Size</label>
+    <select id="screen_size" class="form-control"></select>
+    </div>
+
+    
 
       
 
@@ -499,6 +504,11 @@ $.getJSON(`/admin/dashboard/laptop/getData/ram`, data => {
 })
 
 
+$.getJSON(`/admin/dashboard/apple/getData/screen_size`, data => {
+  screen_size = data
+    fillDropDown('screen_size', data, 'Choose Screen Size', 0)
+  
+})
 
 
 
@@ -609,6 +619,7 @@ async function update_name(name) {
       processor: $('#processor').val(),
       storage: $('#storage').val(),
       subcategory:$('#subcategory').val(),
+      screen_size: $('#screen_size').val(),
       category: pagename
     };
 
@@ -648,7 +659,7 @@ async function submitForm() {
         quantity: $('#quantity').val(),
         skuno : $('#skuno').val(),
         modelno: $('#modelno').val(),
-        name: $('#modelno').val() + ' | ' + $('#processor').val() + ' | '  + $('#storage').val(),
+        name: $('#modelno').val() + ' | ' + $('#processor').val() + ' | '  + $('#storage').val() + ' | ' + $('#screen_size').val(),
         subcategory:$('#subcategory').val(),
         brand:'apple',
         warranty:$('#warranty').val(),
@@ -667,6 +678,7 @@ async function submitForm() {
         keyboard:$('#keyboard').val(),
         battery:$('#battery').val(),
         speaker:$('#speaker').val(),
+        screen_size:$('#screen_size').val(),
         webcam:$('#webcam').val(),
         wifi:$('#wifi').val(),
         touchpad:$('#touchpad').val(),
@@ -689,6 +701,9 @@ async function submitForm() {
     }
     else if(QcReports.processor == null || QcReports.processor == 'null'){
     alert('Select apple Processor')
+    }
+     else if(QcReports.screen_size == null || QcReports.screen_size == 'null'){
+    alert('Select Screen Size')
     }
     else if(!QcReports.storage){
     alert('Enter Storage')

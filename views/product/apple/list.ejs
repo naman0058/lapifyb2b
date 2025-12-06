@@ -121,16 +121,29 @@
                                               </span></td>
 
                                                 <td>
-                                                    <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#qcModal" 
-                                                    data-bs-images="Processor:<%=result[i].pocessor_name.toUpperCase()%>,Ram:<%=result[i].ram_name%>,Physical Condition: <%=result[i].physical_condition_name%>,Power On:<%=result[i].power_on.toUpperCase()%>,
-                                                    Keyboard:<%=result[i].keyboard.toUpperCase()%>,Battery:<%=result[i].battery.toUpperCase()%>,
-                                                    Speaker:<%=result[i].speaker.toUpperCase()%>,Webcam:<%=result[i].webcam.toUpperCase()%>,
-                                                    Wifi:<%=result[i].wifi.toUpperCase()%>,Touchpad:<%=result[i].touchpad.toUpperCase()%>,
-                                                    Adapter:<%=result[i].adapter.toUpperCase()%>,Storage:<%=result[i].storage.toUpperCase()%>,
-                                                    Body:<%=result[i].body.toUpperCase()%>
-                                                    ">View Report</a>
-                                                </td>
+  <a  class="badge badge-primary light border-0"
+      data-bs-toggle="modal"
+      data-bs-target="#qcModal"
+      data-bs-images='<%- JSON.stringify({
+          Processor: (result[i].pocessor_name || "N/A").toString().toUpperCase(),
+          Ram: result[i].ram_name || "N/A",
+          "Physical Condition": result[i].physical_condition_name || "N/A",
+          "Power On": (result[i].power_on || "N/A").toString().toUpperCase(),
+          Keyboard: (result[i].keyboard || "N/A").toString().toUpperCase(),
+          Battery: (result[i].battery || "N/A").toString().toUpperCase(),
+          Speaker: (result[i].speaker || "N/A").toString().toUpperCase(),
+          Webcam: (result[i].webcam || "N/A").toString().toUpperCase(),
+          Wifi: (result[i].wifi || "N/A").toString().toUpperCase(),
+          Touchpad: (result[i].touchpad || "N/A").toString().toUpperCase(),
+          Adapter: (result[i].adapter || "N/A").toString().toUpperCase(),
+          Storage: (result[i].storage || "N/A").toString().toUpperCase(),
+          Body: (result[i].body || "N/A").toString().toUpperCase(),
+          "Screen Size": (result[i].screen_size_name || "N/A").toString().toUpperCase()
 
+      }) %>'>
+      View Report
+  </a>
+</td>
                                                     <td>
                                                     <a  class="badge badge-primary light border-0" data-bs-toggle="modal" data-bs-target="#imageModal" data-bs-images="<%=result[i].productimages%>">View Images</a>
                                                 </td>
@@ -288,22 +301,31 @@ document.getElementById("searchInput").addEventListener("keyup", function() {
 
 
 
-  var qcModal = document.getElementById('qcModal');
-    qcModal.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var data = button.getAttribute('data-bs-images').split(',');
-        console.log('qc', data);
-        var tableBody = document.querySelector('#reporttable table tbody');
-        tableBody.innerHTML = '';
-        data.forEach(function (item) {
-            var pair = item.split(':');
-            var key = pair[0];
-            var value = pair[1];
-            var row = tableBody.insertRow();
-            var cell1 = row.insertCell(0);
-            var cell2 = row.insertCell(1);
-            cell1.textContent = key;
-            cell2.textContent = value;
-        });
+var qcModal = document.getElementById('qcModal');
+qcModal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var jsonString = button.getAttribute('data-bs-images');
+
+    var dataObj = {};
+    try {
+        dataObj = JSON.parse(jsonString);
+    } catch (e) {
+        console.error('Error parsing QC data:', e, jsonString);
+        dataObj = {};
+    }
+
+    var tableBody = document.querySelector('#reporttable table tbody');
+    tableBody.innerHTML = '';
+
+    Object.keys(dataObj).forEach(function (key) {
+        var value = dataObj[key];
+
+        var row = tableBody.insertRow();
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+
+        cell1.textContent = key;
+        cell2.textContent = value;
     });
+});
 </script>
