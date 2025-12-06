@@ -2217,7 +2217,7 @@ const expo = new Expo();
 
 router.post('/register-token', async (req, res) => {
   const { token } = req.body;
-  console.log('body',req.body)
+  console.log('register-token body:', req.body);
 
   if (!token || typeof token !== 'string') {
     return res.status(400).json({ error: 'Token is required' });
@@ -2229,11 +2229,19 @@ router.post('/register-token', async (req, res) => {
   }
 
   try {
-    // Insert token; ignore if already exists
-    const sql = 'INSERT IGNORE INTO admin_app (token) VALUES (?)';
+    // Insert token; if it already exists, just update updated_at
+    const sql = `
+      INSERT INTO admin_app (token)
+      VALUES (?)
+      ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP
+    `;
+
     await queryAsync(sql, [token]);
 
-    return res.json({ success: true, message: 'Token stored successfully' });
+    return res.json({
+      success: true,
+      message: 'Token stored/updated successfully',
+    });
   } catch (err) {
     console.error('Error inserting token', err);
     return res.status(500).json({ error: 'Database error' });
