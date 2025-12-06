@@ -2244,10 +2244,35 @@ router.post('/register-token', async (req, res) => {
 
 
 router.post('/send-notification', async (req, res) => {
-  const { title, body, data } = req.body; 
+  const { title, body, data } = req.body;
 
   if (!title || !body) {
+    // If form request, render with error
+    if (req.headers['content-type']?.includes('application/x-www-form-urlencoded') ||
+        req.headers.referer) {
+      return res.render('send_notification', {
+        error: 'Title and Message are required.',
+        success: undefined,
+      });
+    }
+
+    // If API/JSON
     return res.status(400).json({ error: 'title and body are required' });
+  }
+
+  // Parse data if it's string from form
+  let payloadData = {};
+  if (data) {
+    if (typeof data === 'string') {
+      try {
+        payloadData = JSON.parse(data);
+      } catch (e) {
+        // If not valid JSON, just send as plain text
+        payloadData = { extra: data };
+      }
+    } else if (typeof data === 'object') {
+      payloadData = data;
+    }
   }
 
   try {
@@ -2256,7 +2281,19 @@ router.post('/send-notification', async (req, res) => {
     const tokens = rows.map((row) => row.token);
 
     if (!tokens.length) {
-      return res.status(200).json({ success: false, message: 'No tokens found' });
+      // Form request
+      if (req.headers['content-type']?.includes('application/x-www-form-urlencoded') ||
+          req.headers.referer) {
+        return res.render('send_notification', {
+          success: undefined,
+          error: 'No tokens found in database.',
+        });
+      }
+
+      // API response
+      return res
+        .status(200)
+        .json({ success: false, message: 'No tokens found' });
     }
 
     // Build messages
@@ -2272,7 +2309,7 @@ router.post('/send-notification', async (req, res) => {
         sound: 'default',
         title,
         body,
-        data: data || {},
+        data: payloadData,
       });
     }
 
@@ -2289,6 +2326,16 @@ router.post('/send-notification', async (req, res) => {
       }
     }
 
+    // If coming from web form -> render with success message
+    if (req.headers['content-type']?.includes('application/x-www-form-urlencoded') ||
+        req.headers.referer) {
+      return res.render('send_notification', {
+        success: 'Notification sent successfully!',
+        error: undefined,
+      });
+    }
+
+    // API / JSON response
     return res.json({
       success: true,
       message: 'Notifications sent (or attempted) successfully',
@@ -2296,10 +2343,18 @@ router.post('/send-notification', async (req, res) => {
     });
   } catch (err) {
     console.error('Error sending notification', err);
+
+    if (req.headers['content-type']?.includes('application/x-www-form-urlencoded') ||
+        req.headers.referer) {
+      return res.render('send_notification', {
+        success: undefined,
+        error: 'Server error while sending notification.',
+      });
+    }
+
     return res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 
 
