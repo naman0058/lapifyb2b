@@ -575,7 +575,7 @@ const yesterdayDate = <%- JSON.stringify(yesterdayDate) %>;   // "YYYY-MM-DD"
 }
 
     // Poll every 15 seconds for new orders
-    setInterval(checkNewOrders, 15000);
+    setInterval(checkNewOrders, 3600000);
 
     // Click bell resets badge
     if (newOrderBell) {
