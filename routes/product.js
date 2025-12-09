@@ -468,15 +468,25 @@ if(body.category == 'accessories' || body.category == 'new_parts' || body.catego
 });
 
 
-router.get('/:name/images',(req,res)=>{
-    pool.query(`select * from screenshots where productid = '${req.query.id}' and status = true || status is null`,(err,result)=>{
-        if(err) throw err;
-        else {
-            res.render(`${folder}/images`, { response: req.params.name, msg: req.query.message, result });
+router.get('/:name/images', (req, res) => {
+    const productId = req.query.id;
 
+    pool.query(
+        `SELECT * FROM screenshots 
+         WHERE productid = ? 
+         AND (status = TRUE OR status IS NULL)`,
+        [productId],
+        (err, result) => {
+            if (err) throw err;
+            else {
+                res.render(`${folder}/images`, { response: req.params.name, msg: req.query.message, result });
+            }
         }
-    })
-})
+    );
+});
+
+
+            // res.render(`${folder}/images`, { response: req.params.name, msg: req.query.message, result });
 
 
 router.get('/:name/delete/images',(req,res)=>{

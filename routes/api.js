@@ -2288,6 +2288,8 @@ router.post('/send-notification', async (req, res) => {
     const rows = await queryAsync('SELECT token FROM admin_app');
     const tokens = rows.map((row) => row.token);
 
+    console.log('token',tokens)
+
     if (!tokens.length) {
       // Form request
       if (req.headers['content-type']?.includes('application/x-www-form-urlencoded') ||
