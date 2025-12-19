@@ -1182,68 +1182,62 @@ router.get('/get-single-counter',(req,res)=>{
 
 
 
+// Build once (top-level, outside route)
+const allowedCategories = new Set([
+  ...isimage,
+  ...laptopfilter,
+  ...mobilefilter,
+  ...applefilter,
+]);
+
+function resolveFilterTable(category) {
+  if (isimage.includes(category)) return "parts_and_accessories_filters";
+  if (laptopfilter.includes(category)) return "laptop_filters";
+  if (mobilefilter.includes(category)) return "mobile_filters";
+  if (applefilter.includes(category)) return "apple_filters";
+  return null;
+}
+
 router.get("/product_description", async (req, res) => {
   try {
-    const { category, id, userid } = req.query;
+    const category = String(req.query.category || "").trim();
+    const id = req.query.id;
+    const userid = req.query.userid;
 
-    // Basic validation
     if (!category || !id || !userid) {
       return res.status(400).json({ msg: "category, id, userid are required" });
     }
-
-    // Resolve filter table by category group
-    let filtertable = null;
-    if (isimage.includes(category)) filtertable = "parts_and_accessories_filters";
-    else if (laptopfilter.includes(category)) filtertable = "laptop_filters";
-    else if (mobilefilter.includes(category)) filtertable = "mobile_filters";
-    else if (applefilter.includes(category)) filtertable = "apple_filters";
-    else {
-      return res.status(400).json({ msg: "Invalid category" });
-    }
-
-    // Whitelist category for dynamic table usage (VERY IMPORTANT)
-    // Build a whitelist from your existing arrays (ensure these arrays are trusted constants)
-    const allowedCategories = new Set([
-      ...isimage,
-      ...laptopfilter,
-      ...mobilefilter,
-      ...applefilter,
-    ]);
 
     if (!allowedCategories.has(category)) {
       return res.status(400).json({ msg: "Category not allowed" });
     }
 
-    const tableName = `${category}_qcreport`; // safe only because category is whitelisted
+    const filtertable = resolveFilterTable(category);
+    if (!filtertable) {
+      return res.status(400).json({ msg: "Invalid category" });
+    }
 
-    // Base SELECT (common)
-    // - screenshots aggregated in a derived table, so it doesn't multiply rows with other joins
-    // - user flag via scalar subquery to avoid JOIN users
+    const tableName = `${category}_qcreport`; // safe due to whitelist
+
+    // Common select fields (NO GROUP BY needed)
+    // Images are fetched with a correlated subquery limited to THIS product
     const selectParts = [
       `d.*`,
-      `img.productimages`,
+      `(SELECT GROUP_CONCAT(s.url) FROM screenshots s WHERE s.productid = d.id) AS productimages`,
       `fSub.name AS subcategoryname`,
       `fBrand.name AS brandname`,
       `(SELECT u.isproduct FROM users u WHERE u.id = ? LIMIT 1) AS isproductshow`,
     ];
 
-    // Optional QC parts (by category group)
     const joinParts = [
       `FROM ${databasetable} d`,
-      `LEFT JOIN (
-         SELECT productid, GROUP_CONCAT(url) AS productimages
-         FROM screenshots
-         GROUP BY productid
-       ) img ON img.productid = d.id`,
       `LEFT JOIN ${filtertable} fSub ON d.subcategory = fSub.id`,
       `LEFT JOIN ${filtertable} fBrand ON d.brand = fBrand.id`,
     ];
 
-    // Where clause + params
-    const whereParts = [`WHERE d.id = ? AND d.status = true`];
     const params = [userid, id];
 
-    // Add QC joins & fields depending on category group
+    // Add QC join with "latest row per product" to avoid duplicates (no GROUP BY)
     if (laptopfilter.includes(category)) {
       selectParts.push(
         `lqr.*`,
@@ -1257,7 +1251,15 @@ router.get("/product_description", async (req, res) => {
       );
 
       joinParts.push(
-        `LEFT JOIN ${tableName} lqr ON lqr.productid = d.id`,
+        `LEFT JOIN (
+          SELECT q1.*
+          FROM ${tableName} q1
+          INNER JOIN (
+            SELECT productid, MAX(_id) AS max_id
+            FROM ${tableName}
+            GROUP BY productid
+          ) q2 ON q2.productid = q1.productid AND q2.max_id = q1._id
+        ) lqr ON lqr.productid = d.id`,
         `LEFT JOIN ${filtertable} fType ON lqr.type = fType.id`,
         `LEFT JOIN ${filtertable} fGen ON lqr.generation = fGen.id`,
         `LEFT JOIN ${filtertable} fProc ON lqr.processor = fProc.id`,
@@ -1266,41 +1268,59 @@ router.get("/product_description", async (req, res) => {
         `LEFT JOIN ${filtertable} fScreen ON lqr.screen_size = fScreen.id`,
         `LEFT JOIN ${filtertable} fPhys ON lqr.physical_condition = fPhys.id`
       );
+
     } else if (mobilefilter.includes(category)) {
-      selectParts.push(`lqr.*`, `fRam.name AS ram_name`, `fPhys.name AS physical_condition_name`);
+      selectParts.push(
+        `lqr.*`,
+        `fRam.name AS ram_name`,
+        `fPhys.name AS physical_condition_name`
+      );
 
       joinParts.push(
-        `LEFT JOIN ${tableName} lqr ON lqr.productid = d.id`,
+        `LEFT JOIN (
+          SELECT q1.*
+          FROM ${tableName} q1
+          INNER JOIN (
+            SELECT productid, MAX(_id) AS max_id
+            FROM ${tableName}
+            GROUP BY productid
+          ) q2 ON q2.productid = q1.productid AND q2.max_id = q1._id
+        ) lqr ON lqr.productid = d.id`,
         `LEFT JOIN ${filtertable} fRam ON lqr.ram = fRam.id`,
         `LEFT JOIN ${filtertable} fPhys ON lqr.physical_condition = fPhys.id`
       );
+
     } else if (applefilter.includes(category)) {
-      // Your original query had both f3 and f5 joined on lqr.processor (looks redundant).
-      // Keeping a single processor join to reduce work.
-      selectParts.push(`lqr.*`, `fProc.name AS processor_name`, `fRam.name AS ram_name`, `fPhys.name AS physical_condition_name`);
+      selectParts.push(
+        `lqr.*`,
+        `fProc.name AS processor_name`,
+        `fRam.name AS ram_name`,
+        `fPhys.name AS physical_condition_name`
+      );
 
       joinParts.push(
-        `LEFT JOIN ${tableName} lqr ON lqr.productid = d.id`,
+        `LEFT JOIN (
+          SELECT q1.*
+          FROM ${tableName} q1
+          INNER JOIN (
+            SELECT productid, MAX(_id) AS max_id
+            FROM ${tableName}
+            GROUP BY productid
+          ) q2 ON q2.productid = q1.productid AND q2.max_id = q1._id
+        ) lqr ON lqr.productid = d.id`,
         `LEFT JOIN ${filtertable} fProc ON lqr.processor = fProc.id`,
-        // In your original: LEFT JOIN laptop_filters f6 ... (inconsistent table)
-        // Using filtertable for consistency; change back only if your schema truly requires laptop_filters.
         `LEFT JOIN ${filtertable} fRam ON lqr.ram = fRam.id`,
         `LEFT JOIN ${filtertable} fPhys ON lqr.physical_condition = fPhys.id`
       );
-    } else {
-      // isimage: no QC join needed; base query is enough
     }
 
     const sql = `
       SELECT ${selectParts.join(", ")}
       ${joinParts.join("\n")}
-      ${whereParts.join(" ")}
-      GROUP BY d.id
-      ORDER BY d.id DESC
+      WHERE d.id = ? AND d.status = true
       LIMIT 1;
     `;
 
-    // Use promise-based query (recommended). If your pool doesn't support promises, wrap it.
     const [rows] = await pool.promise().query(sql, params);
 
     return res.json({ response: category, result: rows });
@@ -1309,6 +1329,7 @@ router.get("/product_description", async (req, res) => {
     return res.status(500).json({ msg: "error" });
   }
 });
+
 
 
 
