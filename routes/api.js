@@ -1172,14 +1172,30 @@ router.get("/get-product", async (req, res) => {
 
 
 
-router.get('/get-counter',(req,res)=>{
-    pool.query(`select sum(quantity) as counter from cart where userid = '${req.query.userid}'`,(err,result)=>{
-        if(err) throw err;
-        else {
-            res.json(result);
-        }
-    })
-})
+router.get("/get-counter", (req, res) => {
+  const userid = parseInt(req.query.userid, 10);
+
+  if (!userid) {
+    return res.status(400).json({ error: "Invalid userid" });
+  }
+
+  const sql = `
+    SELECT COALESCE(SUM(quantity), 0) AS counter
+    FROM cart
+    WHERE userid = ?
+  `;
+
+  pool.query(sql, [userid], (err, rows) => {
+    if (err) {
+      console.error("get-counter error:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    // Return only what app needs
+    return res.json({ counter: rows?.[0]?.counter ?? 0 });
+  });
+});
+
 
 
 router.get('/get-wallet',(req,res)=>{
