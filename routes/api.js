@@ -816,141 +816,166 @@ router.get('/get-filter',async(req,res)=>{
 
 
 // router.get('/get-product', (req, res) => {
-//     let { category, model, brand, status = true, generation } = req.query;
-//     category = category.toLowerCase().replace(/ /g, "_");
-//     console.log(category);
+//   let {
+//     category,
+//     model,
+//     brand,
+//     status = true,
+//     generation,
+//     userid,
+//     laptop_type,
+//     page = 1,
+//     limit = 10,
+//     q = '',
+//     subcategory // 👈 from chip (can be "6" or "6,7")
+//   } = req.query;
 
-//     let query = `
-//         SELECT p.*, (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-//         l.generation
-//         FROM product p
-//         LEFT JOIN laptop_qcreport l ON l.productid = p.id
-//         WHERE 1=1
-//     `;
-  
-//     if (brand) query += ` AND p.brand = '${brand}'`;
-//     if (model) query += ` AND p.modelno = '${model}'`;
-//     if (category) {
-//         // Handling multiple categories for 'Parts & Accessories'
-//         if (category === 'Parts ') {
-//             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
-//         } else {
-//             query += ` AND p.category = '${category}'`;
-//         }
+//   // normalize
+//   page = parseInt(page) || 1;
+//   limit = parseInt(limit) || 10;
+//   const offset = (page - 1) * limit;
+
+//   if (category) {
+//     category = String(category).toLowerCase().replace(/ /g, "_");
+//   }
+
+//   //  if (type) {
+//   //   category = String(category).toLowerCase().replace(/ /g, "_");
+//   // }
+
+
+//   // Build WHERE and params once, reuse for count + data queries
+//   let where = ` WHERE 1=1 `;
+//   const params = [];
+
+//   where += ` AND (p.in_app IS NULL OR p.in_app = '' OR p.in_app != 'hide')`;
+
+//   // brand
+//   if (brand) {
+//     where += ` AND p.brand = ?`;
+//     params.push(brand);
+//   }
+
+//   // model
+//   if (model) {
+//     where += ` AND p.modelno = ?`;
+//     params.push(model);
+//   }
+
+//   // category (with your "parts_" special)
+//   if (category) {
+//     if (category === 'parts_') {
+//       where += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
+//     } else {
+//       where += ` AND p.category = ?`;
+//       params.push(category);
 //     }
-//     if (status) query += ` AND p.status = ${status}`;
-//     if (generation) query += ` AND l.generation = '${generation}'`;
+//   }
 
-//     pool.query(query, (err, results) => {
-//         if (err) {
-//             console.error('Error executing query:', err);
-//             res.status(500).send('Internal Server Error');
-//             return;
-//         }
-//         res.json({ result: results, value: req.query });
-//     });
-// });
+//   // status
+//   if (typeof status !== 'undefined' && status !== '') {
+//     where += ` AND p.status = ?`;
+//     params.push(status);
+//   }
 
+//   // generation (from laptop_qcreport)
+//   if (generation) {
+//     where += ` AND l.generation = ?`;
+//     params.push(generation);
+//   }
 
+//   if (laptop_type) {
+//     where += ` AND l.type = ?`;
+//     params.push(laptop_type);
+//   }
 
-// router.get('/get-product', (req, res) => {
-//     let { category, model, brand, status = true, generation, userid } = req.query;
-//     category = category.toLowerCase().replace(/ /g, "_");
-//     console.log(category);
+//   // q search (adjust columns as needed)
+//   if (q && String(q).trim()) {
+//     const like = `%${q.trim()}%`;
+//     where += ` AND (p.name LIKE ? OR p.brand LIKE ? OR p.modelno LIKE ?)`;
+//     params.push(like, like, like);
+//   }
 
-//     let query = `
-//         SELECT p.*, 
-//             (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-//             l.generation,
-//             (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = '${userid}') AS cart_count,
-//             (select u.isproduct from users u where u.id = '${userid}') as isproductshow
-//         FROM product p
-//         LEFT JOIN laptop_qcreport l ON l.productid = p.id
-//         WHERE 1=1
-//     `;
+//   // subcategory filter (supports "6" or "6,7")
+//   // Works if your DB stores CSV in any of these columns: subcategory, subcategory_id, sub_category
+//   if (subcategory && String(subcategory).trim()) {
+//     const subIds = String(subcategory)
+//       .split(/[,\s]+/)
+//       .map(s => s.trim())
+//       .filter(Boolean);
 
-//     if (brand) query += ` AND p.brand = '${brand}'`;
-//     if (model) query += ` AND p.modelno = '${model}'`;
-//     if (category) {
-//         // Handling multiple categories for 'Parts & Accessories'
-//         if (category === 'parts_') {
-//             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
-//         } else {
-//             query += ` AND p.category = '${category}'`;
-//         }
+//     if (subIds.length) {
+//       // Build (FIND_IN_SET(?, col) OR ... ) across multiple cols and ids
+//       const cols = ['p.subcategory', 'p.subcategory'];
+//       const orParts = [];
+
+//       subIds.forEach(() => {
+//         cols.forEach(col => {
+//           orParts.push(`FIND_IN_SET(?, ${col})`);
+//         });
+//       });
+
+//       where += ` AND (${orParts.join(' OR ')})`;
+
+//       // push each id for each column
+//       subIds.forEach(id => {
+//         cols.forEach(() => params.push(id));
+//       });
 //     }
-//     if (status) query += ` AND p.status = ${status}`;
-//     if (generation) query += ` AND l.generation = '${generation}'`;
+//   }
 
-//     pool.query(query, (err, results) => {
-//         if (err) {
-//             console.error('Error executing query:', err);
-//             res.status(500).send('Internal Server Error');
-//             return;
-//         }
-//         res.json({ result: results, value: req.query });
-//     });
-// });
+//   // COUNT query for total
+//   const countSql = `
+//     SELECT COUNT(*) AS total
+//     FROM product p
+//     LEFT JOIN laptop_qcreport l ON l.productid = p.id
+//     ${where}
+//   `;
 
+//   // DATA query with pagination
+//   const dataSql = `
+//     SELECT p.*,
+//            (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+//            l.generation,
+//            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+//            (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
+//     FROM product p
+//     LEFT JOIN laptop_qcreport l ON l.productid = p.id
+//     ${where}
+//     ORDER BY p.id DESC
+//     LIMIT ? OFFSET ?
+//   `;
 
+//   // Params for data query (cart_count + isproductshow come first)
+//   const dataParams = [userid, userid, ...params, limit, offset];
 
-
-// router.get('/get-product', (req, res) => {
-//     let { category, model, brand, status = true, generation, userid, page = 1, limit = 10 } = req.query;
-    
-//     // Convert category to lowercase and replace spaces with underscores
-//     category = category.toLowerCase().replace(/ /g, "_");
-
-//     console.log(category);
-
-//     // Calculate offset for pagination
-//     const offset = (page - 1) * limit;
-
-//     let query = `
-//         SELECT p.*, 
-//             (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-//             l.generation,
-//             (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
-//             (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
-//         FROM product p
-//         LEFT JOIN laptop_qcreport l ON l.productid = p.id
-//         WHERE 1=1
-//     `;
-
-//     if (brand) query += ` AND p.brand = ?`;
-//     if (model) query += ` AND p.modelno = ?`;
-//     if (category) {
-//         // Handling multiple categories for 'Parts & Accessories'
-//         if (category === 'parts_') {
-//             query += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
-//         } else {
-//             query += ` AND p.category = ?`;
-//         }
+//   pool.query(countSql, params, (err, countRows) => {
+//     if (err) {
+//       console.error('Error executing count query:', err);
+//       return res.status(500).send('Internal Server Error');
 //     }
-//     if (status) query += ` AND p.status = ?`;
-//     if (generation) query += ` AND l.generation = ?`;
 
-//     // Add pagination to the query
-//     query += ` LIMIT ? OFFSET ?`;
+//     const total = countRows?.[0]?.total || 0;
 
-//     // Prepare query parameters array
-//     const queryParams = [userid, userid];
-//     if (brand) queryParams.push(brand);
-//     if (model) queryParams.push(model);
-//     if (category && category !== 'parts_') queryParams.push(category);
-//     if (status) queryParams.push(status);
-//     if (generation) queryParams.push(generation);
-//     queryParams.push(parseInt(limit), parseInt(offset));
+//     pool.query(dataSql, dataParams, (err2, rows) => {
+//       if (err2) {
+//         console.error('Error executing data query:', err2);
+//         return res.status(500).send('Internal Server Error');
+//       }
 
-//     pool.query(query, queryParams, (err, results) => {
-//         if (err) {
-//             console.error('Error executing query:', err);
-//             return res.status(500).send('Internal Server Error');
-//         }
-//         res.json({ result: results, value: req.query, page, limit });
+//       const hasMore = offset + rows.length < total;
+
+//       res.json({
+//         result: rows,
+//         page,
+//         limit,
+//         total,
+//         hasMore,
+//         value: req.query
+//       });
 //     });
+//   });
 // });
-
 
 
 router.get('/get-product', (req, res) => {
@@ -962,80 +987,53 @@ router.get('/get-product', (req, res) => {
     generation,
     userid,
     laptop_type,
-    page = 1,
     limit = 10,
     q = '',
-    subcategory // 👈 from chip (can be "6" or "6,7")
+    subcategory,
+    last_id // keyset pagination
   } = req.query;
 
-  // normalize
-  page = parseInt(page) || 1;
-  limit = parseInt(limit) || 10;
-  const offset = (page - 1) * limit;
+  limit = Math.min(parseInt(limit) || 10, 50); // cap for safety
 
-  if (category) {
-    category = String(category).toLowerCase().replace(/ /g, "_");
-  }
+  if (category) category = String(category).toLowerCase().replace(/ /g, "_");
 
-  //  if (type) {
-  //   category = String(category).toLowerCase().replace(/ /g, "_");
-  // }
-
-
-  // Build WHERE and params once, reuse for count + data queries
   let where = ` WHERE 1=1 `;
   const params = [];
 
+  // hide filter
   where += ` AND (p.in_app IS NULL OR p.in_app = '' OR p.in_app != 'hide')`;
 
-  // brand
-  if (brand) {
-    where += ` AND p.brand = ?`;
-    params.push(brand);
-  }
+  if (brand) { where += ` AND p.brand = ?`; params.push(brand); }
+  if (model) { where += ` AND p.modelno = ?`; params.push(model); }
 
-  // model
-  if (model) {
-    where += ` AND p.modelno = ?`;
-    params.push(model);
-  }
-
-  // category (with your "parts_" special)
   if (category) {
     if (category === 'parts_') {
-      where += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
+      where += ` AND p.category IN ('accessories','new_parts','refurbished_parts')`;
     } else {
-      where += ` AND p.category = ?`;
-      params.push(category);
+      where += ` AND p.category = ?`; params.push(category);
     }
   }
 
-  // status
   if (typeof status !== 'undefined' && status !== '') {
-    where += ` AND p.status = ?`;
-    params.push(status);
+    where += ` AND p.status = ?`; params.push(status);
   }
 
-  // generation (from laptop_qcreport)
-  if (generation) {
-    where += ` AND l.generation = ?`;
-    params.push(generation);
-  }
+  if (generation) { where += ` AND l.generation = ?`; params.push(generation); }
+  if (laptop_type) { where += ` AND l.type = ?`; params.push(laptop_type); }
 
-  if (laptop_type) {
-    where += ` AND l.type = ?`;
-    params.push(laptop_type);
-  }
-
-  // q search (adjust columns as needed)
   if (q && String(q).trim()) {
     const like = `%${q.trim()}%`;
     where += ` AND (p.name LIKE ? OR p.brand LIKE ? OR p.modelno LIKE ?)`;
     params.push(like, like, like);
   }
 
-  // subcategory filter (supports "6" or "6,7")
-  // Works if your DB stores CSV in any of these columns: subcategory, subcategory_id, sub_category
+  // keyset pagination (much faster than OFFSET)
+  if (last_id) {
+    where += ` AND p.id < ?`;
+    params.push(parseInt(last_id));
+  }
+
+  // WARNING: CSV + FIND_IN_SET remains slow (best is normalize)
   if (subcategory && String(subcategory).trim()) {
     const subIds = String(subcategory)
       .split(/[,\s]+/)
@@ -1043,76 +1041,62 @@ router.get('/get-product', (req, res) => {
       .filter(Boolean);
 
     if (subIds.length) {
-      // Build (FIND_IN_SET(?, col) OR ... ) across multiple cols and ids
-      const cols = ['p.subcategory', 'p.subcategory'];
-      const orParts = [];
-
-      subIds.forEach(() => {
-        cols.forEach(col => {
-          orParts.push(`FIND_IN_SET(?, ${col})`);
-        });
-      });
-
+      const orParts = subIds.map(() => `FIND_IN_SET(?, p.subcategory)`);
       where += ` AND (${orParts.join(' OR ')})`;
-
-      // push each id for each column
-      subIds.forEach(id => {
-        cols.forEach(() => params.push(id));
-      });
+      subIds.forEach(id => params.push(id));
     }
   }
 
-  // COUNT query for total
-  const countSql = `
-    SELECT COUNT(*) AS total
-    FROM product p
-    LEFT JOIN laptop_qcreport l ON l.productid = p.id
-    ${where}
-  `;
+  // get isproductshow once
+  pool.query(
+    `SELECT isproduct FROM users WHERE id = ? LIMIT 1`,
+    [userid],
+    (uErr, uRows) => {
+      if (uErr) return res.status(500).send('Internal Server Error');
 
-  // DATA query with pagination
-  const dataSql = `
-    SELECT p.*,
-           (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-           l.generation,
-           (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
-           (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
-    FROM product p
-    LEFT JOIN laptop_qcreport l ON l.productid = p.id
-    ${where}
-    ORDER BY p.id DESC
-    LIMIT ? OFFSET ?
-  `;
+      const isproductshow = uRows?.[0]?.isproduct ?? null;
 
-  // Params for data query (cart_count + isproductshow come first)
-  const dataParams = [userid, userid, ...params, limit, offset];
+      const sql = `
+        SELECT p.*,
+               ss.url AS image,
+               l.generation,
+               c.quantity AS cart_count
+        FROM product p
+        LEFT JOIN laptop_qcreport l ON l.productid = p.id
+        LEFT JOIN cart c ON c.productid = p.id AND c.userid = ?
+        LEFT JOIN (
+          SELECT s1.productid, s1.url
+          FROM screenshots s1
+          INNER JOIN (
+            SELECT productid, MIN(id) AS min_id
+            FROM screenshots
+            GROUP BY productid
+          ) x ON x.productid = s1.productid AND x.min_id = s1.id
+        ) ss ON ss.productid = p.id
+        ${where}
+        ORDER BY p.id DESC
+        LIMIT ?
+      `;
 
-  pool.query(countSql, params, (err, countRows) => {
-    if (err) {
-      console.error('Error executing count query:', err);
-      return res.status(500).send('Internal Server Error');
-    }
+      // limit+1 to detect hasMore
+      const finalParams = [userid, ...params, limit + 1];
 
-    const total = countRows?.[0]?.total || 0;
+      pool.query(sql, finalParams, (err, rows) => {
+        if (err) return res.status(500).send('Internal Server Error');
 
-    pool.query(dataSql, dataParams, (err2, rows) => {
-      if (err2) {
-        console.error('Error executing data query:', err2);
-        return res.status(500).send('Internal Server Error');
-      }
+        const hasMore = rows.length > limit;
+        const result = hasMore ? rows.slice(0, limit) : rows;
 
-      const hasMore = offset + rows.length < total;
-
-      res.json({
-        result: rows,
-        page,
-        limit,
-        total,
-        hasMore,
-        value: req.query
+        res.json({
+          result,
+          limit,
+          hasMore,
+          next_last_id: result.length ? result[result.length - 1].id : null,
+          isproductshow
+        });
       });
-    });
-  });
+    }
+  );
 });
 
 
