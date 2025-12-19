@@ -815,387 +815,178 @@ router.get('/get-filter',async(req,res)=>{
 
 
 
-// router.get('/get-product', (req, res) => {
-//   let {
-//     category,
-//     model,
-//     brand,
-//     status = true,
-//     generation,
-//     userid,
-//     laptop_type,
-//     page = 1,
-//     limit = 10,
-//     q = '',
-//     subcategory // 👈 from chip (can be "6" or "6,7")
-//   } = req.query;
+router.get('/get-product', (req, res) => {
+  let {
+    category,
+    model,
+    brand,
+    status = true,
+    generation,
+    userid,
+    laptop_type,
+    page = 1,
+    limit = 10,
+    q = '',
+    subcategory // 👈 from chip (can be "6" or "6,7")
+  } = req.query;
 
-//   // normalize
-//   page = parseInt(page) || 1;
-//   limit = parseInt(limit) || 10;
-//   const offset = (page - 1) * limit;
+  // normalize
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 10;
+  const offset = (page - 1) * limit;
 
-//   if (category) {
-//     category = String(category).toLowerCase().replace(/ /g, "_");
-//   }
+  if (category) {
+    category = String(category).toLowerCase().replace(/ /g, "_");
+  }
 
-//   //  if (type) {
-//   //   category = String(category).toLowerCase().replace(/ /g, "_");
-//   // }
-
-
-//   // Build WHERE and params once, reuse for count + data queries
-//   let where = ` WHERE 1=1 `;
-//   const params = [];
-
-//   where += ` AND (p.in_app IS NULL OR p.in_app = '' OR p.in_app != 'hide')`;
-
-//   // brand
-//   if (brand) {
-//     where += ` AND p.brand = ?`;
-//     params.push(brand);
-//   }
-
-//   // model
-//   if (model) {
-//     where += ` AND p.modelno = ?`;
-//     params.push(model);
-//   }
-
-//   // category (with your "parts_" special)
-//   if (category) {
-//     if (category === 'parts_') {
-//       where += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
-//     } else {
-//       where += ` AND p.category = ?`;
-//       params.push(category);
-//     }
-//   }
-
-//   // status
-//   if (typeof status !== 'undefined' && status !== '') {
-//     where += ` AND p.status = ?`;
-//     params.push(status);
-//   }
-
-//   // generation (from laptop_qcreport)
-//   if (generation) {
-//     where += ` AND l.generation = ?`;
-//     params.push(generation);
-//   }
-
-//   if (laptop_type) {
-//     where += ` AND l.type = ?`;
-//     params.push(laptop_type);
-//   }
-
-//   // q search (adjust columns as needed)
-//   if (q && String(q).trim()) {
-//     const like = `%${q.trim()}%`;
-//     where += ` AND (p.name LIKE ? OR p.brand LIKE ? OR p.modelno LIKE ?)`;
-//     params.push(like, like, like);
-//   }
-
-//   // subcategory filter (supports "6" or "6,7")
-//   // Works if your DB stores CSV in any of these columns: subcategory, subcategory_id, sub_category
-//   if (subcategory && String(subcategory).trim()) {
-//     const subIds = String(subcategory)
-//       .split(/[,\s]+/)
-//       .map(s => s.trim())
-//       .filter(Boolean);
-
-//     if (subIds.length) {
-//       // Build (FIND_IN_SET(?, col) OR ... ) across multiple cols and ids
-//       const cols = ['p.subcategory', 'p.subcategory'];
-//       const orParts = [];
-
-//       subIds.forEach(() => {
-//         cols.forEach(col => {
-//           orParts.push(`FIND_IN_SET(?, ${col})`);
-//         });
-//       });
-
-//       where += ` AND (${orParts.join(' OR ')})`;
-
-//       // push each id for each column
-//       subIds.forEach(id => {
-//         cols.forEach(() => params.push(id));
-//       });
-//     }
-//   }
-
-//   // COUNT query for total
-//   const countSql = `
-//     SELECT COUNT(*) AS total
-//     FROM product p
-//     LEFT JOIN laptop_qcreport l ON l.productid = p.id
-//     ${where}
-//   `;
-
-//   // DATA query with pagination
-//   const dataSql = `
-//     SELECT p.*,
-//            (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
-//            l.generation,
-//            (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
-//            (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
-//     FROM product p
-//     LEFT JOIN laptop_qcreport l ON l.productid = p.id
-//     ${where}
-//     ORDER BY p.id DESC
-//     LIMIT ? OFFSET ?
-//   `;
-
-//   // Params for data query (cart_count + isproductshow come first)
-//   const dataParams = [userid, userid, ...params, limit, offset];
-
-//   pool.query(countSql, params, (err, countRows) => {
-//     if (err) {
-//       console.error('Error executing count query:', err);
-//       return res.status(500).send('Internal Server Error');
-//     }
-
-//     const total = countRows?.[0]?.total || 0;
-
-//     pool.query(dataSql, dataParams, (err2, rows) => {
-//       if (err2) {
-//         console.error('Error executing data query:', err2);
-//         return res.status(500).send('Internal Server Error');
-//       }
-
-//       const hasMore = offset + rows.length < total;
-
-//       res.json({
-//         result: rows,
-//         page,
-//         limit,
-//         total,
-//         hasMore,
-//         value: req.query
-//       });
-//     });
-//   });
-// });
+  //  if (type) {
+  //   category = String(category).toLowerCase().replace(/ /g, "_");
+  // }
 
 
+  // Build WHERE and params once, reuse for count + data queries
+  let where = ` WHERE 1=1 `;
+  const params = [];
 
-router.get("/get-product", async (req, res) => {
-  try {
-    let {
-      category,
-      model,
-      brand,
-      status,
-      generation,
-      userid,
-      laptop_type,
-      page = 1,
-      limit = 10,
-      q = "",
-      subcategory
-    } = req.query;
+  where += ` AND (p.in_app IS NULL OR p.in_app = '' OR p.in_app != 'hide')`;
 
-    // --- Normalize pagination ---
-    page = parseInt(page, 10) || 1;
-    limit = Math.min(parseInt(limit, 10) || 10, 50); // cap limit for speed
-    const offset = (page - 1) * limit;
+  // brand
+  if (brand) {
+    where += ` AND p.brand = ?`;
+    params.push(brand);
+  }
 
-    // --- Normalize category ---
-    if (category) {
-      category = String(category).toLowerCase().replace(/ /g, "_");
+  // model
+  if (model) {
+    where += ` AND p.modelno = ?`;
+    params.push(model);
+  }
+
+  // category (with your "parts_" special)
+  if (category) {
+    if (category === 'parts_') {
+      where += ` AND (p.category = 'accessories' OR p.category = 'new_parts' OR p.category = 'refurbished_parts')`;
+    } else {
+      where += ` AND p.category = ?`;
+      params.push(category);
     }
+  }
 
-    // --- Normalize status ---
-    // If your DB stores status as tinyint(1), convert "true"/"false"
-    if (status === "true") status = 1;
-    if (status === "false") status = 0;
+  // status
+  if (typeof status !== 'undefined' && status !== '') {
+    where += ` AND p.status = ?`;
+    params.push(status);
+  }
 
-    // --- Build WHERE + params once ---
-    let where = ` WHERE 1=1 AND (p.in_app IS NULL OR p.in_app = '' OR p.in_app != 'hide') `;
-    const params = [];
+  // generation (from laptop_qcreport)
+  if (generation) {
+    where += ` AND l.generation = ?`;
+    params.push(generation);
+  }
 
-    // brand
-    if (brand) {
-      where += ` AND p.brand = ?`;
-      params.push(brand);
-    }
+  if (laptop_type) {
+    where += ` AND l.type = ?`;
+    params.push(laptop_type);
+  }
 
-    // model
-    if (model) {
-      where += ` AND p.modelno = ?`;
-      params.push(model);
-    }
+  // q search (adjust columns as needed)
+  if (q && String(q).trim()) {
+    const like = `%${q.trim()}%`;
+    where += ` AND (p.name LIKE ? OR p.brand LIKE ? OR p.modelno LIKE ?)`;
+    params.push(like, like, like);
+  }
 
-    // category
-    if (category) {
-      if (category === "parts_") {
-        where += ` AND p.category IN ('accessories','new_parts','refurbished_parts')`;
-      } else {
-        where += ` AND p.category = ?`;
-        params.push(category);
-      }
-    }
+  // subcategory filter (supports "6" or "6,7")
+  // Works if your DB stores CSV in any of these columns: subcategory, subcategory_id, sub_category
+  if (subcategory && String(subcategory).trim()) {
+    const subIds = String(subcategory)
+      .split(/[,\s]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
 
-    // status
-    if (typeof status !== "undefined" && status !== "") {
-      where += ` AND p.status = ?`;
-      params.push(status);
-    }
+    if (subIds.length) {
+      // Build (FIND_IN_SET(?, col) OR ... ) across multiple cols and ids
+      const cols = ['p.subcategory', 'p.subcategory'];
+      const orParts = [];
 
-    // q search
-    if (q && String(q).trim()) {
-      const like = `%${q.trim()}%`;
-      where += ` AND (p.name LIKE ? OR p.brand LIKE ? OR p.modelno LIKE ?)`;
-      params.push(like, like, like);
-    }
-
-    // subcategory filter (CSV in DB = slow; kept as-is)
-    if (subcategory && String(subcategory).trim()) {
-      const subIds = String(subcategory)
-        .split(/[,\s]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      if (subIds.length) {
-        // If you truly have multiple columns, list them here
-        // (your original code repeated the same column twice)
-        const cols = ["p.subcategory"]; 
-        const orParts = [];
-
-        subIds.forEach(() => {
-          cols.forEach((col) => {
-            orParts.push(`FIND_IN_SET(?, ${col})`);
-          });
-        });
-
-        where += ` AND (${orParts.join(" OR ")})`;
-
-        subIds.forEach((id) => {
-          cols.forEach(() => params.push(id));
-        });
-      }
-    }
-
-    // --- Laptop filters: only join laptop_qcreport if needed ---
-    let laptopJoin = "";
-    if (generation || laptop_type) {
-      laptopJoin = ` LEFT JOIN laptop_qcreport l ON l.productid = p.id `;
-      if (generation) {
-        where += ` AND l.generation = ?`;
-        params.push(generation);
-      }
-      if (laptop_type) {
-        where += ` AND l.type = ?`;
-        params.push(laptop_type);
-      }
-    }
-
-    // --- COUNT query (lightweight) ---
-    const countSql = `
-      SELECT COUNT(*) AS total
-      FROM product p
-      ${laptopJoin}
-      ${where}
-    `;
-
-    // --- DATA query (only required fields + joins instead of subqueries) ---
-    // First screenshot per product
-    const dataSql = `
-      SELECT
-        p.id,
-        p.name AS name,
-        p.price AS price,
-        COALESCE(c.quantity, 0) AS cart_count,
-        s.url AS image,
-        u.isproduct AS isproductshow
-      FROM product p
-      ${laptopJoin}
-
-      LEFT JOIN cart c
-        ON c.productid = p.id
-       AND c.userid = ?
-
-      LEFT JOIN users u
-        ON u.id = ?
-
-      LEFT JOIN (
-        SELECT ss.productid, MIN(ss.id) AS min_id
-        FROM screenshots ss
-        GROUP BY ss.productid
-      ) first_ss
-        ON first_ss.productid = p.id
-
-      LEFT JOIN screenshots s
-        ON s.productid = first_ss.productid
-       AND s.id = first_ss.min_id
-
-      ${where}
-      ORDER BY p.id DESC
-      LIMIT ? OFFSET ?
-    `;
-
-    // userid used twice in joins
-    const dataParams = [userid || 0, userid || 0, ...params, limit, offset];
-
-    // --- Execute queries ---
-    pool.query(countSql, params, (err, countRows) => {
-      if (err) {
-        console.error("Error executing count query:", err);
-        return res.status(500).send("Internal Server Error");
-      }
-
-      const total = countRows?.[0]?.total || 0;
-
-      pool.query(dataSql, dataParams, (err2, rows) => {
-        if (err2) {
-          console.error("Error executing data query:", err2);
-          return res.status(500).send("Internal Server Error");
-        }
-
-        const hasMore = offset + rows.length < total;
-
-        return res.json({
-          result: rows, // already contains only needed keys
-          page,
-          limit,
-          total,
-          hasMore,
-          value: req.query
+      subIds.forEach(() => {
+        cols.forEach(col => {
+          orParts.push(`FIND_IN_SET(?, ${col})`);
         });
       });
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).send("Internal Server Error");
-  }
-});
 
+      where += ` AND (${orParts.join(' OR ')})`;
 
-
-router.get("/get-counter", (req, res) => {
-  const userid = parseInt(req.query.userid, 10);
-
-  if (!userid) {
-    return res.status(400).json({ error: "Invalid userid" });
+      // push each id for each column
+      subIds.forEach(id => {
+        cols.forEach(() => params.push(id));
+      });
+    }
   }
 
-  const sql = `
-    SELECT COALESCE(SUM(quantity), 0) AS counter
-    FROM cart
-    WHERE userid = ?
+  // COUNT query for total
+  const countSql = `
+    SELECT COUNT(*) AS total
+    FROM product p
+    LEFT JOIN laptop_qcreport l ON l.productid = p.id
+    ${where}
   `;
 
-  pool.query(sql, [userid], (err, rows) => {
+  // DATA query with pagination
+  const dataSql = `
+    SELECT p.*,
+           (SELECT s.url FROM screenshots s WHERE s.productid = p.id ORDER BY id LIMIT 1) AS image,
+           l.generation,
+           (SELECT quantity FROM cart c WHERE c.productid = p.id AND c.userid = ?) AS cart_count,
+           (SELECT u.isproduct FROM users u WHERE u.id = ?) AS isproductshow
+    FROM product p
+    LEFT JOIN laptop_qcreport l ON l.productid = p.id
+    ${where}
+    ORDER BY p.id DESC
+    LIMIT ? OFFSET ?
+  `;
+
+  // Params for data query (cart_count + isproductshow come first)
+  const dataParams = [userid, userid, ...params, limit, offset];
+
+  pool.query(countSql, params, (err, countRows) => {
     if (err) {
-      console.error("get-counter error:", err);
-      return res.status(500).json({ error: "Internal Server Error" });
+      console.error('Error executing count query:', err);
+      return res.status(500).send('Internal Server Error');
     }
 
-    // Return only what app needs
-    return res.json({ counter: rows?.[0]?.counter ?? 0 });
+    const total = countRows?.[0]?.total || 0;
+
+    pool.query(dataSql, dataParams, (err2, rows) => {
+      if (err2) {
+        console.error('Error executing data query:', err2);
+        return res.status(500).send('Internal Server Error');
+      }
+
+      const hasMore = offset + rows.length < total;
+
+      res.json({
+        result: rows,
+        page,
+        limit,
+        total,
+        hasMore,
+        value: req.query
+      });
+    });
   });
 });
 
+
+
+router.get('/get-counter',(req,res)=>{
+    pool.query(`select sum(quantity) as counter from cart where userid = '${req.query.userid}'`,(err,result)=>{
+        if(err) throw err;
+        else {
+            res.json(result);
+        }
+    })
+})
 
 
 router.get('/get-wallet',(req,res)=>{
