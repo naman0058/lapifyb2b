@@ -68,7 +68,10 @@
       <label  class="form-label">Product (Hide / Show )</label>
          <select name="in_app" class="form-control">
           <option value="hide" <%=result[0].in_app === 'hide' ? 'selected' : '' %>>Hide</option>
-          <option value="show" <%=result[0].in_app === 'show' ? 'selected' : '' %>>Show</option>
+          <option value="show"
+  <%= (!result[0].in_app || result[0].in_app === 'show') ? 'selected' : '' %>>
+  Show
+</option>
 
          </select>
   </div>

@@ -961,6 +961,7 @@ router.get('/get-product', (req, res) => {
     status = true,
     generation,
     userid,
+    laptop_type,
     page = 1,
     limit = 10,
     q = '',
@@ -976,9 +977,16 @@ router.get('/get-product', (req, res) => {
     category = String(category).toLowerCase().replace(/ /g, "_");
   }
 
+  //  if (type) {
+  //   category = String(category).toLowerCase().replace(/ /g, "_");
+  // }
+
+
   // Build WHERE and params once, reuse for count + data queries
   let where = ` WHERE 1=1 `;
   const params = [];
+
+  where += ` AND (p.in_app IS NULL OR p.in_app = '' OR p.in_app != 'hide')`;
 
   // brand
   if (brand) {
@@ -1012,6 +1020,11 @@ router.get('/get-product', (req, res) => {
   if (generation) {
     where += ` AND l.generation = ?`;
     params.push(generation);
+  }
+
+  if (laptop_type) {
+    where += ` AND l.type = ?`;
+    params.push(laptop_type);
   }
 
   // q search (adjust columns as needed)
@@ -2249,6 +2262,39 @@ router.post('/register-token', async (req, res) => {
 });
 
 
+router.post('/register-user-token', async (req, res) => {
+  const { token } = req.body;
+  console.log('register-token body:', req.body);
+
+  if (!token || typeof token !== 'string') {
+    return res.status(400).json({ error: 'Token is required' });
+  }
+
+  // Validate Expo push token
+  if (!Expo.isExpoPushToken(token)) {
+    return res.status(400).json({ error: 'Invalid Expo push token' });
+  }
+
+  try {
+    // Insert token; if it already exists, just update updated_at
+    const sql = `
+      INSERT INTO user_app (token)
+      VALUES (?)
+      ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP
+    `;
+
+    await queryAsync(sql, [token]);
+
+    return res.json({
+      success: true,
+      message: 'Token stored/updated successfully',
+    });
+  } catch (err) {
+    console.error('Error inserting token', err);
+    return res.status(500).json({ error: 'Database error' });
+  }
+});
+
 
 
 router.post('/send-notification', async (req, res) => {
@@ -2285,7 +2331,7 @@ router.post('/send-notification', async (req, res) => {
 
   try {
     // Get all tokens from DB
-    const rows = await queryAsync('SELECT token FROM admin_app');
+    const rows = await queryAsync('SELECT token FROM user_app');
     const tokens = rows.map((row) => row.token);
 
     console.log('token',tokens)

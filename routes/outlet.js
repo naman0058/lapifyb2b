@@ -122,7 +122,7 @@ router.post('/:name/update', verify.adminAuthenticationToken, upload.single('ima
 
 
 router.get('/getData/:filter',(req,res)=>{
-    pool.query(`select * from ${databasetable} where filters = '${req.params.filter}' order by name`,(err,result)=>{
+    pool.query(`select * from ${databasetable} where filters = '${req.params.filter}' and status = true order by name`,(err,result)=>{
         if(err) throw err;
         else res.json(result)
     })
