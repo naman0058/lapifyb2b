@@ -1012,172 +1012,302 @@ router.get('/get-single-counter',(req,res)=>{
 
 
 
-router.get('/product_description', (req, res) => {
-    let filtertable = '';
+// router.get('/product_description', (req, res) => {
+//     let filtertable = '';
 
   
-    const tableName = `${req.query.category}_qcreport`;
+//     const tableName = `${req.query.category}_qcreport`;
 
 
 
-    if (isimage.includes(req.query.category)) {
-        filtertable = 'parts_and_accessories_filters';
-    }
-    if (laptopfilter.includes(req.query.category)) {
-        filtertable = 'laptop_filters';
-    }
-    if (mobilefilter.includes(req.query.category)) {
-        filtertable = 'mobile_filters';
-    }
-    if (applefilter.includes(req.query.category)) {
-        filtertable = 'apple_filters';
-    }
+//     if (isimage.includes(req.query.category)) {
+//         filtertable = 'parts_and_accessories_filters';
+//     }
+//     if (laptopfilter.includes(req.query.category)) {
+//         filtertable = 'laptop_filters';
+//     }
+//     if (mobilefilter.includes(req.query.category)) {
+//         filtertable = 'mobile_filters';
+//     }
+//     if (applefilter.includes(req.query.category)) {
+//         filtertable = 'apple_filters';
+//     }
 
 
-    if (isimage.includes(req.query.category)) {
+//     if (isimage.includes(req.query.category)) {
 
-        console.log('run this side')
+//         console.log('run this side')
 
-    var query = `
-    SELECT d.*, 
-    GROUP_CONCAT(s.url) AS productimages, 
-    f1.name AS subcategoryname, 
-    u.isproduct AS isproductshow,
-    f2.name AS brandname
-    FROM ${databasetable} d
-    LEFT JOIN screenshots s ON d.id = s.productid
-    LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
-    LEFT JOIN users u ON u.id = '${req.query.userid}'
-    LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
-    WHERE  d.id = '${req.query.id}' and d.status = true
-    GROUP BY d.id
-    ORDER BY d.id DESC
-`;
-    }
-
-
-
-    if(laptopfilter.includes(req.query.category)){
-        var query = `
-        SELECT d.*, 
-        GROUP_CONCAT(s.url) AS productimages, 
-        f1.name AS subcategoryname, 
-        f2.name AS brandname,
-        u.isproduct AS isproductshow,
-        lqr.*,   -- Select all columns from laptop_qcreport
-        f3.name AS type_name,
-        f4.name AS generation_name,
-        f5.name AS processor_name,
-        f6.name AS ram_name,
-        f7.name AS graphics_card_name,
-        f8.name AS screen_size_name,
-        f9.name AS physical_condition_name
-
-        FROM ${databasetable} d
-        LEFT JOIN screenshots s ON d.id = s.productid
-        LEFT JOIN users u ON u.id = '${req.query.userid}'
-        LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
-        LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
-        LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
-        LEFT JOIN ${filtertable} f3 ON lqr.type = f3.id
-        LEFT JOIN ${filtertable} f4 ON lqr.generation = f4.id
-        LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
-        LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
-        LEFT JOIN ${filtertable} f7 ON lqr.graphics_card = f7.id
-        LEFT JOIN ${filtertable} f8 ON lqr.screen_size = f8.id
-        LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
+//     var query = `
+//     SELECT d.*, 
+//     GROUP_CONCAT(s.url) AS productimages, 
+//     f1.name AS subcategoryname, 
+//     u.isproduct AS isproductshow,
+//     f2.name AS brandname
+//     FROM ${databasetable} d
+//     LEFT JOIN screenshots s ON d.id = s.productid
+//     LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+//     LEFT JOIN users u ON u.id = '${req.query.userid}'
+//     LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+//     WHERE  d.id = '${req.query.id}' and d.status = true
+//     GROUP BY d.id
+//     ORDER BY d.id DESC
+// `;
+//     }
 
 
-        WHERE  d.id = '${req.query.id}' and d.status = true
-        GROUP BY 
-        d.id, f1.name, f2.name, f3.name, lqr._id
-    ORDER BY 
-        d.id DESC;
-    `;
-    }
+
+//     if(laptopfilter.includes(req.query.category)){
+//         var query = `
+//         SELECT d.*, 
+//         GROUP_CONCAT(s.url) AS productimages, 
+//         f1.name AS subcategoryname, 
+//         f2.name AS brandname,
+//         u.isproduct AS isproductshow,
+//         lqr.*,   -- Select all columns from laptop_qcreport
+//         f3.name AS type_name,
+//         f4.name AS generation_name,
+//         f5.name AS processor_name,
+//         f6.name AS ram_name,
+//         f7.name AS graphics_card_name,
+//         f8.name AS screen_size_name,
+//         f9.name AS physical_condition_name
+
+//         FROM ${databasetable} d
+//         LEFT JOIN screenshots s ON d.id = s.productid
+//         LEFT JOIN users u ON u.id = '${req.query.userid}'
+//         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+//         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+//         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
+//         LEFT JOIN ${filtertable} f3 ON lqr.type = f3.id
+//         LEFT JOIN ${filtertable} f4 ON lqr.generation = f4.id
+//         LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
+//         LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
+//         LEFT JOIN ${filtertable} f7 ON lqr.graphics_card = f7.id
+//         LEFT JOIN ${filtertable} f8 ON lqr.screen_size = f8.id
+//         LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
 
 
-    if(mobilefilter.includes(req.query.category)){
-        var query = `
-        SELECT d.*, 
-        GROUP_CONCAT(s.url) AS productimages, 
-        f1.name AS subcategoryname, 
-        f2.name AS brandname,
-        u.isproduct AS isproductshow,
-        lqr.*,  -- Select all columns from laptop_qcreport
-        f6.name AS ram_name,
-        f9.name AS physical_condition_name
-        FROM ${databasetable} d
-        LEFT JOIN screenshots s ON d.id = s.productid
-        LEFT JOIN users u ON u.id = '${req.query.userid}'
-        LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
-        LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
-        LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
-        LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
-        LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
-        WHERE  d.id = '${req.query.id}' and d.status = true
-        GROUP BY 
-        d.id, f1.name, f2.name, lqr._id
-    ORDER BY 
-        d.id DESC;
-    `;
+//         WHERE  d.id = '${req.query.id}' and d.status = true
+//         GROUP BY 
+//         d.id, f1.name, f2.name, f3.name, lqr._id
+//     ORDER BY 
+//         d.id DESC;
+//     `;
+//     }
+
+
+//     if(mobilefilter.includes(req.query.category)){
+//         var query = `
+//         SELECT d.*, 
+//         GROUP_CONCAT(s.url) AS productimages, 
+//         f1.name AS subcategoryname, 
+//         f2.name AS brandname,
+//         u.isproduct AS isproductshow,
+//         lqr.*,  -- Select all columns from laptop_qcreport
+//         f6.name AS ram_name,
+//         f9.name AS physical_condition_name
+//         FROM ${databasetable} d
+//         LEFT JOIN screenshots s ON d.id = s.productid
+//         LEFT JOIN users u ON u.id = '${req.query.userid}'
+//         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+//         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+//         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid  -- Join laptop_qcreport table
+//         LEFT JOIN ${filtertable} f6 ON lqr.ram = f6.id
+//         LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
+//         WHERE  d.id = '${req.query.id}' and d.status = true
+//         GROUP BY 
+//         d.id, f1.name, f2.name, lqr._id
+//     ORDER BY 
+//         d.id DESC;
+//     `;
     
-    }
+//     }
 
 
 
-    if(applefilter.includes(req.query.category)){
-        var query = `
-        SELECT d.*, 
-        GROUP_CONCAT(s.url) AS productimages, 
-        f1.name AS subcategoryname, 
-        f2.name AS brandname,
-        u.isproduct AS isproductshow,
-        lqr.*,   -- Select all columns from laptop_qcreport
-        f3.name AS pocessor_name,
-        f5.name AS processor_name,
-        f6.name AS ram_name,
-        f9.name AS physical_condition_name
-        FROM ${databasetable} d
-        LEFT JOIN screenshots s ON d.id = s.productid
-        LEFT JOIN users u ON u.id = '${req.query.userid}'
-        LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
-        LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
-        LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
-        LEFT JOIN ${filtertable} f3 ON lqr.processor = f3.id
-        LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
-        LEFT JOIN laptop_filters f6 ON lqr.ram = f6.id
-        LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
-        WHERE  d.id = '${req.query.id}' and d.status = true
-        GROUP BY 
-    d.id, f1.name, f2.name, f3.name, lqr._id
-ORDER BY 
-    d.id DESC;
-    `;
-    }
+//     if(applefilter.includes(req.query.category)){
+//         var query = `
+//         SELECT d.*, 
+//         GROUP_CONCAT(s.url) AS productimages, 
+//         f1.name AS subcategoryname, 
+//         f2.name AS brandname,
+//         u.isproduct AS isproductshow,
+//         lqr.*,   -- Select all columns from laptop_qcreport
+//         f3.name AS pocessor_name,
+//         f5.name AS processor_name,
+//         f6.name AS ram_name,
+//         f9.name AS physical_condition_name
+//         FROM ${databasetable} d
+//         LEFT JOIN screenshots s ON d.id = s.productid
+//         LEFT JOIN users u ON u.id = '${req.query.userid}'
+//         LEFT JOIN ${filtertable} f1 ON d.subcategory = f1.id
+//         LEFT JOIN ${filtertable} f2 ON d.brand = f2.id
+//         LEFT JOIN ${tableName} lqr ON d.id = lqr.productid
+//         LEFT JOIN ${filtertable} f3 ON lqr.processor = f3.id
+//         LEFT JOIN ${filtertable} f5 ON lqr.processor = f5.id
+//         LEFT JOIN laptop_filters f6 ON lqr.ram = f6.id
+//         LEFT JOIN ${filtertable} f9 ON lqr.physical_condition = f9.id
+//         WHERE  d.id = '${req.query.id}' and d.status = true
+//         GROUP BY 
+//     d.id, f1.name, f2.name, f3.name, lqr._id
+// ORDER BY 
+//     d.id DESC;
+//     `;
+//     }
 
 
 
     
-    pool.query(query, (err, result) => {
-        if (err) {
-            console.error('Error fetching data:', err);
-            res.status(500).json({ msg: 'error' });
-        } else {
-            if (isimage.includes(req.query.category)) {
-                res.json({response: req.query.category, result })
-                // res.json(result)
+//     pool.query(query, (err, result) => {
+//         if (err) {
+//             console.error('Error fetching data:', err);
+//             res.status(500).json({ msg: 'error' });
+//         } else {
+//             if (isimage.includes(req.query.category)) {
+//                 res.json({response: req.query.category, result })
+//                 // res.json(result)
 
-            }
-            else {
-                console.log(result)
-                res.json({response: req.query.category, result })
+//             }
+//             else {
+//                 console.log(result)
+//                 res.json({response: req.query.category, result })
 
-                //  res.render(`${folder}/${req.query.category}/list`, { response: req.query.category, msg: req.query.message, result });
-                // res.json(result)
-            }
-        }
-    });
+//                 //  res.render(`${folder}/${req.query.category}/list`, { response: req.query.category, msg: req.query.message, result });
+//                 // res.json(result)
+//             }
+//         }
+//     });
+// });
+
+
+
+router.get("/product_description", async (req, res) => {
+  try {
+    const { category, id, userid } = req.query;
+
+    // Basic validation
+    if (!category || !id || !userid) {
+      return res.status(400).json({ msg: "category, id, userid are required" });
+    }
+
+    // Resolve filter table by category group
+    let filtertable = null;
+    if (isimage.includes(category)) filtertable = "parts_and_accessories_filters";
+    else if (laptopfilter.includes(category)) filtertable = "laptop_filters";
+    else if (mobilefilter.includes(category)) filtertable = "mobile_filters";
+    else if (applefilter.includes(category)) filtertable = "apple_filters";
+    else {
+      return res.status(400).json({ msg: "Invalid category" });
+    }
+
+    // Whitelist category for dynamic table usage (VERY IMPORTANT)
+    // Build a whitelist from your existing arrays (ensure these arrays are trusted constants)
+    const allowedCategories = new Set([
+      ...isimage,
+      ...laptopfilter,
+      ...mobilefilter,
+      ...applefilter,
+    ]);
+
+    if (!allowedCategories.has(category)) {
+      return res.status(400).json({ msg: "Category not allowed" });
+    }
+
+    const tableName = `${category}_qcreport`; // safe only because category is whitelisted
+
+    // Base SELECT (common)
+    // - screenshots aggregated in a derived table, so it doesn't multiply rows with other joins
+    // - user flag via scalar subquery to avoid JOIN users
+    const selectParts = [
+      `d.*`,
+      `img.productimages`,
+      `fSub.name AS subcategoryname`,
+      `fBrand.name AS brandname`,
+      `(SELECT u.isproduct FROM users u WHERE u.id = ? LIMIT 1) AS isproductshow`,
+    ];
+
+    // Optional QC parts (by category group)
+    const joinParts = [
+      `FROM ${databasetable} d`,
+      `LEFT JOIN (
+         SELECT productid, GROUP_CONCAT(url) AS productimages
+         FROM screenshots
+         GROUP BY productid
+       ) img ON img.productid = d.id`,
+      `LEFT JOIN ${filtertable} fSub ON d.subcategory = fSub.id`,
+      `LEFT JOIN ${filtertable} fBrand ON d.brand = fBrand.id`,
+    ];
+
+    // Where clause + params
+    const whereParts = [`WHERE d.id = ? AND d.status = true`];
+    const params = [userid, id];
+
+    // Add QC joins & fields depending on category group
+    if (laptopfilter.includes(category)) {
+      selectParts.push(
+        `lqr.*`,
+        `fType.name AS type_name`,
+        `fGen.name AS generation_name`,
+        `fProc.name AS processor_name`,
+        `fRam.name AS ram_name`,
+        `fGpu.name AS graphics_card_name`,
+        `fScreen.name AS screen_size_name`,
+        `fPhys.name AS physical_condition_name`
+      );
+
+      joinParts.push(
+        `LEFT JOIN ${tableName} lqr ON lqr.productid = d.id`,
+        `LEFT JOIN ${filtertable} fType ON lqr.type = fType.id`,
+        `LEFT JOIN ${filtertable} fGen ON lqr.generation = fGen.id`,
+        `LEFT JOIN ${filtertable} fProc ON lqr.processor = fProc.id`,
+        `LEFT JOIN ${filtertable} fRam ON lqr.ram = fRam.id`,
+        `LEFT JOIN ${filtertable} fGpu ON lqr.graphics_card = fGpu.id`,
+        `LEFT JOIN ${filtertable} fScreen ON lqr.screen_size = fScreen.id`,
+        `LEFT JOIN ${filtertable} fPhys ON lqr.physical_condition = fPhys.id`
+      );
+    } else if (mobilefilter.includes(category)) {
+      selectParts.push(`lqr.*`, `fRam.name AS ram_name`, `fPhys.name AS physical_condition_name`);
+
+      joinParts.push(
+        `LEFT JOIN ${tableName} lqr ON lqr.productid = d.id`,
+        `LEFT JOIN ${filtertable} fRam ON lqr.ram = fRam.id`,
+        `LEFT JOIN ${filtertable} fPhys ON lqr.physical_condition = fPhys.id`
+      );
+    } else if (applefilter.includes(category)) {
+      // Your original query had both f3 and f5 joined on lqr.processor (looks redundant).
+      // Keeping a single processor join to reduce work.
+      selectParts.push(`lqr.*`, `fProc.name AS processor_name`, `fRam.name AS ram_name`, `fPhys.name AS physical_condition_name`);
+
+      joinParts.push(
+        `LEFT JOIN ${tableName} lqr ON lqr.productid = d.id`,
+        `LEFT JOIN ${filtertable} fProc ON lqr.processor = fProc.id`,
+        // In your original: LEFT JOIN laptop_filters f6 ... (inconsistent table)
+        // Using filtertable for consistency; change back only if your schema truly requires laptop_filters.
+        `LEFT JOIN ${filtertable} fRam ON lqr.ram = fRam.id`,
+        `LEFT JOIN ${filtertable} fPhys ON lqr.physical_condition = fPhys.id`
+      );
+    } else {
+      // isimage: no QC join needed; base query is enough
+    }
+
+    const sql = `
+      SELECT ${selectParts.join(", ")}
+      ${joinParts.join("\n")}
+      ${whereParts.join(" ")}
+      GROUP BY d.id
+      ORDER BY d.id DESC
+      LIMIT 1;
+    `;
+
+    // Use promise-based query (recommended). If your pool doesn't support promises, wrap it.
+    const [rows] = await pool.promise().query(sql, params);
+
+    return res.json({ response: category, result: rows });
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    return res.status(500).json({ msg: "error" });
+  }
 });
 
 
