@@ -87,20 +87,67 @@ router.get('/permanent-delete',verify.adminAuthenticationToken, async (req, res)
   
 
 
+// router.get('/view/orders', verify.adminAuthenticationToken, async (req, res) => {
+//   try {
+//     let result;
+//     if (req.query.id) {
+//       result = await user.getOrder(req.query.id);
+//     } else {
+//       result = await user.getOrder(req.query.status);
+//     }
+//     res.render(`${folder}/orders`, { result });
+//   } catch (error) {
+//     console.error('Error in route:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+
 router.get('/view/orders', verify.adminAuthenticationToken, async (req, res) => {
   try {
-    let result;
-    if (req.query.id) {
-      result = await user.getOrder(req.query.id);
-    } else {
-      result = await user.getOrder(req.query.status);
-    }
-    res.render(`${folder}/orders`, { result });
+    const {
+      status,
+      userid,
+      orderid,
+      q,
+      page = 1,
+      limit = 50
+    } = req.query;
+
+    const safePage = Math.max(parseInt(page, 10) || 1, 1);
+    const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 50, 10), 200); // 10..200
+    const offset = (safePage - 1) * safeLimit;
+
+    const filters = {
+      status: status?.trim(),
+      userid: userid?.trim(),
+      orderid: orderid?.trim(),
+      q: q?.trim(),
+      limit: safeLimit,
+      offset
+    };
+
+    const { rows, total } = await user.getOrdersWithFullDetails(filters);
+
+    const totalPages = Math.ceil(total / safeLimit) || 1;
+
+    res.render(`${folder}/orders`, {
+      result: rows,
+      pagination: {
+        page: safePage,
+        limit: safeLimit,
+        total,
+        totalPages
+      },
+      filters
+    });
   } catch (error) {
-    console.error('Error in route:', error);
+    console.error('Error in /view/orders route:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 
 router.get('/view/transaction', verify.adminAuthenticationToken, async (req, res) => {
@@ -137,22 +184,48 @@ router.get('/view/logs', verify.adminAuthenticationToken, async (req, res) => {
 
 
 
+
+// router.get('/view/transaction/details', verify.adminAuthenticationToken, async (req, res) => {
+//   try {
+    
+//     const result = await user.getTransactionDetails(req.query.status,req.query.orderid);
+//     if(req.query.status == 'credit'){
+//       res.render(`${folder}/transactionDetails`, { result });
+//     }
+//     else{
+//       res.render(`${folder}/bookingDetails`, { result });
+//     }
+//   } catch (error) {
+//     console.error('Error in route:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
+
 router.get('/view/transaction/details', verify.adminAuthenticationToken, async (req, res) => {
   try {
-    
-    const result = await user.getTransactionDetails(req.query.status,req.query.orderid);
-    if(req.query.status == 'credit'){
-      res.render(`${folder}/transactionDetails`, { result });
+    const type = String(req.query.status || '').trim();   // 'credit' OR 'booking'
+    const orderId = String(req.query.orderid || '').trim();
+
+    if (!orderId) {
+      return res.status(400).send('orderid is required');
     }
-    else{
-      res.render(`${folder}/bookingDetails`, { result });
+
+    const data = await user.getTransactionDetails(type, orderId);
+
+    if (type === 'credit') {
+      // wallet recharge details page (keep your existing page if you want)
+      return res.render(`${folder}/transactionDetails`, { result:data });
     }
+
+    // booking order details page (new “big company” view)
+    return res.render(`${folder}/bookingDetails`, { data });
+
   } catch (error) {
-    console.error('Error in route:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error in /view/transaction/details:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 
 router.post('/update/orders',verify.adminAuthenticationToken,async(req,res)=>{

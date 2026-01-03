@@ -1,176 +1,511 @@
-<%- include ('.././header.ejs') %>
-
+<%- include('.././header.ejs') %>
 
 <style>
-    #dataTable {
- border-collapse: collapse;
- width: 100%;
-}
-#empoloyees-tblwrapper th, #dataTable td {
- border: 1px solid #ddd;
- padding: 8px;
-}
-#empoloyees-tblwrapper th {
- background-color: #f2f2f2;
-}
-#searchInput {
- margin-bottom: 10px;
- padding: 8px;
-}
+  /* ===== Table (unchanged core) ===== */
+  #ordersTable { border-collapse: collapse; width: 100%; }
+  #ordersTable th, #ordersTable td { border: 1px solid #ddd; padding: 10px; vertical-align: top; }
+  #ordersTable th { background-color: #f2f2f2; white-space: nowrap; }
+  #searchInput { margin-bottom: 10px; padding: 10px; }
+
+  .muted { color: #666; font-size: 12px; }
+  .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; border: 1px solid #ddd; }
+  .pill-success { background: #e9f8ef; border-color: #bfe9cf; }
+  .pill-warn { background: #fff6e5; border-color: #ffd79a; }
+  .pill-danger { background: #ffecec; border-color: #ffbcbc; }
+
+  .btn-mini { padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+  }
+  .modal-overlay.show { display: flex; }
+
+  .modal-card {
+    width: 100%;
+    max-width: 1100px;
+    max-height: 88vh;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+  }
+
+  .modal-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .modal-close {
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .modal-body {
+    padding: 16px;
+    overflow: auto;
+  }
+
+  /* ===== Responsive details layout ===== */
+  .details-box { background: #fafafa; padding: 14px; border: 1px solid #eee; border-radius: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+  .kv { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 12px; }
+  .kv b { display:block; font-size: 12px; color:#555; margin-bottom: 6px;}
+  .kv div { font-size: 14px; }
+
+  .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
+  .items-table th, .items-table td { border: 1px solid #e6e6e6; padding: 8px; vertical-align: top; }
+  .right { text-align:right; }
+  .nowrap { white-space: nowrap; }
+
+  /* Make grids stack on small screens */
+  @media (max-width: 992px) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .grid, .grid-2 { grid-template-columns: 1fr; }
+    .modal-card { max-height: 92vh; }
+  }
+
+  /* Items table: horizontal scroll on small screens */
+  .table-scroll { overflow-x: auto; }
+  .table-scroll .items-table { min-width: 900px; }
 </style>
 
-    <!--**********************************
-            Content body start
-        ***********************************-->
-    <div class="content-body">
-        <!-- row -->
+<div class="content-body">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xl-12">
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive active-projects style-1">
+              <div class="tbl-caption" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px;">
+                <h4 class="heading mb-0">ORDER MANAGEMENT</h4>
 
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card">
-                        <div class="card-body p-0">
-                            <div class="table-responsive active-projects style-1">
-                                <div class="tbl-caption">
-                                    <h4 class="heading mb-0"> ORDERS LIST</h4>
-                                    <div>
+                <form method="GET" action="/admin/view/orders" style="display:flex; gap:10px; align-items:center;">
+                  <input type="text" class="form-control" id="serverSearch" name="q" placeholder="Server Search (order/user/phone)" value="<%= (filters && filters.q) ? filters.q : '' %>">
+                  <select class="form-control" name="status">
+                    <option value="">All Status</option>
+                    <option value="pending" <%= (filters.status==='pending')?'selected':'' %>>Pending</option>
+                    <option value="ongoing" <%= (filters.status==='ongoing')?'selected':'' %>>Ongoing</option>
+                    <option value="completed" <%= (filters.status==='completed')?'selected':'' %>>Completed</option>
+                  </select>
+                  <input type="text" class="form-control" name="orderid" placeholder="Order ID" value="<%= (filters && filters.orderid) ? filters.orderid : '' %>">
+                  <input type="text" class="form-control" name="userid" placeholder="User ID" value="<%= (filters && filters.userid) ? filters.userid : '' %>">
+                  <input type="hidden" name="limit" value="<%= pagination.limit %>">
+                  <button class="btn btn-primary" type="submit">Apply</button>
+                </form>
+              </div>
 
-
-                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
-                                    </div>
-                                </div>
-                                <table id="empoloyees-tblwrapper" class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>S. No.</th>
-                                            <th>Username</th>
-                                            <th>Usernumber</th>
-                                            <th>User ID</th>
-                                            <th>Order ID</th>
-                                            <th>Amount</th>
-                                            <th>Status</th>
-                                            <th>Tracking Link</th>
-                                            <th>Created At</th>
-                                            <th>Updated At</th>
-                                            <th>View Details</th>
-
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                        <% for(i=0;i<result.length;i++){ %>
-
-                                            <tr>
-                                                <td>
-                                                    <%=i+1%></td>
-
-                                                    <td><span>
-                                                        <%=result[i].username.toUpperCase()%>
-                                                    </span></td>
-
-                                                    <td><span>
-                                                        <%=result[i].usernumber.toUpperCase()%>
-                                                    </span></td>
-
-
-                                                    <td><span>
-                                                        <%=result[i].uniqueid.toUpperCase()%>
-                                                    </span></td>
-
-                                                    <td><span>
-                                                        <%=result[i].orderid.toUpperCase()%>
-                                                    </span></td>
-
-                                                    <td><span>
-                                                        Rs. <%=result[i].amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })%>
-                                                    </span></td>
-
-                                                    <td><span>
-                                                        <%=result[i].status.toUpperCase()%>
-                                                    </span></td>
-
-
-                                                    <td><span>
-                                                       <a href="<%=result[i].delivery_link%>"><%=result[i].delivery_link%></a> 
-                                                    </span></td>
-
-                                                    
-  
-                                                    <td><span>
-                                                        <%=result[i].created_at%>
-                                                    </span></td>
-
-
-                                                    <td><span>
-                                                        <%=result[i].updated_at%>
-                                                    </span></td>
-
-                                                    
-                                                    <td>
-                                                        <a href="/admin/dashboard/users/view/transaction/details?orderid=<%=result[i].orderid%>&status=debit"
-                                                            ><span
-                                                                class="badge badge-primary light border-0">View
-                                                                Details</span></a>
-                                                    </td>
-                                              
-                                            
-                                             
-
-
-
-                                             
-
-
-                                            </tr>
-
-
-                                            <% } %>
-
-
-                                    </tbody>
-
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+              <div style="padding: 0 14px 14px 14px;">
+                <input type="text" class="form-control" id="searchInput" placeholder="Client-side quick filter (current page)">
+                <div class="muted">
+                  Showing <b><%= result.length %></b> orders on this page.
+                  Total: <b><%= pagination.total %></b>, Page: <b><%= pagination.page %></b> / <b><%= pagination.totalPages %></b>
                 </div>
-            </div>
+              </div>
 
+              <table id="ordersTable" class="table">
+                <thead>
+                  <tr>
+                    <th class="nowrap">S. No.</th>
+                    <th>User</th>
+                    <th class="nowrap">Order</th>
+                    <th class="nowrap right">Amount</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Delivery</th>
+                    <th class="nowrap">Created</th>
+                    <th class="nowrap">Updated</th>
+                    <th class="nowrap">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% for (let i = 0; i < result.length; i++) { 
+                      const row = result[i];
+                      let items = [];
+                      try { items = row.items_json ? JSON.parse(row.items_json) : []; } catch(e) { items = []; }
+
+                      const isPaid = (row.pi_status && String(row.pi_status).toLowerCase() === 'paid') 
+                                     || (row.payment_response_id && row.razorpay_payment_id);
+
+                      const statusPillClass = row.status === 'completed'
+                        ? 'pill pill-success'
+                        : (row.status === 'ongoing' ? 'pill pill-warn' : 'pill pill-danger');
+
+                      const payPillClass = isPaid ? 'pill pill-success' : 'pill pill-warn';
+
+                      // Build a safe payload for modal (stringify to embed in HTML attribute)
+                      const payload = {
+                        id: row.id,
+                        orderid: row.orderid,
+                        status: row.status,
+                        amount: row.amount,
+                        created_at: row.created_at,
+                        updated_at: row.updated_at,
+
+                        // user
+                        username: row.username,
+                        usernumber: row.usernumber,
+                        uniqueid: row.uniqueid,
+                        email: row.email,
+                        firm_name: row.firm_name,
+                        gst: row.gst,
+
+                        // delivery
+                        address: row.address,
+                        delivery_partner: row.delivery_partner,
+                        awp_no: row.awp_no,
+                        delivery_link: row.delivery_link,
+
+                        // payment
+                        pi_status: row.pi_status,
+                        pi_total_amount: row.pi_total_amount,
+                        pi_wallet_used: row.pi_wallet_used,
+                        pi_payable_amount: row.pi_payable_amount,
+                        pi_razorpay_order_id: row.pi_razorpay_order_id,
+                        pr_razorpay_order_id: row.pr_razorpay_order_id,
+                        razorpay_payment_id: row.razorpay_payment_id,
+                        txnid: row.txnid,
+                        payment_type: row.payment_type,
+                        payment_created_at: row.payment_created_at,
+                        payer_name: row.payer_name,
+                        payer_address: row.payer_address,
+
+                        // items
+                        items: items
+                      };
+
+                      // Escape JSON for embedding safely
+                      const payloadStr = JSON.stringify(payload).replace(/</g, "\\u003c");
+                  %>
+
+                    <tr class="orderRow">
+                      <td class="nowrap"><%= (pagination.limit * (pagination.page - 1)) + (i + 1) %></td>
+
+                      <td>
+                        <div><b><%= (row.username || '').toUpperCase() %></b></div>
+                        <div class="muted">
+                          <div>Phone: <%= row.usernumber || '-' %></div>
+                          <div>UID: <%= row.uniqueid || '-' %></div>
+                          <div>Email: <%= row.email || '-' %></div>
+                          <div>Firm: <%= row.firm_name || '-' %></div>
+                          <div>GST: <%= row.gst || '-' %></div>
+                        </div>
+                      </td>
+
+                      <td class="nowrap">
+                        <div><b><%= (row.orderid || '').toUpperCase() %></b></div>
+                        <div class="muted">Items: <%= row.items_count || 0 %></div>
+                      </td>
+
+                      <td class="right nowrap">
+                        <div><b>₹ <%= Number(row.amount || 0).toLocaleString('en-IN') %></b></div>
+                        <div class="muted">Payable: ₹ <%= Number(row.pi_payable_amount || 0).toLocaleString('en-IN') %></div>
+                      </td>
+
+                      <td class="nowrap">
+                        <span class="<%= statusPillClass %>"><%= (row.status || '-').toUpperCase() %></span>
+                      </td>
+
+                      <td>
+                        <div><span class="<%= payPillClass %>"><%= isPaid ? 'PAID' : 'PENDING' %></span></div>
+                        <div class="muted">
+                          <div>Intent: <%= row.pi_status || '-' %></div>
+                          <div>RZP Pay ID: <%= row.razorpay_payment_id || '-' %></div>
+                          <div>TXN: <%= row.txnid || '-' %></div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="muted">
+                          <div>Partner: <%= row.delivery_partner || '-' %></div>
+                          <div>AWP: <%= row.awp_no || '-' %></div>
+                          <div>
+                            Link:
+                            <% if (row.delivery_link) { %>
+                              <a href="<%= row.delivery_link %>" target="_blank" rel="noopener noreferrer">Open</a>
+                            <% } else { %>
+                              -
+                            <% } %>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td class="nowrap"><%= row.created_at || '-' %></td>
+                      <td class="nowrap"><%= row.updated_at || '-' %></td>
+
+                      <td class="nowrap">
+                        <button
+                          type="button"
+                          class="btn-mini js-open-modal"
+                          data-order='<%- payloadStr %>'>
+                          View Details
+                        </button>
+
+                        <a href="/admin/dashboard/users/view/transaction/details?orderid=<%= row.orderid %>&status=debit">
+                          <span class="badge badge-primary light border-0">View Transaction</span>
+                        </a>
+                      </td>
+                    </tr>
+
+                  <% } %>
+                </tbody>
+              </table>
+
+              <!-- Pagination -->
+              <div style="display:flex; justify-content:space-between; align-items:center; padding: 14px;">
+                <div class="muted">
+                  Total Orders: <b><%= pagination.total %></b>
+                </div>
+
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <% 
+                    const baseQuery = (obj) => {
+                      const qs = [];
+                      for (const key in obj) {
+                        if (obj[key] !== undefined && obj[key] !== null && String(obj[key]).length) {
+                          qs.push(`${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`);
+                        }
+                      }
+                      return qs.join('&');
+                    };
+                    const common = {
+                      status: filters.status || '',
+                      userid: filters.userid || '',
+                      orderid: filters.orderid || '',
+                      q: filters.q || '',
+                      limit: pagination.limit
+                    };
+                  %>
+
+                  <% if (pagination.page > 1) { %>
+                    <a class="btn btn-outline-primary" href="/admin/view/orders?<%= baseQuery({ ...common, page: pagination.page - 1 }) %>">Prev</a>
+                  <% } else { %>
+                    <button class="btn btn-outline-secondary" disabled>Prev</button>
+                  <% } %>
+
+                  <span class="muted">Page <b><%= pagination.page %></b> of <b><%= pagination.totalPages %></b></span>
+
+                  <% if (pagination.page < pagination.totalPages) { %>
+                    <a class="btn btn-outline-primary" href="/admin/view/orders?<%= baseQuery({ ...common, page: pagination.page + 1 }) %>">Next</a>
+                  <% } else { %>
+                    <button class="btn btn-outline-secondary" disabled>Next</button>
+                  <% } %>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Responsive Modal (single instance) ===== -->
+<div class="modal-overlay" id="orderModal" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+    <div class="modal-head">
+      <h3 class="modal-title" id="orderModalTitle">Order Details</h3>
+      <button type="button" class="modal-close" id="orderModalClose" aria-label="Close">✕</button>
     </div>
 
-    <!--**********************************
-            Content body end
-        ***********************************-->
+    <div class="modal-body" id="orderModalBody">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+</div>
 
+<%- include('.././footer.ejs') %>
 
+<script>
+  // ===== Helpers =====
+  function escHtml(str) {
+    if (str === null || str === undefined) return '-';
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-        <%- include ('.././footer.ejs') %>
+  function formatINR(v) {
+    const n = Number(v || 0);
+    return "₹ " + n.toLocaleString('en-IN');
+  }
 
+  // ===== Modal render =====
+  const modal = document.getElementById("orderModal");
+  const modalBody = document.getElementById("orderModalBody");
+  const modalTitle = document.getElementById("orderModalTitle");
+  const btnClose = document.getElementById("orderModalClose");
 
+  function openModal(order) {
+    const orderId = order.orderid ? String(order.orderid).toUpperCase() : "ORDER DETAILS";
+    modalTitle.textContent = "Order Details • " + orderId;
 
-    <script>
-document.getElementById("searchInput").addEventListener("keyup", function() {
- const searchText = this.value.toLowerCase();
- const table = document.getElementById("empoloyees-tblwrapper");
- const rows = table.getElementsByTagName("tr");
- // Start iterating from the second row (skipping the table header)
- for (let i = 1; i < rows.length; i++) {
-   const row = rows[i];
-   const cells = row.getElementsByTagName("td");
-   let found = false;
-   for (let cell of cells) {
-     const text = cell.textContent.toLowerCase();
-     if (text.includes(searchText)) {
-       found = true;
-       break;
-     }
-   }
-   if (found) {
-     row.style.display = "";
-   } else {
-     row.style.display = "none";
-   }
- }
-});
-    </script>
+    const items = Array.isArray(order.items) ? order.items : [];
+
+    const itemsRows = items.length
+      ? items.map(it => `
+          <tr>
+            <td class="nowrap">${escHtml(it.booking_id)}</td>
+            <td>
+              <div><b>${escHtml((it.product_name || '-').toUpperCase())}</b></div>
+              <div class="muted">Product ID: ${escHtml(it.productid)}</div>
+              <div class="muted">Subcategory: ${escHtml(it.subcategory || '-')}</div>
+            </td>
+            <td class="nowrap">${escHtml(it.skuno || '-')}</td>
+            <td class="nowrap">${escHtml(it.modelno || '-')}</td>
+            <td class="nowrap">${escHtml(it.brand || '-')}</td>
+            <td class="nowrap">${escHtml(it.category || '-')}</td>
+            <td class="right nowrap">${escHtml(formatINR(it.price))}</td>
+            <td class="right nowrap">${escHtml(Number(it.quantity || 0))}</td>
+            <td class="right nowrap">${escHtml(formatINR(it.amount))}</td>
+            <td class="nowrap">${escHtml((it.booking_status || '-').toUpperCase())}</td>
+          </tr>
+        `).join("")
+      : `<tr><td colspan="10" class="muted">No booking items found for this order.</td></tr>`;
+
+    const trackingLink = order.delivery_link
+      ? `<a href="${escHtml(order.delivery_link)}" target="_blank" rel="noopener noreferrer">${escHtml(order.delivery_link)}</a>`
+      : `-`;
+
+    modalBody.innerHTML = `
+      <div class="details-box">
+        <div class="grid">
+          <div class="kv">
+            <b>User</b>
+            <div><b>${escHtml((order.username || '-').toUpperCase())}</b></div>
+            <div class="muted">Phone: ${escHtml(order.usernumber || '-')}</div>
+            <div class="muted">UID: ${escHtml(order.uniqueid || '-')}</div>
+            <div class="muted">Email: ${escHtml(order.email || '-')}</div>
+            <div class="muted">Firm: ${escHtml(order.firm_name || '-')}</div>
+            <div class="muted">GST: ${escHtml(order.gst || '-')}</div>
+          </div>
+
+          <div class="kv">
+            <b>Order</b>
+            <div>Order ID: <b>${escHtml((order.orderid || '-').toUpperCase())}</b></div>
+            <div>Status: <b>${escHtml((order.status || '-').toUpperCase())}</b></div>
+            <div>Total: <b>${escHtml(formatINR(order.pi_total_amount || order.amount || 0))}</b></div>
+            <div>Wallet Used: <b>${escHtml(formatINR(order.pi_wallet_used || 0))}</b></div>
+            <div>Payable: <b>${escHtml(formatINR(order.pi_payable_amount || 0))}</b></div>
+            <div class="muted">Created: ${escHtml(order.created_at || '-')}</div>
+            <div class="muted">Updated: ${escHtml(order.updated_at || '-')}</div>
+          </div>
+
+          <div class="kv">
+            <b>Shipping & Delivery</b>
+            <div><b>Address</b></div>
+            <div>${escHtml(order.address || '-')}</div>
+            <div class="muted" style="margin-top:8px;">Partner: ${escHtml(order.delivery_partner || '-')}</div>
+            <div class="muted">AWP: ${escHtml(order.awp_no || '-')}</div>
+            <div class="muted">Tracking: ${trackingLink}</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <div class="kv">
+            <b>Razorpay / Payment Identifiers</b>
+            <div>PI Razorpay Order: ${escHtml(order.pi_razorpay_order_id || '-')}</div>
+            <div>PR Razorpay Order: ${escHtml(order.pr_razorpay_order_id || '-')}</div>
+            <div>Razorpay Payment ID: ${escHtml(order.razorpay_payment_id || '-')}</div>
+            <div>TXN ID: ${escHtml(order.txnid || '-')}</div>
+            <div>Payment Type: ${escHtml(order.payment_type || '-')}</div>
+            <div class="muted">Payment Created: ${escHtml(order.payment_created_at || '-')}</div>
+            <div class="muted">Intent Status: ${escHtml(order.pi_status || '-')}</div>
+          </div>
+
+          <div class="kv">
+            <b>Payer Details (from payment response)</b>
+            <div>Name: ${escHtml(order.payer_name || '-')}</div>
+            <div>Address: ${escHtml(order.payer_address || '-')}</div>
+            <div class="muted">Note: keep payer details only if it matches compliance needs.</div>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+
+    // lock body scroll
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    modalBody.innerHTML = "";
+    document.body.style.overflow = "";
+  }
+
+  // ===== Event wiring =====
+  document.addEventListener("click", function(e) {
+    const btn = e.target.closest(".js-open-modal");
+    if (!btn) return;
+
+    try {
+      const data = btn.getAttribute("data-order");
+      const order = JSON.parse(data);
+      openModal(order);
+    } catch (err) {
+      console.error("Failed to open modal:", err);
+      alert("Unable to open details. Invalid order data.");
+    }
+  });
+
+  btnClose.addEventListener("click", closeModal);
+
+  // close when clicking outside the card
+  modal.addEventListener("click", function(e) {
+    if (e.target === modal) closeModal();
+  });
+
+  // ESC key closes modal
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && modal.classList.contains("show")) closeModal();
+  });
+
+  // ===== Client-side quick filter (current page) =====
+  document.getElementById("searchInput").addEventListener("keyup", function() {
+    const searchText = this.value.toLowerCase();
+    const rows = document.querySelectorAll(".orderRow");
+    rows.forEach(r => {
+      const text = r.innerText.toLowerCase();
+      const show = text.includes(searchText);
+      r.style.display = show ? "" : "none";
+    });
+  });
+</script>

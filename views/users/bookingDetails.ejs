@@ -1,369 +1,357 @@
 <%- include('.././header.ejs') %>
 
-<% 
-    // Safely get the first order (for status badges)
-    const hasResults = Array.isArray(result) && result.length > 0;
-    const firstOrder = hasResults ? (result[0] || {}) : {};
+<%
+  const header = data?.header || {};
+  const items = Array.isArray(data?.items) ? data.items : [];
+  const totals = data?.totals || { totalQty: 0, totalLineAmount: 0 };
+
+  const intent = data?.payment?.intent || {};
+  const resp = data?.payment?.response || {};
+
+  const orderId = (header.orderid || '').toString();
+  const orderStatus = (header.order_status || '').toString();
+  const resolvedAddress = (header.resolved_address || '').toString();
+
+  const deliveryPartner = (header.order_delivery_partner || '').toString();
+  const awbNo = (header.order_awb_no || '').toString();
+  const deliveryLink = (header.order_delivery_link || '').toString();
+
+  const formatINR = (n) => {
+    const num = Number(n || 0);
+    return num.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+  };
 %>
 
 <style>
-    #dataTable {
-        border-collapse: collapse;
-        width: 100%;
-    }
+  .section-title { font-weight: 600; margin: 0; }
+  .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 1200px) { .meta-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .meta-grid { grid-template-columns: 1fr; } }
 
-    #empoloyees-tblwrapper th,
-    #dataTable td {
-        border: 1px solid #ddd;
-        padding: 8px;
-    }
+  .meta-card { border: 1px solid #eee; border-radius: 10px; padding: 12px; background: #fff; }
+  .meta-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .meta-value { font-size: 14px; font-weight: 600; color: #111; word-break: break-word; }
 
-    #empoloyees-tblwrapper th {
-        background-color: #f2f2f2;
-    }
+  #empoloyees-tblwrapper th, #empoloyees-tblwrapper td { border: 1px solid #ddd; padding: 10px; }
+  #empoloyees-tblwrapper th { background-color: #f7f7f7; }
+  #searchInput { margin-bottom: 10px; padding: 8px; }
 
-    #searchInput {
-        margin-bottom: 10px;
-        padding: 8px;
-    }
+  #loader-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  #loader {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-    #loader-overlay {
-        display: none;             /* hidden by default */
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-    }
-
-    #loader {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid #3498db;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
+  .badge { cursor: default; }
+  .action-badge { cursor: pointer; }
+  .disabled { pointer-events: none; opacity: 0.6; }
 </style>
 
-<!--**********************************
-        Content body start
-***********************************-->
 <div class="content-body">
-    <!-- row -->
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive active-projects style-1">
-                            <div class="tbl-caption">
-                                <h4 class="heading mb-0">Order Details</h4>
-                                <div>
-                                    <span>
-                                        <% if (hasResults) { %>
-                                            <a>
-                                                <span class="badge badge-warning dark border-0">
-                                                    Current Status :
-                                                    <%= (firstOrder.orderstatus || 'N/A').toString().toUpperCase() %>
-                                                    <input type="hidden" id="orderid" value="<%= firstOrder.orderid || '' %>">
-                                                </span>
-                                            </a>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xl-12">
 
-                                            <% if (firstOrder.orderstatus === 'ongoing') { %>
-                                                <a>
-                                                    <span class="badge badge-dark light border-0 disabled" aria-disabled="true">
-                                                        Mark as Ongoing
-                                                    </span>
-                                                </a>
-                                            <% } else { %>
-                                                <a onclick="ongoing()">
-                                                    <span class="badge badge-dark light border-0">
-                                                        Mark as Ongoing
-                                                    </span>
-                                                </a>
-                                            <% } %>
+        <div class="card">
+          <div class="card-body">
 
-                                            <% if (firstOrder.orderstatus === 'completed') { %>
-                                                <a>
-                                                    <span class="badge badge-success light border-0 disabled" aria-disabled="true">
-                                                        Mark as Completed
-                                                    </span>
-                                                </a>
-                                            <% } else { %>
-                                                <a onclick="completed()">
-                                                    <span class="badge badge-success light border-0">
-                                                        Mark as Completed
-                                                    </span>
-                                                </a>
-                                            <% } %>
-                                        <% } else { %>
-                                            <span class="badge badge-secondary border-0">
-                                                No orders found
-                                            </span>
-                                        <% } %>
+            <div class="d-flex justify-content-between align-items-start flex-wrap" style="gap:12px;">
+              <div>
+                <h4 class="heading mb-1">Order Management</h4>
+                <div style="color:#666;">Complete order details (customer, items, delivery, payment)</div>
+              </div>
 
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            id="searchInput"
-                                            style="margin-top: 20px;"
-                                            placeholder="Search"
-                                        >
-                                    </span>
-                                </div>
-                            </div>
+              <div>
+                <span class="badge badge-warning dark border-0">
+                  Current Status: <%= (orderStatus || 'N/A').toUpperCase() %>
+                </span>
+                <input type="hidden" id="orderid" value="<%= orderId %>">
 
-                            <table id="empoloyees-tblwrapper" class="table">
-                                <thead>
-                                    <tr>
-                                        <th>S. No.</th>
-                                        <th>Username</th>
-                                        <th>Usernumber</th>
-                                        <th>User ID</th>
-                                        <th>Order ID</th>
-                                        <th>Category</th>
-                                        <th>Product</th>
-                                        <th>Amount</th>
-                                        <th>Quantity</th>
-                                        <th>Created At</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% if (hasResults) { %>
-                                        <% for (let i = 0; i < result.length; i++) { 
-                                            const row = result[i] || {};
-                                            const amountNum = Number(row.amount) || 0;
-                                        %>
-                                            <tr>
-                                                <!-- S.No -->
-                                                <td><%= i + 1 %></td>
+                <% if (!orderId) { %>
+                  <span class="badge badge-secondary border-0">Invalid Order</span>
+                <% } else { %>
 
-                                                <!-- Username -->
-                                                <td>
-                                                    <span>
-                                                        <%= (row.username || '').toString().toUpperCase() %>
-                                                    </span>
-                                                </td>
+                  <% if (orderStatus === 'ongoing') { %>
+                    <span class="badge badge-dark light border-0 disabled">Mark as Ongoing</span>
+                  <% } else { %>
+                    <span class="badge badge-dark light border-0 action-badge" onclick="markOngoing()">Mark as Ongoing</span>
+                  <% } %>
 
-                                                <!-- Usernumber -->
-                                                <td>
-                                                    <span>
-                                                        <%= (row.usernumber || '').toString().toUpperCase() %>
-                                                    </span>
-                                                </td>
+                  <% if (orderStatus === 'completed') { %>
+                    <span class="badge badge-success light border-0 disabled">Mark as Completed</span>
+                  <% } else { %>
+                    <span class="badge badge-success light border-0 action-badge" onclick="markCompleted()">Mark as Completed</span>
+                  <% } %>
 
-                                                <!-- User ID -->
-                                                <td>
-                                                    <span>
-                                                        <%= (row.uniqueid || '').toString().toUpperCase() %>
-                                                    </span>
-                                                </td>
+                <% } %>
+              </div>
+            </div>
 
-                                                <!-- Order ID -->
-                                                <td>
-                                                    <span>
-                                                        <%= (row.orderid || '').toString().toUpperCase() %>
-                                                    </span>
-                                                </td>
+            <hr />
 
-                                                <!-- Category -->
-                                                <td>
-                                                    <span>
-                                                        <%= (row.category || '').toString().toUpperCase() %>
-                                                    </span>
-                                                </td>
+            <!-- ORDER SUMMARY / CUSTOMER / DELIVERY / PAYMENT -->
+            <div class="meta-grid">
 
-                                                <!-- Product (NULL SAFE) -->
-                                                <td>
-                                                    <span>
-                                                        <%= (row.productname || '').toString().toUpperCase() %>
-                                                    </span>
-                                                </td>
+              <div class="meta-card">
+                <p class="section-title mb-2">Order Summary</p>
+                <div class="meta-label">Order ID</div>
+                <div class="meta-value"><%= (orderId || 'N/A').toUpperCase() %></div>
 
-                                                <!-- Amount (formatted INR) -->
-                                                <td>
-                                                    <span>
-                                                        <%= amountNum.toLocaleString('en-IN', { style: 'currency', currency: 'INR' }) %>
-                                                    </span>
-                                                </td>
+                <div class="meta-label mt-2">Created</div>
+                <div class="meta-value"><%= header.order_created_at || 'N/A' %></div>
 
-                                                <!-- Quantity -->
-                                                <td>
-                                                    <span>
-                                                        <%= row.quantity || 0 %>
-                                                    </span>
-                                                </td>
+                <div class="meta-label mt-2">Updated</div>
+                <div class="meta-value"><%= header.order_updated_at || 'N/A' %></div>
+              </div>
 
-                                                <!-- Created At -->
-                                                <td>
-                                                    <span>
-                                                        <%= row.created_at || '' %>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        <% } %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="10" class="text-center">
-                                                No order details available.
-                                            </td>
-                                        </tr>
-                                    <% } %>
-                                </tbody>
-                            </table>
+              <div class="meta-card">
+                <p class="section-title mb-2">Customer</p>
 
-                            <!-- Loader Overlay -->
-                            <div id="loader-overlay">
-                                <div id="loader"></div>
-                            </div>
+                <div class="meta-label">Name</div>
+                <div class="meta-value"><%= (header.username || 'N/A').toString().toUpperCase() %></div>
 
-                            <!-- Optional status text target -->
-                            <div id="demo" style="display:none;"></div>
+                <div class="meta-label mt-2">Phone</div>
+                <div class="meta-value"><%= (header.usernumber || 'N/A').toString() %></div>
 
-                        </div> <!-- /.table-responsive -->
-                    </div> <!-- /.card-body -->
-                </div> <!-- /.card -->
-            </div> <!-- /.col-xl-12 -->
-        </div> <!-- /.row -->
-    </div> <!-- /.container-fluid -->
+                <div class="meta-label mt-2">Email</div>
+                <div class="meta-value"><%= (header.useremail || 'N/A').toString() %></div>
+
+                <div class="meta-label mt-2">Unique ID</div>
+                <div class="meta-value"><%= (header.uniqueid || 'N/A').toString().toUpperCase() %></div>
+
+                <div class="meta-label mt-2">Firm / GST</div>
+                <div class="meta-value">
+                  <%= (header.firm_name || 'N/A').toString() %>
+                  <% if (header.gst) { %> | GST: <%= header.gst %> <% } %>
+                </div>
+              </div>
+
+              <div class="meta-card">
+                <p class="section-title mb-2">Shipping & Delivery</p>
+
+                <div class="meta-label">Delivery Address</div>
+                <div class="meta-value"><%= resolvedAddress || 'N/A' %></div>
+
+                <div class="meta-label mt-2">Delivery Partner</div>
+                <div class="meta-value"><%= deliveryPartner || 'N/A' %></div>
+
+                <div class="meta-label mt-2">AWB No</div>
+                <div class="meta-value"><%= awbNo || 'N/A' %></div>
+
+                <div class="meta-label mt-2">Tracking Link</div>
+                <div class="meta-value">
+                  <% if (deliveryLink) { %>
+                    <a href="<%= deliveryLink %>" target="_blank" rel="noopener">Open Tracking</a>
+                  <% } else { %>
+                    N/A
+                  <% } %>
+                </div>
+              </div>
+
+              <div class="meta-card">
+                <p class="section-title mb-2">Payment</p>
+
+                <div class="meta-label">Items Total</div>
+                <div class="meta-value"><%= formatINR(totals.totalLineAmount) %></div>
+
+                <div class="meta-label mt-2">Total Quantity</div>
+                <div class="meta-value"><%= totals.totalQty || 0 %></div>
+
+                <div class="meta-label mt-2">Payment Intent</div>
+                <div class="meta-value">
+                  Status: <%= (intent.intent_status || 'N/A').toString().toUpperCase() %><br/>
+                  Total: <%= formatINR(intent.total_amount) %><br/>
+                  Wallet Used: <%= formatINR(intent.wallet_used) %><br/>
+                  Payable: <%= formatINR(intent.payable_amount) %>
+                </div>
+
+                <div class="meta-label mt-2">Payment Response</div>
+                <div class="meta-value">
+                  Paid: <%= formatINR(resp.paid_amount) %><br/>
+                  txnid: <%= (resp.txnid || 'N/A').toString() %><br/>
+                  razorpay_payment_id: <%= (resp.razorpay_payment_id || 'N/A').toString() %><br/>
+                  razorpay_order_id: <%= (resp.razorpay_order_id || 'N/A').toString() %><br/>
+                  Paid At: <%= resp.payment_created_at || 'N/A' %>
+                </div>
+              </div>
+
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap" style="gap:10px;">
+              <h5 class="mb-0">Order Line Items</h5>
+
+              <input
+                type="text"
+                class="form-control"
+                id="searchInput"
+                style="max-width: 320px;"
+                placeholder="Search in items"
+              />
+            </div>
+
+            <div class="table-responsive mt-3">
+              <table id="empoloyees-tblwrapper" class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>SKU / Model</th>
+                    <th>Qty</th>
+                    <th> Amount</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% if (items.length > 0) { %>
+                    <% for (let i = 0; i < items.length; i++) {
+                      const r = items[i] || {};
+                    %>
+                      <tr>
+                        <td><%= i + 1 %></td>
+
+                        <td>
+                          <div style="font-weight:600;"><%= (r.product_name || 'N/A').toString().toUpperCase() %></div>
+                          <div style="font-size:12px;color:#666;">
+                            Product ID: <%= r.productid || 'N/A' %> | Booking ID: <%= r.booking_id || 'N/A' %>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div>SKU: <%= (r.product_sku || 'N/A').toString() %></div>
+                          <div>Model: <%= (r.product_modelno || 'N/A').toString() %></div>
+                        </td>
+
+                       
+
+                        <td><%= Number(r.quantity || 0) %></td>
+
+                        <td><%= formatINR(r.line_amount) %></td>
+
+
+
+                        <td><%= r.booking_created_at || 'N/A' %></td>
+                      </tr>
+
+                      
+
+                    <% } %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="10" class="text-center">No booking items found for this order.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Loader -->
+        <div id="loader-overlay"><div id="loader"></div></div>
+
+      </div>
+    </div>
+  </div>
 </div>
-<!--**********************************
-        Content body end
-***********************************-->
 
 <%- include('.././footer.ejs') %>
 
 <script>
-    // Search filter
-    (function () {
-        const searchInput = document.getElementById("searchInput");
-        const table = document.getElementById("empoloyees-tblwrapper");
+  // Search filter
+  (function () {
+    const searchInput = document.getElementById("searchInput");
+    const table = document.getElementById("empoloyees-tblwrapper");
+    if (!searchInput || !table) return;
 
-        if (!searchInput || !table) return;
+    searchInput.addEventListener("keyup", function () {
+      const searchText = (this.value || '').toLowerCase();
+      const rows = table.getElementsByTagName("tr");
 
-        searchInput.addEventListener("keyup", function () {
-            const searchText = this.value.toLowerCase();
-            const rows = table.getElementsByTagName("tr");
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName("td");
+        if (!cells || cells.length === 0) continue;
 
-            // Start iterating from the second row (skipping the table header)
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                const cells = row.getElementsByTagName("td");
-                let found = false;
-
-                for (let j = 0; j < cells.length; j++) {
-                    const text = (cells[j].textContent || cells[j].innerText || '').toLowerCase();
-                    if (text.includes(searchText)) {
-                        found = true;
-                        break;
-                    }
-                }
-
-                row.style.display = found ? "" : "none";
-            }
-        });
-    })();
-</script>
-
-<script>
-    function completed() {
-        const loaderOverlay = document.getElementById("loader-overlay");
-        const loader = document.getElementById("loader");
-        const demoEl = document.getElementById("demo");
-
-        if (!loaderOverlay || !loader) return;
-
-        loaderOverlay.style.display = "flex"; 
-
-        let orderid = $('#orderid').val();
-        let text;
-
-        if (confirm("Are you sure this order has been delivered successfully?")) {
-            $.post('/admin/dashboard/users/update/orders', { orderid, status: 'completed' }, data => {
-                loaderOverlay.style.display = "none"; // Hide overlay after response
-
-                if (data.msg === 'success') {
-                    window.location.reload();
-                } else {
-                    alert('An Error Occured Please Try Again Later.');
-                }
-            });
-        } else {
-            loaderOverlay.style.display = "none";
-            text = "You canceled!";
+        let found = false;
+        for (let j = 0; j < cells.length; j++) {
+          const text = (cells[j].textContent || cells[j].innerText || '').toLowerCase();
+          if (text.includes(searchText)) { found = true; break; }
         }
+        row.style.display = found ? "" : "none";
+      }
+    });
+  })();
 
-        if (demoEl) {
-            demoEl.innerHTML = text || '';
-        }
-    }
+  function showLoader(show) {
+    const overlay = document.getElementById("loader-overlay");
+    if (!overlay) return;
+    overlay.style.display = show ? "flex" : "none";
+  }
 
-    function ongoing() {
-        const loaderOverlay = document.getElementById("loader-overlay");
-        const loader = document.getElementById("loader");
-        const demoEl = document.getElementById("demo");
+  function markCompleted() {
+    const orderid = document.getElementById('orderid')?.value || '';
+    if (!orderid) return alert('Invalid order.');
 
-        let orderid = $('#orderid').val();
-        let text;
+    if (!confirm("Are you sure this order has been delivered successfully?")) return;
 
-        // Prompt for delivery link
-        let delivery_link = prompt("Please enter tracking link:", "");
-        if (delivery_link == null || delivery_link.trim() === "") {
-            text = "User cancelled the prompt.";
-            if (demoEl) demoEl.innerHTML = text;
-            return;
-        }
+    showLoader(true);
 
-        // Prompt for delivery partner name
-        let delivery_partner = prompt("Please enter delivery partner name:", "");
-        if (delivery_partner == null || delivery_partner.trim() === "") {
-            text = "User cancelled the prompt.";
-            if (demoEl) demoEl.innerHTML = text;
-            return;
-        }
+    $.post('/admin/dashboard/users/update/orders', { orderid, status: 'completed' }, (data) => {
+      showLoader(false);
+      if (data && data.msg === 'success') window.location.reload();
+      else alert('An error occurred. Please try again later.');
+    }).fail(() => {
+      showLoader(false);
+      alert('Request failed. Please try again later.');
+    });
+  }
 
-        // Prompt for AWB number
-        let awb_no = prompt("Please enter AWB number:", "");
-        if (awb_no == null || awb_no.trim() === "") {
-            text = "User cancelled the prompt.";
-            if (demoEl) demoEl.innerHTML = text;
-            return;
-        }
+  function markOngoing() {
+    const orderid = document.getElementById('orderid')?.value || '';
+    if (!orderid) return alert('Invalid order.');
 
-        if (!loaderOverlay || !loader) return;
+    const delivery_link = prompt("Please enter tracking link:", "");
+    if (!delivery_link || !delivery_link.trim()) return;
 
-        loaderOverlay.style.display = "flex"; // Show overlay
+    const delivery_partner = prompt("Please enter delivery partner name:", "");
+    if (!delivery_partner || !delivery_partner.trim()) return;
 
-        // Send all details to backend
-        $.post(
-            '/admin/dashboard/users/update/orders',
-            {
-                orderid,
-                delivery_link,
-                delivery_partner,
-                awp_no: awb_no,   // Pass AWB number as `awp_no`
-                status: 'ongoing'
-            },
-            data => {
-                loaderOverlay.style.display = "none"; // Hide overlay after response
-                if (data.msg === 'success') {
-                    window.location.reload();
-                } else {
-                    alert('An Error Occured. Please Try Again Later.');
-                }
-            }
-        );
+    const awb_no = prompt("Please enter AWB number:", "");
+    if (!awb_no || !awb_no.trim()) return;
 
-        if (demoEl) {
-            demoEl.innerHTML = "Updating order details...";
-        }
-    }
+    showLoader(true);
+
+    // IMPORTANT: Use the correct field name consistently (awb_no or awp_no)
+    $.post('/admin/dashboard/users/update/orders', {
+      orderid,
+      delivery_link,
+      delivery_partner,
+      awp_no: awb_no, // keep as awp_no if your DB column is awp_no
+      status: 'ongoing'
+    }, (data) => {
+      showLoader(false);
+      if (data && data.msg === 'success') window.location.reload();
+      else alert('An error occurred. Please try again later.');
+    }).fail(() => {
+      showLoader(false);
+      alert('Request failed. Please try again later.');
+    });
+  }
 </script>
