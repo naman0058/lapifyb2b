@@ -1748,7 +1748,17 @@ router.post('/update-cart', (req, res) => {
 
 
 
-router.get('/mycart', (req, res) => {
+router.get('/mycart', 
+  createActivityLogger(
+    'cart_view',
+    (req) => ({
+      // keep it minimal; cart contents should not be logged here
+      page: req.query.page ? Number(req.query.page) : null,
+      limit: req.query.limit ? Number(req.query.limit) : null
+    }),
+    { queryAsync }
+  ),
+  (req, res) => {
     const userId = req.query.userid; // Assuming userid is passed as a query parameter
 
     pool.query(`
