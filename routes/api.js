@@ -980,7 +980,20 @@ router.get('/get-filter',async(req,res)=>{
 // });
 
 
-router.get("/get-product", async (req, res) => {
+router.get("/get-product",
+  createActivityLogger(
+    'product_list',
+    (req) => ({
+      category: req.query.category || null,
+      brand: req.query.brand ? Number(req.query.brand) : null,
+      generation: req.query.generation || null,
+      laptop_type: req.query.laptop_type || null,
+      page: req.query.page ? Number(req.query.page) : null,
+      limit: req.query.limit ? Number(req.query.limit) : null
+    }),
+    { queryAsync }
+  ),
+   async (req, res) => {
   try {
     let {
       category,
@@ -1394,7 +1407,16 @@ function resolveFilterTable(category) {
   return null;
 }
 
-router.get("/product_description", async (req, res) => {
+router.get("/product_description",
+   createActivityLogger(
+    'product_view',
+    (req) => ({
+      category: req.query.category || null,
+      product_id: req.query.id ? Number(req.query.id) : null
+    }),
+    { queryAsync }
+  ),
+  async (req, res) => {
   try {
     const category = String(req.query.category || "").trim();
     const id = req.query.id;
@@ -1529,7 +1551,17 @@ router.get("/product_description", async (req, res) => {
 
 
 
-router.get('/get-subcategory',(req,res)=>{
+router.get('/get-subcategory',
+    createActivityLogger(
+    'subcategory_filter',
+    (req) => ({
+      category: req.query.category || null,
+      filters: req.query.filters || null
+    }),
+    { queryAsync }
+  ),
+
+  (req,res)=>{
 
     if (isimage.includes(req.query.category)) {
         filtertable = 'parts_and_accessories_filters';
