@@ -315,29 +315,241 @@ async function getTransaction(value) {
   
 
 
-  async function getLogs(value) {
+  // async function getLogs(value) {
+  //   try {
+  //     let result;
+  //     if (value == 'all') {
+  //       result = await queryAsync(`SELECT t.*, u.name as username, u.number as usernumber, u.unique_id as uniqueid
+  //                                   FROM user_activity_log t
+  //                                   JOIN users u ON u.id = t.userid
+  //                                   ORDER BY t.id DESC
+  //                                   LIMIT 1000`);
+  //     } else {
+  //       result = await queryAsync(`SELECT t.*, u.name as username, u.number as usernumber, u.unique_id as uniqueid
+  //                                   FROM user_activity_log t
+  //                                   JOIN users u ON u.id = t.userid
+  //                                   WHERE t.userid = '${value}'
+  //                                   ORDER BY t.id DESC`);
+  //     }
+  //     return result;
+  //   } catch (error) {
+  //     console.error('Error while fetching logs:', error);
+  //     throw new Error('Internal server error');
+  //   }
+  // }
+  
+
+  // models/user.js (or your user model file)
+
+function safeParseJSON(val) {
+  if (!val) return null;
+  if (typeof val === 'object') return val;
+  if (typeof val !== 'string') return null;
+
+  try {
+    return JSON.parse(val);
+  } catch {
     try {
-      let result;
-      if (value == 'all') {
-        result = await queryAsync(`SELECT t.*, u.name as username, u.number as usernumber, u.unique_id as uniqueid
-                                    FROM logs t
-                                    JOIN users u ON u.id = t.userid
-                                    ORDER BY t.id DESC
-                                    LIMIT 1000`);
-      } else {
-        result = await queryAsync(`SELECT t.*, u.name as username, u.number as usernumber, u.unique_id as uniqueid
-                                    FROM logs t
-                                    JOIN users u ON u.id = t.userid
-                                    WHERE t.userid = '${value}'
-                                    ORDER BY t.id DESC`);
-      }
-      return result;
-    } catch (error) {
-      console.error('Error while fetching logs:', error);
-      throw new Error('Internal server error');
+      const maybe = JSON.parse(val);
+      if (typeof maybe === 'string') return JSON.parse(maybe);
+      return maybe;
+    } catch {
+      return null;
     }
   }
-  
+}
+
+function getFilterTableByCategory(category) {
+  const c = String(category || '').trim().toLowerCase();
+  if (c === 'laptop') return 'laptop_filters';
+  if (c === 'apple') return 'apple_filters';
+  if (c === 'accessories') return 'parts_and_accessories_filters';
+  if (c === 'mobile') return 'mobile_filters';
+  return null;
+}
+
+function toIntOrNull(v) {
+  if (v === undefined || v === null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function collectFilterIdsFromQuery(queryObj) {
+  if (!queryObj || typeof queryObj !== 'object') return [];
+  const keys = ['brand', 'generation', 'laptop_type', 'subcategory', 'filters', 'condition'];
+  const ids = [];
+  for (const k of keys) {
+    const n = toIntOrNull(queryObj[k]);
+    if (n !== null) ids.push(n);
+  }
+  return [...new Set(ids)];
+}
+
+function getEffectiveCategory(row) {
+  return row?.query?.category || row?.category || null;
+}
+
+function getEffectiveProductId(row) {
+  // priority: DB column -> query.id -> query.product_id
+  const fromCol = toIntOrNull(row?.product_id);
+  if (fromCol) return fromCol;
+
+  const fromQueryId = toIntOrNull(row?.query?.id);
+  if (fromQueryId) return fromQueryId;
+
+  const fromQueryPid = toIntOrNull(row?.query?.product_id);
+  if (fromQueryPid) return fromQueryPid;
+
+  return null;
+}
+
+async function getLogs(value) {
+  try {
+    let rows;
+
+    if (value === 'all') {
+      rows = await queryAsync(
+        `SELECT 
+            t.*,
+            u.name AS username,
+            u.number AS usernumber,
+            u.unique_id AS uniqueid
+         FROM user_activity_log t
+         JOIN users u ON u.id = t.userid
+         ORDER BY t.id DESC
+         LIMIT 1000`
+      );
+    } else {
+      const userid = Number(value);
+      if (!userid) return [];
+
+      rows = await queryAsync(
+        `SELECT 
+            t.*,
+            u.name AS username,
+            u.number AS usernumber,
+            u.unique_id AS uniqueid
+         FROM user_activity_log t
+         JOIN users u ON u.id = t.userid
+         WHERE t.userid = ?
+         ORDER BY t.id DESC
+         LIMIT 1000`,
+        [userid]
+      );
+    }
+
+    if (!Array.isArray(rows) || rows.length === 0) return [];
+
+    // 1) Parse query_json, attach query/filter_details/product_details placeholders
+    const enriched = rows.map((r) => {
+      const queryObj = safeParseJSON(r.query_json);
+      return {
+        ...r,
+        query: queryObj || null,
+        filter_details: null,
+        product_details: null
+      };
+    });
+
+    // 2) Filter enrichment - batch ids per category-table
+    const tableToIds = new Map(); // table -> Set(ids)
+    const rowNeedsFilter = []; // { row, table }
+
+    for (const row of enriched) {
+      const category = getEffectiveCategory(row);
+      const table = getFilterTableByCategory(category);
+      if (!table) continue;
+
+      const ids = collectFilterIdsFromQuery(row.query);
+      if (!ids.length) continue;
+
+      if (!tableToIds.has(table)) tableToIds.set(table, new Set());
+      const set = tableToIds.get(table);
+      ids.forEach((id) => set.add(id));
+
+      rowNeedsFilter.push({ row, table });
+    }
+
+    const tableToCache = new Map(); // table -> Map(id -> filterRow)
+
+    for (const [table, idSet] of tableToIds.entries()) {
+      const ids = [...idSet];
+      if (!ids.length) continue;
+
+      const placeholders = ids.map(() => '?').join(',');
+      const filterRows = await queryAsync(
+        `SELECT id, name, image, filters, status, created_at, updated_at
+         FROM ${table}
+         WHERE id IN (${placeholders})`,
+        ids
+      );
+
+      const cache = new Map();
+      if (Array.isArray(filterRows)) {
+        for (const fr of filterRows) cache.set(Number(fr.id), fr);
+      }
+      tableToCache.set(table, cache);
+    }
+
+    for (const { row, table } of rowNeedsFilter) {
+      const cache = tableToCache.get(table);
+      if (!cache || !row.query) continue;
+
+      const out = {};
+      const keysToMap = ['brand', 'generation', 'laptop_type', 'subcategory', 'filters', 'condition'];
+
+      for (const k of keysToMap) {
+        const id = toIntOrNull(row.query[k]);
+        if (id === null) continue;
+        const fr = cache.get(id);
+        if (fr) out[k] = fr;
+      }
+
+      row.filter_details = Object.keys(out).length ? out : null;
+    }
+
+    // 3) Product enrichment - batch all product ids
+    const productIds = new Set();
+    for (const row of enriched) {
+      const pid = getEffectiveProductId(row);
+      if (pid) productIds.add(pid);
+    }
+
+    if (productIds.size > 0) {
+      const ids = [...productIds];
+      const placeholders = ids.map(() => '?').join(',');
+
+      const products = await queryAsync(
+        `SELECT 
+            id, name, category, skuno, modelno, subcategory, brand, description, price, quantity, created_at, status, updated_at,
+            in_app, accessories_storage, warranty, battery_count_cycle, margin_price, tax_type
+         FROM product
+         WHERE id IN (${placeholders})`,
+        ids
+      );
+
+      const productMap = new Map();
+      if (Array.isArray(products)) {
+        for (const p of products) productMap.set(Number(p.id), p);
+      }
+
+      for (const row of enriched) {
+        const pid = getEffectiveProductId(row);
+        if (pid && productMap.has(pid)) {
+          row.product_details = productMap.get(pid);
+        }
+      }
+    }
+
+    return enriched;
+  } catch (error) {
+    console.error('Error while fetching logs:', error);
+    throw new Error('Internal server error');
+  }
+}
+
 
 
 

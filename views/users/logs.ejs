@@ -1,135 +1,370 @@
-<%- include ('.././header.ejs') %>
-
+<%- include('.././header.ejs') %>
 
 <style>
-    #dataTable {
- border-collapse: collapse;
- width: 100%;
-}
-#empoloyees-tblwrapper th, #dataTable td {
- border: 1px solid #ddd;
- padding: 8px;
-}
-#empoloyees-tblwrapper th {
- background-color: #f2f2f2;
-}
-#searchInput {
- margin-bottom: 10px;
- padding: 8px;
-}
+  .page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+  }
+  .page-head h4 { margin: 0; font-weight: 800; }
+  .page-head .sub { color: #6c757d; font-weight: 600; margin-top: 4px; font-size: 13px; }
+
+  .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .tools input, .tools select { min-width: 220px; }
+
+  .log-list { padding: 14px 16px; display: grid; gap: 12px; }
+  .log-box {
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .log-top {
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: rgba(0,0,0,.02);
+    border-bottom: 1px solid rgba(0,0,0,.06);
+  }
+  .log-title { display: grid; gap: 6px; }
+  .log-title .name { font-weight: 900; letter-spacing: .2px; }
+  .log-title .small { color: #6c757d; font-weight: 600; font-size: 13px; }
+
+  .pill {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    background: rgba(13,110,253,.10);
+    color: #0d6efd;
+    margin-right: 6px;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+  .pill.gray { background: rgba(108,117,125,.12); color: #6c757d; }
+  .pill.green { background: rgba(25,135,84,.12); color: #198754; }
+  .pill.red { background: rgba(220,53,69,.12); color: #dc3545; }
+  .pill.yellow { background: rgba(255,193,7,.18); color: #b58100; }
+
+  .log-body { padding: 12px 14px; }
+  .row2 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .field {
+    background: rgba(0,0,0,.03);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .field .k {
+    color: #6c757d;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .field .v { font-weight: 800; font-size: 13px; word-break: break-word; }
+
+  .section {
+    margin-top: 12px;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .section summary {
+    cursor: pointer;
+    padding: 10px 12px;
+    font-weight: 900;
+    background: rgba(0,0,0,.02);
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    user-select: none;
+  }
+  .section .content { padding: 10px 12px; background: #fff; }
+  .pretty {
+    background: #0b1220;
+    color: #e6edf3;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 12px;
+    overflow: auto;
+    max-height: 260px;
+    margin: 0;
+  }
+
+  .mini-table { width: 100%; border-collapse: collapse; }
+  .mini-table td {
+    border-top: 1px solid rgba(0,0,0,.06);
+    padding: 8px 0;
+    vertical-align: top;
+  }
+  .mini-table td:first-child {
+    width: 220px;
+    color: #6c757d;
+    font-weight: 900;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    padding-right: 10px;
+  }
+
+  @media (max-width: 1200px) {
+    .row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 768px) {
+    .page-head { flex-direction: column; }
+    .tools input, .tools select { min-width: 100%; }
+    .row2 { grid-template-columns: 1fr; }
+  }
 </style>
 
-    <!--**********************************
-            Content body start
-        ***********************************-->
-    <div class="content-body">
-        <!-- row -->
+<div class="content-body">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xl-12">
+        <div class="card">
 
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card">
-                        <div class="card-body p-0">
-                            <div class="table-responsive active-projects style-1">
-                                <div class="tbl-caption">
-                                    <h4 class="heading mb-0">USER'S LOGS</h4>
-                                    <div>
-
-
-                                        <input type="text" class="form-control" id="searchInput" placeholder="Search">
-                                    </div>
-                                </div>
-                                <table id="empoloyees-tblwrapper" class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>S. No.</th>
-                                            <th>Username</th>
-                                            <th>Description</th>
-                                            <th>Created At</th>
-
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-
-                                        <% for(i=0;i<result.length;i++){ %>
-
-                                            <tr>
-                                                <td>
-                                                    <%=i+1%></td>
-
-                                                    <td><span>
-                                                        <%=result[i].username.toUpperCase()%>
-                                                    </span></td>
-
-                                                  
-
-                                                    <td><span>
-                                                        <%=result[i].description%>
-                                                    </span></td>    
-  
-                                                    <td><span>
-                                                        <%=result[i].created_at%>
-                                                    </span></td>
-
-                                                    
-                                                    
-                                             
-
-
-
-                                             
-
-
-                                            </tr>
-
-
-                                            <% } %>
-
-
-                                    </tbody>
-
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <div class="page-head">
+            <div>
+              <h4>User Logs</h4>
+              <div class="sub">
+                Total: <%= Array.isArray(result) ? result.length : 0 %>
+                <% if (result && result[0] && result[0].userid) { %>
+                  | User ID: <%= result[0].userid %>
+                <% } %>
+              </div>
             </div>
 
+            <div class="tools">
+              <input id="searchInput" class="form-control" type="text" placeholder="Search anything (name, event, product, category...)" />
+              <select id="eventFilter" class="form-control">
+                <option value="">All Events</option>
+              </select>
+              <button id="clearBtn" class="btn btn-outline-secondary btn-sm" type="button">Clear</button>
+              <span class="pill gray" id="countPill">Visible: 0</span>
+            </div>
+          </div>
+
+          <% if (!result || !result.length) { %>
+            <div class="p-4">
+              <div class="alert alert-info mb-0">No logs found.</div>
+            </div>
+          <% } else { %>
+
+            <div class="log-list" id="logList">
+              <% for (let i = 0; i < result.length; i++) {
+                const r = result[i];
+                const userName = (r.username || 'Unknown').toString();
+                const userNo = (r.usernumber || '').toString();
+                const uniqueId = (r.uniqueid || '').toString();
+
+                const event = (r.event || 'activity').toString();
+                const route = (r.route || '').toString();
+                const method = (r.method || '').toString();
+                const status = Number(r.status_code || 0);
+                const createdAt = (r.created_at || '').toString();
+
+                const category = (r.category || (r.query && r.query.category) || '').toString();
+                const searchQ = (r.search_q || (r.query && r.query.q) || '').toString();
+
+                const pid = (r.product_id || (r.query && (r.query.id || r.query.product_id)) || '');
+                const p = r.product_details || null;
+
+                const duration = (r.duration_ms != null ? `${r.duration_ms} ms` : '');
+                const ip = (r.ip || '').toString();
+
+                const pillStatus = status >= 500 ? 'red' : (status >= 400 ? 'yellow' : 'green');
+              %>
+
+                <div
+                  class="log-box log-row"
+                  data-event="<%= event.toLowerCase() %>"
+                  data-search="<%= (userName + ' ' + userNo + ' ' + uniqueId + ' ' + event + ' ' + route + ' ' + method + ' ' + status + ' ' + category + ' ' + searchQ + ' ' + pid + ' ' + (p ? (p.name + ' ' + p.skuno + ' ' + p.modelno) : '')).toLowerCase() %>"
+                >
+                  <div class="log-top">
+                    <div class="log-title">
+                      <div class="name">
+                        <%= userName.toUpperCase() %>
+                        <% if (uniqueId) { %> <span class="pill gray">UID: <%= uniqueId %></span> <% } %>
+                        <% if (userNo) { %> <span class="pill gray">Phone: <%= userNo %></span> <% } %>
+                      </div>
+                      <div class="small">
+                        <span class="pill"><%= event %></span>
+                        <% if (p && p.name) { %>
+                          <span class="pill green">Product: <%= p.name %> (ID: <%= p.id %>)</span>
+                        <% } else if (pid) { %>
+                          <span class="pill gray">Product ID: <%= pid %></span>
+                        <% } %>
+                        <span class="pill <%= pillStatus %>">Status: <%= status %></span>
+                      </div>
+                    </div>
+
+                    <div style="text-align:right;">
+                      <div class="small"><strong><%= createdAt %></strong></div>
+                     
+                    </div>
+                  </div>
+
+                  <div class="log-body">
+                    <div class="row2">
+                      <!-- <div class="field">
+                        <div class="k">Route</div>
+                        <div class="v"><%= route || '-' %></div>
+                      </div>
+                      <div class="field">
+                        <div class="k">Method</div>
+                        <div class="v"><%= method || '-' %></div>
+                      </div> -->
+                      <div class="field">
+                        <div class="k">Category</div>
+                        <div class="v"><%= category || '-' %></div>
+                      </div>
+                      <div class="field">
+                        <div class="k">Search Text</div>
+                        <div class="v"><%= searchQ || '-' %></div>
+                      </div>
+
+                      <!-- <div class="field">
+                        <div class="k">Time Taken</div>
+                        <div class="v"><%= duration || '-' %></div>
+                      </div>
+                      <div class="field">
+                        <div class="k">IP Address</div>
+                        <div class="v"><%= ip || '-' %></div>
+                      </div> -->
+                      <!-- <div class="field">
+                        <div class="k">Log ID</div>
+                        <div class="v"><%= r.id %></div>
+                      </div>
+                      <div class="field">
+                        <div class="k">User ID</div>
+                        <div class="v"><%= r.userid || '-' %></div>
+                      </div> -->
+                    </div>
+
+                    <!-- PRODUCT DETAILS (simple table) -->
+                    <details class="section" <%= p ? '' : 'style="opacity:.75;"' %>>
+                      <summary>Product Details</summary>
+                      <div class="content">
+                        <% if (!p) { %>
+                          <div class="muted">No product details found for this log.</div>
+                        <% } else { %>
+                          <table class="mini-table">
+                            <tr><td>ID</td><td><%= p.id %></td></tr>
+                            <tr><td>Name</td><td><%= p.name %></td></tr>
+                            <tr><td>Category</td><td><%= p.category %></td></tr>
+                            <tr><td>SKU No</td><td><%= p.skuno || '-' %></td></tr>
+                            <tr><td>Model No</td><td><%= p.modelno || '-' %></td></tr>
+                            <tr><td>Subcategory</td><td><%= p.subcategory || '-' %></td></tr>
+                            <tr><td>Brand</td><td><%= p.brand || '-' %></td></tr>
+                            <tr><td>Description</td><td><%= p.description || '-' %></td></tr>
+                            <tr><td>Price</td><td><%= p.price != null ? p.price : '-' %></td></tr>
+                            <tr><td>Stock Quantity</td><td><%= p.quantity != null ? p.quantity : '-' %></td></tr>
+                            <tr><td>Status</td><td><%= p.status != null ? p.status : '-' %></td></tr>
+                            <tr><td>In App</td><td><%= p.in_app != null ? p.in_app : '-' %></td></tr>
+                            <tr><td>Accessories Storage</td><td><%= p.accessories_storage || '-' %></td></tr>
+                            <tr><td>Warranty</td><td><%= p.warranty || '-' %></td></tr>
+                            <tr><td>Battery Count Cycle</td><td><%= p.battery_count_cycle || '-' %></td></tr>
+                            <tr><td>Margin Price</td><td><%= p.margin_price != null ? p.margin_price : '-' %></td></tr>
+                            <tr><td>Tax Type</td><td><%= p.tax_type || '-' %></td></tr>
+                            <tr><td>Created At</td><td><%= p.created_at || '-' %></td></tr>
+                            <tr><td>Updated At</td><td><%= p.updated_at || '-' %></td></tr>
+                          </table>
+                        <% } %>
+                      </div>
+                    </details>
+
+                    <!-- REQUEST / FILTER DETAILS (still available but simple) -->
+                    <details class="section">
+                      <summary>Request & Filter Details</summary>
+                      <div class="content">
+                        <div class="muted" style="margin-bottom:8px;">Request Query (what user sent)</div>
+                        <pre class="pretty"><%= JSON.stringify(r.query || {}, null, 2) %></pre>
+
+                        <div class="muted" style="margin:10px 0 8px;">Filters (converted to names, if available)</div>
+                        <pre class="pretty"><%= JSON.stringify(r.filter_details || {}, null, 2) %></pre>
+                      </div>
+                    </details>
+
+                  </div>
+                </div>
+              <% } %>
+            </div>
+
+          <% } %>
+
         </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!--**********************************
-            Content body end
-        ***********************************-->
+<%- include('.././footer.ejs') %>
 
+<script>
+  (function () {
+    const searchInput = document.getElementById('searchInput');
+    const eventFilter = document.getElementById('eventFilter');
+    const clearBtn = document.getElementById('clearBtn');
+    const countPill = document.getElementById('countPill');
 
+    const rows = Array.from(document.querySelectorAll('.log-row'));
 
-        <%- include ('.././footer.ejs') %>
+    // build event dropdown
+    const events = new Set();
+    rows.forEach(r => {
+      const ev = (r.getAttribute('data-event') || '').trim();
+      if (ev) events.add(ev);
+    });
 
+    [...events].sort().forEach(ev => {
+      const opt = document.createElement('option');
+      opt.value = ev;
+      opt.textContent = ev.toUpperCase();
+      eventFilter.appendChild(opt);
+    });
 
+    function apply() {
+      const q = (searchInput.value || '').toLowerCase().trim();
+      const ev = (eventFilter.value || '').toLowerCase().trim();
 
-    <script>
-document.getElementById("searchInput").addEventListener("keyup", function() {
- const searchText = this.value.toLowerCase();
- const table = document.getElementById("empoloyees-tblwrapper");
- const rows = table.getElementsByTagName("tr");
- // Start iterating from the second row (skipping the table header)
- for (let i = 1; i < rows.length; i++) {
-   const row = rows[i];
-   const cells = row.getElementsByTagName("td");
-   let found = false;
-   for (let cell of cells) {
-     const text = cell.textContent.toLowerCase();
-     if (text.includes(searchText)) {
-       found = true;
-       break;
-     }
-   }
-   if (found) {
-     row.style.display = "";
-   } else {
-     row.style.display = "none";
-   }
- }
-});
-    </script>
+      let visible = 0;
+
+      rows.forEach(r => {
+        const hay = r.getAttribute('data-search') || '';
+        const rowEv = r.getAttribute('data-event') || '';
+
+        const okQ = !q || hay.includes(q);
+        const okE = !ev || rowEv === ev;
+
+        if (okQ && okE) {
+          r.style.display = '';
+          visible++;
+        } else {
+          r.style.display = 'none';
+        }
+      });
+
+      countPill.textContent = 'Visible: ' + visible;
+    }
+
+    searchInput.addEventListener('keyup', apply);
+    eventFilter.addEventListener('change', apply);
+
+    clearBtn.addEventListener('click', function () {
+      searchInput.value = '';
+      eventFilter.value = '';
+      apply();
+    });
+
+    apply();
+  })();
+</script>

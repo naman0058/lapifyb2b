@@ -169,16 +169,12 @@ router.get('/view/transaction', verify.adminAuthenticationToken, async (req, res
 
 router.get('/view/logs', verify.adminAuthenticationToken, async (req, res) => {
   try {
-    let result;
-    if (req.query.id) {
-      result = await user.getLogs(req.query.id);
-    } else {
-      result = await user.getLogs('all');
-    }
-    res.render(`${folder}/logs`, { result });
+    const userId = req.query.id ? Number(req.query.id) : null; // /view/logs?id=2209
+    const result = await user.getLogs(userId || 'all');
+    return res.render(`${folder}/logs`, { result });
   } catch (error) {
-    console.error('Error in route:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error in /view/logs route:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
