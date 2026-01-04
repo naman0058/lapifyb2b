@@ -393,61 +393,259 @@ console.log('req.query',req.query)
 
 
 
+// running perfect but product stock not done
+
+// router.get('/razorpay-success', async (req, res) => {
+//   const body = { ...req.query };
+
+//   if (!(body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature)) {
+//     return res.json({ msg: 'Error Occurred' });
+//   }
+
+//   // Verify signature
+//   const data = req.query.orderid + '|' + body.razorpay_payment_id;
+//   const generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
+
+//   if (generated_signature !== body.razorpay_signature) {
+//     return res.json({ msg: 'Unauthorized Payment' });
+//   }
+
+//   const now = verify.getCurrentDate();
+
+//   try {
+//     // 1️⃣ Fetch payment intent (locked for safety)
+//     const [intent] = await queryAsync(
+//       `SELECT * FROM payment_intent WHERE razorpay_order_id = ? FOR UPDATE`,
+//       [body.razorpay_order_id]
+//     );
+
+//     if (!intent) {
+//       return res.status(400).json({ msg: 'Payment intent not found' });
+//     }
+//     if (intent.status === 'succeeded') {
+//       return res.json({ msg: 'success', description: 'alreadydone' });
+//     }
+
+//     // 2️⃣ Start DB transaction
+//     await queryAsync('START TRANSACTION');
+
+//     // 3️⃣ Insert payment_response row (raw gateway data)
+//     await queryAsync(`INSERT INTO payment_response SET ?`, {
+//       razorpay_signature: body.razorpay_signature,
+//       razorpay_payment_id: body.razorpay_payment_id,
+//       razorpay_order_id: body.razorpay_order_id,
+//       orderid: intent.receipt,
+//       amount: intent.payable_amount, // paid via Razorpay
+//       txnid: intent.receipt,
+//       userid: intent.userid,
+//       type: req.query.type || 'purchase',
+//       created_at: now
+//     });
+
+//     // 4️⃣ Deduct wallet if used
+//     if (intent.wallet_used > 0) {
+//       await queryAsync(
+//         `UPDATE users SET wallet = wallet - ? WHERE id = ?`,
+//         [intent.wallet_used, intent.userid]
+//       );
+
+//       await queryAsync(
+//         `INSERT INTO transaction
+//            (userid, amount, status, orderid, color, created_at, txnid)
+//          VALUES (?, ?, 'debit', ?, 'red', ?, ?)`,
+//         [
+//           intent.userid,
+//           intent.wallet_used,
+//           intent.receipt,
+//           now,
+//           'WALLET-' + body.razorpay_payment_id
+//         ]
+//       );
+//     }
+
+//     // 5️⃣ Build bookings from cart
+//     const cartResults = await queryAsync(
+//       `SELECT c.*,
+//               (SELECT p.category FROM product p WHERE p.id = c.productid) AS category,
+//               (SELECT p.price    FROM product p WHERE p.id = c.productid) AS productprice
+//        FROM cart c
+//        WHERE c.userid = ? AND c.quantity > 0`,
+//       [intent.userid]
+//     );
+
+//     if (!Array.isArray(cartResults) || cartResults.length === 0) {
+//       throw new Error('Cart empty during success');
+//     }
+
+//     let total_amount = 0;
+//     const bookingData = cartResults.map(item => {
+//       const amount = Number(item.productprice || 0) * Number(item.quantity || 0);
+//       total_amount += amount;
+//       return {
+//         userid: intent.userid,
+//         orderid: intent.receipt,
+//         productid: item.productid,
+//         amount,
+//         created_at: now,
+//         category: item.category,
+//         quantity: item.quantity,
+//         address: req.query.address || '',
+//         status: 'pending'
+//       };
+//     });
+
+//     for (const row of bookingData) {
+//       await queryAsync(`INSERT INTO booking SET ?`, row);
+//     }
+
+//     // 6️⃣ Create order row
+//     await queryAsync(`INSERT INTO orders SET ?`, {
+//       userid: intent.userid,
+//       orderid: intent.receipt,
+//       created_at: now,
+//       status: 'pending',
+//       amount: total_amount,
+//       address: req.query.address || '',
+//       updated_at: now
+//     });
+
+//     // 7️⃣ Clear cart
+//     await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [intent.userid]);
+
+//     // 8️⃣ Mark intent succeeded
+//     await queryAsync(
+//       `UPDATE payment_intent
+//          SET status = 'succeeded', updated_at = ?
+//        WHERE razorpay_order_id = ?`,
+//       [now, body.razorpay_order_id]
+//     );
+
+//     // 9️⃣ Commit transaction
+//     await queryAsync('COMMIT');
+
+//     // 🔟 Respond immediately
+//     res.json({ msg: 'success', orderid: intent.receipt });
+
+//     // 1️⃣1️⃣ Background email + WhatsApp
+//     setImmediate(async () => {
+//       try {
+//         const user = await verify.profile(intent.userid);
+//         if (!user || !user.length) return;
+
+//         const userMessage = emailTemplates.orderCreation.userMessage(
+//           intent.receipt,
+//           user[0].name,
+//           total_amount,
+//           now,
+//           req.query.address || ''
+//         );
+//         const adminMessage = emailTemplates.orderCreation.adminMessage(
+//           intent.receipt,
+//           user[0].name,
+//           total_amount,
+//           now,
+//           req.query.address || ''
+//         );
+
+//         // await Promise.allSettled([
+//         //   verify.sendUserMail(
+//         //     user[0].email,
+//         //     emailTemplates.orderCreation.userSubject.replace('{{Order_Number}}', intent.receipt),
+//         //     userMessage
+//         //   ),
+//         //   verify.sendUserMail(
+//         //     'jnaman345@gmail.com',
+//         //     emailTemplates.orderCreation.adminSubject.replace('{{Order_Number}}', intent.receipt),
+//         //     adminMessage
+//         //   )
+//         // ]);
+
+//         await verify.sendWhatsAppMessage(
+//           '+91' + user[0].number,
+//           'order_processing',
+//           'en_US',
+//           [user[0].name, String(intent.receipt)]
+//         );
+
+//    await verify.sendSms({
+//     mobile: user[0].number,
+//     message: `Dear ${user[0].name} Your order is - order no ${intent.receipt} placed on ${now} is confirmed. You will receive shipping confirmation soon. For assistance, give us a call at 9971980853 Or drop a line at 9971980853 Thanks, E-GADGET WORLD`,
+//     templateId: '1707175888256769085',  // DLT template ID
+    
+//   });
+
+
+//       } catch (err) {
+//         console.error('Background notify error:', err?.response?.data || err);
+//       }
+//     });
+
+//   } catch (err) {
+//     await queryAsync('ROLLBACK');
+//     console.error('razorpay-success error:', err);
+//     return res.status(500).json({ msg: 'Internal error' });
+//   }
+// });
 
 
 router.get('/razorpay-success', async (req, res) => {
   const body = { ...req.query };
 
+  // Basic validation
   if (!(body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature)) {
-    return res.json({ msg: 'Error Occurred' });
+    return res.status(400).json({ msg: 'Error Occurred' });
   }
 
   // Verify signature
   const data = req.query.orderid + '|' + body.razorpay_payment_id;
-  const generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
-
+  const generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99'); // move to ENV in production
   if (generated_signature !== body.razorpay_signature) {
-    return res.json({ msg: 'Unauthorized Payment' });
+    return res.status(401).json({ msg: 'Unauthorized Payment' });
   }
 
   const now = verify.getCurrentDate();
 
   try {
-    // 1️⃣ Fetch payment intent (locked for safety)
-    const [intent] = await queryAsync(
+    // ✅ Start transaction FIRST (so FOR UPDATE locks actually apply)
+    await queryAsync('START TRANSACTION');
+
+    // 1️⃣ Lock and fetch payment intent
+    const intentRows = await queryAsync(
       `SELECT * FROM payment_intent WHERE razorpay_order_id = ? FOR UPDATE`,
       [body.razorpay_order_id]
     );
+    const intent = intentRows?.[0];
 
     if (!intent) {
+      await queryAsync('ROLLBACK');
       return res.status(400).json({ msg: 'Payment intent not found' });
     }
+
+    // If already succeeded, do not double-create order
     if (intent.status === 'succeeded') {
+      await queryAsync('ROLLBACK');
       return res.json({ msg: 'success', description: 'alreadydone' });
     }
 
-    // 2️⃣ Start DB transaction
-    await queryAsync('START TRANSACTION');
-
-    // 3️⃣ Insert payment_response row (raw gateway data)
+    // 2️⃣ Insert payment_response row (raw gateway data)
     await queryAsync(`INSERT INTO payment_response SET ?`, {
       razorpay_signature: body.razorpay_signature,
       razorpay_payment_id: body.razorpay_payment_id,
       razorpay_order_id: body.razorpay_order_id,
       orderid: intent.receipt,
-      amount: intent.payable_amount, // paid via Razorpay
+      amount: intent.payable_amount,
       txnid: intent.receipt,
       userid: intent.userid,
       type: req.query.type || 'purchase',
       created_at: now
     });
 
-    // 4️⃣ Deduct wallet if used
-    if (intent.wallet_used > 0) {
-      await queryAsync(
-        `UPDATE users SET wallet = wallet - ? WHERE id = ?`,
-        [intent.wallet_used, intent.userid]
-      );
+    // 3️⃣ Deduct wallet if used
+    if (Number(intent.wallet_used) > 0) {
+      await queryAsync(`UPDATE users SET wallet = wallet - ? WHERE id = ?`, [
+        intent.wallet_used,
+        intent.userid
+      ]);
 
       await queryAsync(
         `INSERT INTO transaction
@@ -463,12 +661,17 @@ router.get('/razorpay-success', async (req, res) => {
       );
     }
 
-    // 5️⃣ Build bookings from cart
+    // 4️⃣ Fetch cart items + product details
+    // NOTE: We also fetch current product.quantity to validate stock
     const cartResults = await queryAsync(
-      `SELECT c.*,
-              (SELECT p.category FROM product p WHERE p.id = c.productid) AS category,
-              (SELECT p.price    FROM product p WHERE p.id = c.productid) AS productprice
+      `SELECT 
+          c.productid,
+          c.quantity,
+          p.category,
+          p.price AS productprice,
+          p.quantity AS stock_qty
        FROM cart c
+       JOIN product p ON p.id = c.productid
        WHERE c.userid = ? AND c.quantity > 0`,
       [intent.userid]
     );
@@ -477,10 +680,29 @@ router.get('/razorpay-success', async (req, res) => {
       throw new Error('Cart empty during success');
     }
 
+    // 5️⃣ Lock all product rows being purchased (prevents overselling)
+    const productIds = [...new Set(cartResults.map(x => x.productid))];
+    await queryAsync(
+      `SELECT id FROM product WHERE id IN (${productIds.map(() => '?').join(',')}) FOR UPDATE`,
+      productIds
+    );
+
+    // 6️⃣ Build bookings and validate stock
     let total_amount = 0;
+
     const bookingData = cartResults.map(item => {
-      const amount = Number(item.productprice || 0) * Number(item.quantity || 0);
+      const qty = Number(item.quantity || 0);
+      const price = Number(item.productprice || 0);
+      const stock = Number(item.stock_qty || 0);
+
+      if (qty <= 0) throw new Error('Invalid cart quantity');
+      if (stock < qty) {
+        throw new Error(`Insufficient stock for product ${item.productid}. Available: ${stock}, Requested: ${qty}`);
+      }
+
+      const amount = price * qty;
       total_amount += amount;
+
       return {
         userid: intent.userid,
         orderid: intent.receipt,
@@ -488,17 +710,18 @@ router.get('/razorpay-success', async (req, res) => {
         amount,
         created_at: now,
         category: item.category,
-        quantity: item.quantity,
+        quantity: qty,
         address: req.query.address || '',
         status: 'pending'
       };
     });
 
+    // 7️⃣ Insert booking rows
     for (const row of bookingData) {
       await queryAsync(`INSERT INTO booking SET ?`, row);
     }
 
-    // 6️⃣ Create order row
+    // 8️⃣ Create order row
     await queryAsync(`INSERT INTO orders SET ?`, {
       userid: intent.userid,
       orderid: intent.receipt,
@@ -509,10 +732,28 @@ router.get('/razorpay-success', async (req, res) => {
       updated_at: now
     });
 
-    // 7️⃣ Clear cart
+    // ✅ 9️⃣ Reduce product quantity (inventory) AFTER order success, BEFORE cart clear
+    // Safe update: quantity will only reduce if enough stock is still available.
+    for (const item of cartResults) {
+      const qty = Number(item.quantity || 0);
+
+      const result = await queryAsync(
+        `UPDATE product
+           SET quantity = quantity - ?, updated_at = ?
+         WHERE id = ? AND quantity >= ?`,
+        [qty, now, item.productid, qty]
+      );
+
+      // If your queryAsync returns an object with affectedRows (mysql2), enforce it:
+      if (result?.affectedRows === 0) {
+        throw new Error(`Stock update failed for product ${item.productid} (maybe stock changed).`);
+      }
+    }
+
+    // 🔟 Clear cart
     await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [intent.userid]);
 
-    // 8️⃣ Mark intent succeeded
+    // 1️⃣1️⃣ Mark intent succeeded
     await queryAsync(
       `UPDATE payment_intent
          SET status = 'succeeded', updated_at = ?
@@ -520,13 +761,13 @@ router.get('/razorpay-success', async (req, res) => {
       [now, body.razorpay_order_id]
     );
 
-    // 9️⃣ Commit transaction
+    // 1️⃣2️⃣ Commit transaction
     await queryAsync('COMMIT');
 
-    // 🔟 Respond immediately
+    // 1️⃣3️⃣ Respond immediately
     res.json({ msg: 'success', orderid: intent.receipt });
 
-    // 1️⃣1️⃣ Background email + WhatsApp
+    // 1️⃣4️⃣ Background notify (email/WhatsApp/SMS)
     setImmediate(async () => {
       try {
         const user = await verify.profile(intent.userid);
@@ -539,6 +780,7 @@ router.get('/razorpay-success', async (req, res) => {
           now,
           req.query.address || ''
         );
+
         const adminMessage = emailTemplates.orderCreation.adminMessage(
           intent.receipt,
           user[0].name,
@@ -567,282 +809,27 @@ router.get('/razorpay-success', async (req, res) => {
           [user[0].name, String(intent.receipt)]
         );
 
-   await verify.sendSms({
-    mobile: user[0].number,
-    message: `Dear ${user[0].name} Your order is - order no ${intent.receipt} placed on ${now} is confirmed. You will receive shipping confirmation soon. For assistance, give us a call at 9971980853 Or drop a line at 9971980853 Thanks, E-GADGET WORLD`,
-    templateId: '1707175888256769085',  // DLT template ID
-    
-  });
-
-
+        await verify.sendSms({
+          mobile: user[0].number,
+          message: `Dear ${user[0].name} Your order is - order no ${intent.receipt} placed on ${now} is confirmed. You will receive shipping confirmation soon. For assistance, give us a call at 9971980853 Or drop a line at 9971980853 Thanks, E-GADGET WORLD`,
+          templateId: '1707175888256769085'
+        });
       } catch (err) {
         console.error('Background notify error:', err?.response?.data || err);
       }
     });
-
   } catch (err) {
-    await queryAsync('ROLLBACK');
+    try {
+      await queryAsync('ROLLBACK');
+    } catch (e) {
+      // ignore rollback errors
+    }
     console.error('razorpay-success error:', err);
-    return res.status(500).json({ msg: 'Internal error' });
+    return res.status(500).json({ msg: 'Internal error', error: String(err?.message || err) });
   }
 });
 
 
-
-
-// running perfect but wallet not used
-// router.get('/razorpay-success', async (req, res) => {
-//   const body = { ...req.query };
-
-//   if (!(body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature)) {
-//     return res.json({ msg: 'Error Occurred' });
-//   }
-
-//   // Verify signature
-//   const data = req.query.orderid + '|' + body.razorpay_payment_id;
-//   const generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
-
-//   console.log('razorpayresponse', body);
-//   console.log('generated_signature', generated_signature);
-
-//   if (generated_signature !== body.razorpay_signature) {
-//     return res.json({ msg: 'Unauthorized Payment' });
-//   }
-
-//   // Prepare fields for DB
-//   body.orderid = req.query.orderid;
-//   body.amount = Number(req.query.amount || 0) / 100;
-//   body.txnid = req.query.orderid;
-//   body.userid = req.query.userid;
-//   body.type = req.query.type;
-//   body.created_at = verify.getCurrentDate();
-
-//   // Idempotency check
-//   pool.query(
-//     `SELECT 1 FROM payment_response 
-//      WHERE razorpay_signature = ? 
-//        AND razorpay_payment_id = ? 
-//        AND razorpay_order_id = ?`,
-//     [body.razorpay_signature, body.razorpay_payment_id, body.razorpay_order_id],
-//     (err, result) => {
-//       if (err) {
-//         console.error('payment_response select err:', err);
-//         return res.status(500).json({ msg: 'Internal error' });
-//       }
-
-//       if (result.length > 0) {
-//         // Already processed: return immediately
-//         return res.json({ msg: 'success', description: 'alreadydone' });
-//       }
-
-//       // Insert payment response
-//       pool.query(`INSERT INTO payment_response SET ?`, body, async (err2) => {
-//         if (err2) {
-//           console.error('payment_response insert err:', err2);
-//           return res.status(500).json({ msg: 'Internal error' });
-//         }
-
-//         try {
-//           // Build order from cart (do the essential DB work synchronously)
-//           const orderid = req.query.orderid;
-//           const created_at = verify.getCurrentDate();
-//           const userid = req.query.userid;
-//           const address = req.query.address;
-
-//           const cartResults = await queryAsync(
-//             `SELECT c.*,
-//                     (SELECT p.category FROM product p WHERE p.id = c.productid) AS category,
-//                     (SELECT p.price    FROM product p WHERE p.id = c.productid) AS productprice
-//              FROM cart c
-//              WHERE c.userid = ? AND c.quantity > 0`,
-//             [userid]
-//           );
-
-//           if (!Array.isArray(cartResults)) throw new Error('Failed to fetch cart results');
-
-//           let total_amount = 0;
-//           const bookingData = cartResults.map((item) => {
-//             const amount = Number(item.productprice || 0) * Number(item.quantity || 0);
-//             total_amount += amount;
-//             return {
-//               userid,
-//               orderid,
-//               productid: item.productid,
-//               amount,
-//               created_at,
-//               category: item.category,
-//               quantity: item.quantity,
-//               address,
-//               status: 'pending',
-//             };
-//           });
-
-//           // Insert bookings
-//           await Promise.all(bookingData.map((row) => queryAsync(`INSERT INTO booking SET ?`, row)));
-
-//           // Insert order
-//           const orderData = {
-//             userid,
-//             orderid,
-//             created_at,
-//             status: 'pending',
-//             amount: total_amount,
-//             address,
-//             updated_at: created_at,
-//           };
-//           await queryAsync(`INSERT INTO orders SET ?`, orderData);
-
-//           // Clear cart
-//           await queryAsync(`DELETE FROM cart WHERE userid = ? AND quantity > 0`, [userid]);
-
-//           // ✅ Respond to the client NOW — all critical DB work done
-//           res.json({ msg: 'success', orderid });
-
-//           // 🔔 Fire-and-forget: email + WhatsApp in background
-//           setImmediate(async () => {
-//             try {
-//               const user = await verify.profile(userid);
-//               if (!user) return;
-
-//               const userMessage = emailTemplates.orderCreation.userMessage(
-//                 orderid,
-//                 user[0].name,
-//                 orderData.amount,
-//                 created_at,
-//                 address
-//               );
-//               const adminMessage = emailTemplates.orderCreation.adminMessage(
-//                 orderid,
-//                 user[0].name,
-//                 orderData.amount,
-//                 created_at,
-//                 address
-//               );
-//               const adminSubject = emailTemplates.orderCreation.adminSubject.replace('{{Order_Number}}', orderid);
-//               const userSubject = emailTemplates.orderCreation.userSubject.replace('{{Order_Number}}', orderid);
-
-//               // Email (no await chaining to keep independence)
-//               await Promise.allSettled([
-//                 verify.sendUserMail(user[0].email, userSubject, userMessage),
-//                 verify.sendUserMail('jnaman345@gmail.com', adminSubject, adminMessage),
-//               ]);
-
-
-// console.log('orderid',orderid)
-// console.log('user name',user.name)
-// console.log('user detailes',user)
-
-
-
-//               // WhatsApp (template must exist & params must match)
-//               await verify.sendWhatsAppMessage(
-//                 '+91' + user[0].number,
-//                 'order_processing', // your approved template
-//                 'en_US',
-//                 [user[0].name, String(orderid)] // ensure template has exactly 2 placeholders
-//               );
-//             } catch (bgErr) {
-//               // Just log; do NOT crash request lifecycle
-//               console.error('Background notify error:', bgErr?.response?.data || bgErr);
-//               // Optional: persist bg error in a table for re-tries
-//               // await queryAsync('INSERT INTO notify_failures SET ?', {...});
-//             }
-//           });
-//         } catch (e) {
-//           console.error('Order creation error:', e);
-//           return res.status(500).json({ msg: 'An error occurred' });
-//         }
-//       });
-//     }
-//   );
-// });
-
-// running but slow
-//   router.get('/wallet-razorpay-success', async (req, res) => {
-//     let body = req.query;
-//   console.log(req.query);
-//     if (body.razorpay_payment_id && body.razorpay_order_id && body.razorpay_signature) {
-//       const data = req.query.orderid + '|' + body.razorpay_payment_id;
-//       let generated_signature = hmac_sha256(data, 'umx93OoXZj8KgtzOfTZLus99');
-  
-//       console.log('razorpayresponse',body)
-//       console.log('generated_signature',generated_signature)
-
-
-//       if (generated_signature == body.razorpay_signature) {
-//         body.orderid = req.query.orderid
-//         body.amount = req.query.amount/100;
-//         body.txnid = req.query.orderid;
-//         body.userid = req.query.userid;
-//         body.type = req.query.type;
-
-//         body.created_at = verify.getCurrentDate();
-
-//         pool.query(`select * from payment_response where razorpay_signature = '${body.razorpay_signature}' and razorpay_payment_id = '${body.razorpay_payment_id}' and razorpay_order_id = '${body.razorpay_order_id}'`,(err,result)=>{
-//             if(err) throw err;
-//             else if(result.length>0){
-//                 res.json({msg:'success',des:'alreadydone'})
-//             }
-//             else{
-//                 pool.query(`INSERT INTO payment_response SET ?`, body, async(err, result) => {
-//                     if (err) throw err;
-//                     else {
-
-//                      pool.query(`insert into transaction(userid,amount,status,orderid,color,created_at,txnid) values('${body.userid}' , '${body.amount}' , 'credit' , '${body.orderid}' , 'green' , '${body.created_at}' , '${body.razorpay_payment_id}')`,async(err,result)=>{
-//                         if(err) throw err;
-//                         else {
-//                             pool.query(`update users set wallet = wallet+${body.amount} where id = '${body.userid}'`,async(err,result)=>{
-//                                 if(err) throw err;
-                               
-//                                 else{
-//                                     let userDetails = await verify.profile(body.userid)
-
-
-
-//                                     const userMessage = emailTemplates.paymentConfirmation.userMessage(userDetails[0].name, body.amount, body.razorpay_payment_id,body.orderid);
-//                                     const adminMessage = emailTemplates.paymentConfirmation.adminMessage(userDetails[0].name, body.amount, body.razorpay_payment_id,body.orderid);
-
-
-//                                     await verify.sendUserMail(userDetails[0].email,emailTemplates.paymentConfirmation.userSubject,userMessage)
-//                                     await verify.sendUserMail('jnaman345@gmail.com',emailTemplates.paymentConfirmation.adminSubject,adminMessage)
-                                   
-//                                   const today = new Date().toLocaleDateString('en-US', { 
-//   day: 'numeric', 
-//   month: 'long', 
-//   year: 'numeric' 
-// });
-
-// // Send WhatsApp message
-// await verify.sendWhatsAppMessage(
-//   '+91' + userDetails[0].number,
-//   'payment_successful', // your approved template
-//   'en_US',
-//   [userDetails[0].name, body.amount, today] // exactly 3 placeholders
-// );
-                 
-//                                     res.json({msg:'success'})
-//                                 }
-                                    
-//                               })
-//                         }
-//                      })   
-          
-                  
-          
-          
-//                     }
-//                   });
-//             }
-//         })
-  
-       
-//       } else {
-//         res.json({ msg: 'Unauthorized Payment' });
-//       }
-//     } else {
-//       res.json({ msg: 'Error Occurred' });
-//     }
-//   });
 
 
 router.get('/wallet-razorpay-success', async (req, res) => {
