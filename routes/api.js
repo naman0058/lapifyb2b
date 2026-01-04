@@ -13,6 +13,8 @@ var applefilter = ['apple']
 
 var databasetable = 'product'
 
+const { createActivityLogger } = require('./activityLogger');
+
 
 const util = require('util');
 const queryAsync = util.promisify(pool.query).bind(pool);
@@ -2101,7 +2103,16 @@ router.get('/check-review',(req,res)=>{
 
 // Assumes MySQL 8+ and InnoDB FULLTEXT on (name, modelno, skuno, description, brand, category, subcategory)
 
-router.get('/search', async (req, res) => {
+router.get('/search',   createActivityLogger(
+    'search',
+    (req) => ({
+      search_q: (req.query.q || '').toString().trim(),
+      category: req.query.category || null,
+      page: req.query.page ? Number(req.query.page) : null,
+      limit: req.query.limit ? Number(req.query.limit) : null
+    }),
+    { queryAsync }
+  ), async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
     const userId = req.query.userid;
